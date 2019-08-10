@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Cardofun.DataContext</AssemblyName>
+    <RootNamespace>Cardofun.DataContext</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.2.6" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Cardofun.Domain\Cardofun.Domain.csproj" />
+    <ProjectReference Include="..\Cardofun.Interfaces\Cardofun.Interfaces.csproj" />
+  </ItemGroup>
+</Project>

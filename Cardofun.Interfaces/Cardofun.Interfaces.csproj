@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Cardofun.Domain\Cardofun.Domain.csproj" />
+  </ItemGroup>
+ <ItemGroup>
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.3.0" />
+  </ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Cardofun.Interfaces</AssemblyName>
+    <RootNamespace>Cardofun.Interfaces</RootNamespace>
+  </PropertyGroup>
+</Project>
