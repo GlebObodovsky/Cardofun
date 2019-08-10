@@ -43,7 +43,6 @@ namespace UniteApp.DataContext.Repositories
             byte [] passwordHash, passwordSalt;
             CreatePasswordHash(password, out passwordHash, out passwordSalt);
 
-            user.Login = user.Login.ToLower();
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 
@@ -60,7 +59,7 @@ namespace UniteApp.DataContext.Repositories
         /// <returns>Authenticated user</returns>        
         public async Task<User> LoginAsync(string login, string password)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Login == login.ToLower());
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Login.ToUpper() == login.ToUpper());
 
             if(user == null)
                 return null;
@@ -78,7 +77,7 @@ namespace UniteApp.DataContext.Repositories
         /// <returns>True - the useralready exists</returns>
         public async Task<bool> IsExistAsync(string login)
         {
-            return await _context.Users.AnyAsync(u => u.Login == login.ToLower());
+            return await _context.Users.AnyAsync(u => u.Login.ToUpper() == login.ToUpper());
         }
         #endregion IAuthRepository
         
@@ -93,9 +92,7 @@ namespace UniteApp.DataContext.Repositories
         {
             using(var hmac = new HMACSHA512())
             {
-                var key = hmac.Key;
-
-                passwordSalt = key;
+                passwordSalt = hmac.Key;
                 passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
             }
         }
