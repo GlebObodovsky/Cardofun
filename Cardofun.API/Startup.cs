@@ -14,6 +14,8 @@ using Cardofun.Core.NameConstants;
 using Cardofun.DataContext.Data;
 using Cardofun.DataContext.Repositories;
 using Cardofun.Interfaces.Repositories;
+using Microsoft.AspNetCore.Http;
+using Cardofun.API.Helpers.Extensions;
 
 namespace Cardofun.API
 {
@@ -67,6 +69,7 @@ namespace Cardofun.API
             }
             else
             {
+                app.UseExceptionHandler(builder => builder.AddGlobalErrorHandling());
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 // app.UseHsts();
             }
