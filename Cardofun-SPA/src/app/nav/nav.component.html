@@ -1,16 +1,16 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
   <div class="container">
-    <a class="navbar-brand" href="#">Cardofun</a>
+    <a class="navbar-brand" [routerLink]="['/home']">Cardofun</a>
     
     <ul *ngIf=(isLoggedIn()) class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="#">Matches</a>
+      <li class="nav-item" routerLinkActive="active" >
+        <a class="nav-link" [routerLink]="['/matches']">Matches</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Lists</a>
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" [routerLink]="['/lists']">Lists</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Messages</a>
+      <li class="nav-item" routerLinkActive="active" >
+        <a class="nav-link" [routerLink]="['/messages']">Messages</a>
       </li>
     </ul>
 
@@ -28,9 +28,9 @@
       </a>
 
       <div class="dropdown-menu mt-3" *dropdownMenu>
-        <a class="dropdown-item" href="#"><i class="fa fa-user"></i> Edit profile</a>
+        <a class="dropdown-item"><i class="fa fa-user"></i> Edit profile</a>
         <div class="dropdown divider"></div>
-        <a class="dropdown-item" href="#" (click)="logout()"><i class="fa fa-sign-out"></i> Logout</a>
+        <a class="dropdown-item" (click)="logout()"><i class="fa fa-sign-out"></i> Logout</a>
       </div>
     </div>
 
