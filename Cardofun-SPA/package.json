@@ -25,6 +25,7 @@
     "bootstrap": "^4.3.1",
     "bootswatch": "^4.3.1",
     "core-js": "^2.5.4",
+    "flag-icon-css": "^3.3.0",
     "font-awesome": "^4.7.0",
     "ngx-bootstrap": "^3.0.1",
     "rxjs": "6.0.0",
