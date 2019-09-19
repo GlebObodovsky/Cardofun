@@ -5,6 +5,7 @@ namespace Cardofun.Domain.Models
 {
     public class City
     {
+        public int Id { get; set; }
         public String Name { get; set; }
         public String CountryIsoCode { get; set; }
         public virtual Country Country { get; set; }

@@ -11,7 +11,7 @@ namespace Cardofun.Domain.Models
         public String Name { get; set; }
         public DateTime BirthDate { get; set; }
         public Sex Sex { get; set; }
-        public String CityName { get; set; }
+        public Int32 CityId { get; set; }
         public virtual City City { get; set; }
         public String Introduction { get; set; }
         public DateTime Created { get; set; }

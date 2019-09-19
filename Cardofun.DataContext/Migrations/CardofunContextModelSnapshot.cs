@@ -21,16 +21,21 @@ namespace Cardofun.DataContext.Migrations
 
             modelBuilder.Entity("Cardofun.Domain.Models.City", b =>
                 {
-                    b.Property<string>("Name")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(150);
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("CountryIsoCode")
                         .IsRequired();
 
-                    b.HasKey("Name");
+                    b.Property<string>("Name")
+                        .HasMaxLength(150);
 
-                    b.HasIndex("CountryIsoCode");
+                    b.HasKey("Id");
+
+                    b.HasIndex("CountryIsoCode", "Name")
+                        .IsUnique()
+                        .HasFilter("[CountryIsoCode] IS NOT NULL AND [Name] IS NOT NULL");
 
                     b.ToTable("Cities");
                 });
@@ -52,8 +57,7 @@ namespace Cardofun.DataContext.Migrations
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(2);
 
-                    b.Property<string>("ContinentName")
-                        .IsRequired();
+                    b.Property<string>("ContinentName");
 
                     b.Property<string>("Name")
                         .HasMaxLength(100);
@@ -106,7 +110,7 @@ namespace Cardofun.DataContext.Migrations
 
                     b.Property<DateTime>("DateAdded")
                         .ValueGeneratedOnAdd()
-                        .HasDefaultValue(new DateTime(2019, 8, 16, 0, 49, 13, 269, DateTimeKind.Local).AddTicks(1996));
+                        .HasDefaultValue(new DateTime(2019, 9, 14, 17, 15, 53, 607, DateTimeKind.Local).AddTicks(3284));
 
                     b.Property<string>("Description");
 
@@ -130,18 +134,15 @@ namespace Cardofun.DataContext.Migrations
 
             modelBuilder.Entity("Cardofun.Domain.Models.User", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<int>("Id");
 
                     b.Property<DateTime>("BirthDate");
 
-                    b.Property<string>("CityName")
-                        .IsRequired();
+                    b.Property<int>("CityId");
 
                     b.Property<DateTime>("Created")
                         .ValueGeneratedOnAdd()
-                        .HasDefaultValue(new DateTime(2019, 8, 16, 0, 49, 13, 259, DateTimeKind.Local).AddTicks(2973));
+                        .HasDefaultValue(new DateTime(2019, 9, 14, 17, 15, 53, 600, DateTimeKind.Local).AddTicks(9816));
 
                     b.Property<string>("Introduction");
 
@@ -161,8 +162,6 @@ namespace Cardofun.DataContext.Migrations
                     b.Property<int>("Sex");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CityName");
 
                     b.HasIndex("Login")
                         .IsUnique();
@@ -225,7 +224,7 @@ namespace Cardofun.DataContext.Migrations
                 {
                     b.HasOne("Cardofun.Domain.Models.City", "City")
                         .WithMany("Users")
-                        .HasForeignKey("CityName")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

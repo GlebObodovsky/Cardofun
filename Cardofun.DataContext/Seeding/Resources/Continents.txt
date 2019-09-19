@@ -1,0 +1,249 @@
+Afghanistan|AF|Asia
+Åland Islands|AX|Europe
+Albania|AL|Europe
+Algeria|DZ|Africa
+American Samoa|AS|Oceania
+Andorra|AD|Europe
+Angola|AO|Africa
+Anguilla|AI|Caribbean
+Antarctica|AQ|
+Antigua and Barbuda|AG|Caribbean
+Argentina|AR|South America
+Armenia|AM|Asia
+Aruba|AW|Caribbean
+Australia|AU|Oceania
+Austria|AT|Europe
+Azerbaijan|AZ|Asia
+Bahamas|BS|Caribbean
+Bahrain|BH|Asia
+Bangladesh|BD|Asia
+Barbados|BB|Caribbean
+Belarus|BY|Europe
+Belgium|BE|Europe
+Belize|BZ|Central America
+Benin|BJ|Africa
+Bermuda|BM|Northern America
+Bhutan|BT|Asia
+Bolivia (Plurinational State of)|BO|South America
+Bonaire, Sint Eustatius and Saba|BQ|Caribbean
+Bosnia and Herzegovina|BA|Europe
+Botswana|BW|Africa
+Bouvet Island|BV|
+Brazil|BR|South America
+British Indian Ocean Territory|IO|
+Brunei Darussalam|BN|Asia
+Bulgaria|BG|Europe
+Burkina Faso|BF|Africa
+Burundi|BI|Africa
+Cambodia|KH|Asia
+Cameroon|CM|Africa
+Canada|CA|Northern America
+Cabo Verde|CV|Africa
+Cayman Islands|KY|Caribbean
+Central African Republic|CF|Africa
+Chad|TD|Africa
+Chile|CL|South America
+China|CN|Asia
+Christmas Island|CX|
+Cocos (Keeling) Islands|CC|
+Colombia|CO|South America
+Comoros|KM|Africa
+Congo|CG|Africa
+Congo (Democratic Republic of the)|CD|Africa
+Cook Islands|CK|Oceania
+Costa Rica|CR|Central America
+Côte d'Ivoire|CI|Africa
+Croatia|HR|Europe
+Cuba|CU|Caribbean
+Curaçao|CW|Caribbean
+Cyprus|CY|Asia
+Czech Republic|CZ|Europe
+Denmark|DK|Europe
+Djibouti|DJ|Africa
+Dominica|DM|Caribbean
+Dominican Republic|DO|Caribbean
+Ecuador|EC|South America
+Egypt|EG|Africa
+El Salvador|SV|Central America
+Equatorial Guinea|GQ|Africa
+Eritrea|ER|Africa
+Estonia|EE|Europe
+Ethiopia|ET|Africa
+Falkland Islands (Malvinas)|FK|South America
+Faroe Islands|FO|Europe
+Fiji|FJ|Oceania
+Finland|FI|Europe
+France|FR|Europe
+French Guiana|GF|South America
+French Polynesia|PF|Oceania
+French Southern Territories|TF|
+Gabon|GA|Africa
+Gambia|GM|Africa
+Georgia|GE|Asia
+Germany|DE|Europe
+Ghana|GH|Africa
+Gibraltar|GI|Europe
+Greece|GR|Europe
+Greenland|GL|Northern America
+Grenada|GD|Caribbean
+Guadeloupe|GP|Caribbean
+Guam|GU|Oceania
+Guatemala|GT|Central America
+Guernsey|GG|Europe
+Guinea|GN|Africa
+Guinea-Bissau|GW|Africa
+Guyana|GY|South America
+Haiti|HT|Caribbean
+Heard Island and McDonald Islands|HM|
+Holy See|VA|Europe
+Honduras|HN|Central America
+Hong Kong|HK|Asia
+Hungary|HU|Europe
+Iceland|IS|Europe
+India|IN|Asia
+Indonesia|ID|Asia
+Iran (Islamic Republic of)|IR|Asia
+Iraq|IQ|Asia
+Ireland|IE|Europe
+Isle of Man|IM|Europe
+Israel|IL|Asia
+Italy|IT|Europe
+Jamaica|JM|Caribbean
+Japan|JP|Asia
+Jersey|JE|Europe
+Jordan|JO|Asia
+Kazakhstan|KZ|Asia
+Kenya|KE|Africa
+Kiribati|KI|Oceania
+Korea (Democratic People's Republic of)|KP|Asia
+Korea (Republic of)|KR|Asia
+Kuwait|KW|Asia
+Kyrgyzstan|KG|Asia
+Lao People's Democratic Republic|LA|Asia
+Latvia|LV|Europe
+Lebanon|LB|Asia
+Lesotho|LS|Africa
+Liberia|LR|Africa
+Libya|LY|Africa
+Liechtenstein|LI|Europe
+Lithuania|LT|Europe
+Luxembourg|LU|Europe
+Macao|MO|Asia
+Macedonia (the former Yugoslav Republic of)|MK|Europe
+Madagascar|MG|Africa
+Malawi|MW|Africa
+Malaysia|MY|Asia
+Maldives|MV|Asia
+Mali|ML|Africa
+Malta|MT|Europe
+Marshall Islands|MH|Oceania
+Martinique|MQ|Caribbean
+Mauritania|MR|Africa
+Mauritius|MU|Africa
+Mayotte|YT|Africa
+Mexico|MX|Central America
+Micronesia (Federated States of)|FM|Oceania
+Moldova (Republic of)|MD|Europe
+Monaco|MC|Europe
+Mongolia|MN|Asia
+Montenegro|ME|Europe
+Montserrat|MS|Caribbean
+Morocco|MA|Africa
+Mozambique|MZ|Africa
+Myanmar|MM|Asia
+Namibia|NA|Africa
+Nauru|NR|Oceania
+Nepal|NP|Asia
+Netherlands|NL|Europe
+New Caledonia|NC|Oceania
+New Zealand|NZ|Oceania
+Nicaragua|NI|Central America
+Niger|NE|Africa
+Nigeria|NG|Africa
+Niue|NU|Oceania
+Norfolk Island|NF|Oceania
+Northern Mariana Islands|MP|Oceania
+Norway|NO|Europe
+Oman|OM|Asia
+Pakistan|PK|Asia
+Palau|PW|Oceania
+Palestine, State of|PS|Asia
+Panama|PA|Central America
+Papua New Guinea|PG|Oceania
+Paraguay|PY|South America
+Peru|PE|South America
+Philippines|PH|Asia
+Pitcairn|PN|Oceania
+Poland|PL|Europe
+Portugal|PT|Europe
+Puerto Rico|PR|Caribbean
+Qatar|QA|Asia
+Réunion|RE|Africa
+Romania|RO|Europe
+Russian Federation|RU|Europe
+Rwanda|RW|Africa
+Saint Barthélemy|BL|Caribbean
+Saint Helena, Ascension and Tristan da Cunha|SH|Africa
+Saint Kitts and Nevis|KN|Caribbean
+Saint Lucia|LC|Caribbean
+Saint Martin (French part)|MF|Caribbean
+Saint Pierre and Miquelon|PM|Northern America
+Saint Vincent and the Grenadines|VC|Caribbean
+Samoa|WS|Oceania
+San Marino|SM|Europe
+Sao Tome and Principe|ST|Africa
+Saudi Arabia|SA|Asia
+Senegal|SN|Africa
+Serbia|RS|Europe
+Seychelles|SC|Africa
+Sierra Leone|SL|Africa
+Singapore|SG|Asia
+Sint Maarten (Dutch part)|SX|Caribbean
+Slovakia|SK|Europe
+Slovenia|SI|Europe
+Solomon Islands|SB|Oceania
+Somalia|SO|Africa
+South Africa|ZA|Africa
+South Georgia and the South Sandwich Islands|GS|
+South Sudan|SS|Africa
+Spain|ES|Europe
+Sri Lanka|LK|Asia
+Sudan|SD|Africa
+Suriname|SR|South America
+Svalbard and Jan Mayen|SJ|Europe
+Swaziland|SZ|Africa
+Sweden|SE|Europe
+Switzerland|CH|Europe
+Syrian Arab Republic|SY|Asia
+Taiwan, Province of China|TW|Asia
+Tajikistan|TJ|Asia
+Tanzania, United Republic of|TZ|Africa
+Thailand|TH|Asia
+Timor-Leste|TL|Asia
+Togo|TG|Africa
+Tokelau|TK|Oceania
+Tonga|TO|Oceania
+Trinidad and Tobago|TT|Caribbean
+Tunisia|TN|Africa
+Turkey|TR|Asia
+Turkmenistan|TM|Asia
+Turks and Caicos Islands|TC|Caribbean
+Tuvalu|TV|Oceania
+Uganda|UG|Africa
+Ukraine|UA|Europe
+United Arab Emirates|AE|Asia
+United Kingdom of Great Britain and Northern Ireland|GB|Europe
+United States of America|US|Northern America
+United States Minor Outlying Islands|UM|
+Uruguay|UY|South America
+Uzbekistan|UZ|Asia
+Vanuatu|VU|Oceania
+Venezuela (Bolivarian Republic of)|VE|South America
+Viet Nam|VN|Asia
+Virgin Islands (British)|VG|Caribbean
+Virgin Islands (U.S.)|VI|Caribbean
+Wallis and Futuna|WF|Oceania
+Western Sahara|EH|Africa
+Yemen|YE|Asia
+Zambia|ZM|Africa
+Zimbabwe|ZW|Africa

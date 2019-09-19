@@ -7,6 +7,10 @@ namespace Cardofun.DataContext.Data
     public class CardofunContext: DbContext
     {
         public CardofunContext(DbContextOptions<CardofunContext> options) :base(options) {}
+
+
+        #region DbSets
+
         /// <summary>
         /// Represents a set of stored Users and their base information
         /// </summary>
@@ -48,6 +52,9 @@ namespace Cardofun.DataContext.Data
         /// <value></value>
         public DbSet<LanguageLearningLevel> LanguageLearningLevels { get; set; }
 
+        #endregion DbSets
+
+
         /// <summary>
         /// Configuring DB model
         /// </summary>
@@ -78,7 +85,7 @@ namespace Cardofun.DataContext.Data
             modelBuilder.Entity<User>()
                 .HasOne(x => x.City)
                 .WithMany(x => x.Users)
-                .HasForeignKey(x => x.CityName)
+                .HasForeignKey(x => x.Id)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
             #endregion User
@@ -135,13 +142,16 @@ namespace Cardofun.DataContext.Data
                 .HasOne(x => x.Continent)
                 .WithMany(x => x.Countries)
                 .HasForeignKey(x => x.ContinentName)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired();
+                .OnDelete(DeleteBehavior.Cascade);
             #endregion Country
 
             #region City
             modelBuilder.Entity<City>()
-                .HasKey(x => x.Name);
+                .HasKey(x => x.Id);
+
+            modelBuilder.Entity<City>()
+                .HasIndex(x => new {x.CountryIsoCode, x.Name})
+                .IsUnique();
 
             modelBuilder.Entity<City>()
                 .Property(x => x.Name)
