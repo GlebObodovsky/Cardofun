@@ -167,30 +167,27 @@ namespace Cardofun.DataContext.Data
 
             #region Language
             modelBuilder.Entity<Language>()
-                .HasKey(x => x.Name);
+                .HasKey(x => x.Code);
+
+            modelBuilder.Entity<Language>()
+                .Property(x => x.Code)
+                .HasMaxLength(2);
 
             modelBuilder.Entity<Language>()
                 .Property(x => x.Name)
                 .HasMaxLength(60);
-            
-            modelBuilder.Entity<Language>()
-                .HasOne(x => x.CountryOfOrigin)
-                .WithMany(x => x.Languages)
-                .HasForeignKey(x => x.CountryOfOriginCode)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired();
             #endregion Language
 
             #region LanguageLevel
             modelBuilder.Entity<LanguageLevel>()
-                .HasKey(x => new {x.LanguageName, x.UserId});
+                .HasKey(x => new {x.LanguageCode, x.UserId});
             #endregion LanguageLevel
 
             #region LanguageLearningLevel
             modelBuilder.Entity<LanguageLearningLevel>()
                 .HasOne(x => x.Language)
                 .WithMany(x => x.LanguageLearningLevels)
-                .HasForeignKey(x => x.LanguageName)
+                .HasForeignKey(x => x.LanguageCode)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<LanguageLearningLevel>()
@@ -204,7 +201,7 @@ namespace Cardofun.DataContext.Data
             modelBuilder.Entity<LanguageSpeakingLevel>()
                 .HasOne(x => x.Language)
                 .WithMany(x => x.LanguageSpeakingLevels)
-                .HasForeignKey(x => x.LanguageName)
+                .HasForeignKey(x => x.LanguageCode)
                 .OnDelete(DeleteBehavior.Restrict);
                 
             modelBuilder.Entity<LanguageSpeakingLevel>()

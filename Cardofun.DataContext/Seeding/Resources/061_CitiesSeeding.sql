@@ -41,4 +41,10 @@ BEGIN
 
 	DROP TABLE countryTempTable
 	DROP TABLE cityTempTable
+
+	-- Languages seeding
+	SET @sql = 'BULK INSERT Languages
+	FROM ''' + CONCAT(@FolderPath, '\Languages.txt') + '''
+	WITH (FIELDTERMINATOR = ''|'')'
+	EXEC (@sql)
 END

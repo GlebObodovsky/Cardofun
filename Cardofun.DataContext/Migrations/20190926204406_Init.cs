@@ -20,6 +20,18 @@ namespace Cardofun.DataContext.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Languages",
+                columns: table => new
+                {
+                    Code = table.Column<string>(maxLength: 2, nullable: false),
+                    Name = table.Column<string>(maxLength: 60, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Languages", x => x.Code);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Countries",
                 columns: table => new
                 {
@@ -59,24 +71,6 @@ namespace Cardofun.DataContext.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Languages",
-                columns: table => new
-                {
-                    Name = table.Column<string>(maxLength: 60, nullable: false),
-                    CountryOfOriginCode = table.Column<string>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Languages", x => x.Name);
-                    table.ForeignKey(
-                        name: "FK_Languages_Countries_CountryOfOriginCode",
-                        column: x => x.CountryOfOriginCode,
-                        principalTable: "Countries",
-                        principalColumn: "IsoCode",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -87,7 +81,7 @@ namespace Cardofun.DataContext.Migrations
                     Sex = table.Column<int>(nullable: false),
                     CityId = table.Column<int>(nullable: false),
                     Introduction = table.Column<string>(nullable: true),
-                    Created = table.Column<DateTime>(nullable: false, defaultValue: new DateTime(2019, 9, 14, 17, 15, 53, 600, DateTimeKind.Local).AddTicks(9816)),
+                    Created = table.Column<DateTime>(nullable: false, defaultValue: new DateTime(2019, 9, 26, 23, 44, 6, 594, DateTimeKind.Local).AddTicks(8475)),
                     LastActive = table.Column<DateTime>(nullable: false),
                     PasswordHash = table.Column<byte[]>(nullable: false),
                     PasswordSalt = table.Column<byte[]>(nullable: false)
@@ -108,18 +102,18 @@ namespace Cardofun.DataContext.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<int>(nullable: false),
-                    LanguageName = table.Column<string>(nullable: false),
+                    LanguageCode = table.Column<string>(nullable: false),
                     LevelOfSpeaking = table.Column<int>(nullable: false),
                     Discriminator = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LanguageLevel", x => new { x.LanguageName, x.UserId });
+                    table.PrimaryKey("PK_LanguageLevel", x => new { x.LanguageCode, x.UserId });
                     table.ForeignKey(
-                        name: "FK_LanguageLevel_Languages_LanguageName",
-                        column: x => x.LanguageName,
+                        name: "FK_LanguageLevel_Languages_LanguageCode",
+                        column: x => x.LanguageCode,
                         principalTable: "Languages",
-                        principalColumn: "Name",
+                        principalColumn: "Code",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LanguageLevel_Users_UserId",
@@ -128,10 +122,10 @@ namespace Cardofun.DataContext.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_LanguageLevel_Languages_LanguageName1",
-                        column: x => x.LanguageName,
+                        name: "FK_LanguageLevel_Languages_LanguageCode1",
+                        column: x => x.LanguageCode,
                         principalTable: "Languages",
-                        principalColumn: "Name",
+                        principalColumn: "Code",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LanguageLevel_Users_UserId1",
@@ -149,7 +143,7 @@ namespace Cardofun.DataContext.Migrations
                     UserId = table.Column<int>(nullable: false),
                     Url = table.Column<string>(nullable: false),
                     Description = table.Column<string>(nullable: true),
-                    DateAdded = table.Column<DateTime>(nullable: false, defaultValue: new DateTime(2019, 9, 14, 17, 15, 53, 607, DateTimeKind.Local).AddTicks(3284)),
+                    DateAdded = table.Column<DateTime>(nullable: false, defaultValue: new DateTime(2019, 9, 26, 23, 44, 6, 599, DateTimeKind.Local).AddTicks(7591)),
                     IsMain = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
@@ -184,11 +178,6 @@ namespace Cardofun.DataContext.Migrations
                 name: "IX_LanguageLevel_UserId1",
                 table: "LanguageLevel",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Languages_CountryOfOriginCode",
-                table: "Languages",
-                column: "CountryOfOriginCode");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Photos_Id",

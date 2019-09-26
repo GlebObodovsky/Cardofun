@@ -11,9 +11,9 @@ namespace Cardofun.DataContext.Seeding
 {
     public class Seed
     {
-        public static void SeedCities(CardofunContext context)
+        public static void SeedCitiesAndLanguages(CardofunContext context)
         {
-            if(context.Cities.Any())
+            if(context.Continents.Any() || context.Countries.Any() || context.Cities.Any() || context.Languages.Any())
                 return;
 
             var rootPath = "../Cardofun.DataContext/Seeding/Resources";

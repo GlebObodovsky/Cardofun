@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Cardofun.DataContext.Data;
 using Cardofun.DataContext.Seeding;
 using Microsoft.AspNetCore;
@@ -26,7 +22,7 @@ namespace Cardofun.API
                 {
                     var context = services.GetRequiredService<CardofunContext>();
                     context.Database.Migrate();
-                    Seed.SeedCities(context);
+                    Seed.SeedCitiesAndLanguages(context);
                 }
                 catch (Exception ex)
                 {

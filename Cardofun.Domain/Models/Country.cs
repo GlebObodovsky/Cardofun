@@ -13,12 +13,6 @@ namespace Cardofun.Domain.Models
         public String Name { get; set; }
         public String ContinentName { get; set; }
         public virtual Continent Continent { get; set; }
-
-        /// <summary>
-        /// Languages that take origin from that country
-        /// </summary>
-        /// <value></value>
-        public virtual ICollection<Language> Languages { get; set; }
         /// <summary>
         /// Cities that country has
         /// </summary>
@@ -28,7 +22,6 @@ namespace Cardofun.Domain.Models
         public Country()
         {
             Cities = new List<City>();
-            Languages = new List<Language>();
         }
     }
 }

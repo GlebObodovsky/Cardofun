@@ -71,23 +71,21 @@ namespace Cardofun.DataContext.Migrations
 
             modelBuilder.Entity("Cardofun.Domain.Models.Language", b =>
                 {
-                    b.Property<string>("Name")
+                    b.Property<string>("Code")
                         .ValueGeneratedOnAdd()
+                        .HasMaxLength(2);
+
+                    b.Property<string>("Name")
                         .HasMaxLength(60);
 
-                    b.Property<string>("CountryOfOriginCode")
-                        .IsRequired();
-
-                    b.HasKey("Name");
-
-                    b.HasIndex("CountryOfOriginCode");
+                    b.HasKey("Code");
 
                     b.ToTable("Languages");
                 });
 
             modelBuilder.Entity("Cardofun.Domain.Models.LanguageLevel", b =>
                 {
-                    b.Property<string>("LanguageName");
+                    b.Property<string>("LanguageCode");
 
                     b.Property<int>("UserId");
 
@@ -96,7 +94,7 @@ namespace Cardofun.DataContext.Migrations
 
                     b.Property<int>("LevelOfSpeaking");
 
-                    b.HasKey("LanguageName", "UserId");
+                    b.HasKey("LanguageCode", "UserId");
 
                     b.ToTable("LanguageLevel");
 
@@ -110,7 +108,7 @@ namespace Cardofun.DataContext.Migrations
 
                     b.Property<DateTime>("DateAdded")
                         .ValueGeneratedOnAdd()
-                        .HasDefaultValue(new DateTime(2019, 9, 14, 17, 15, 53, 607, DateTimeKind.Local).AddTicks(3284));
+                        .HasDefaultValue(new DateTime(2019, 9, 26, 23, 44, 6, 599, DateTimeKind.Local).AddTicks(7591));
 
                     b.Property<string>("Description");
 
@@ -142,7 +140,7 @@ namespace Cardofun.DataContext.Migrations
 
                     b.Property<DateTime>("Created")
                         .ValueGeneratedOnAdd()
-                        .HasDefaultValue(new DateTime(2019, 9, 14, 17, 15, 53, 600, DateTimeKind.Local).AddTicks(9816));
+                        .HasDefaultValue(new DateTime(2019, 9, 26, 23, 44, 6, 594, DateTimeKind.Local).AddTicks(8475));
 
                     b.Property<string>("Introduction");
 
@@ -204,14 +202,6 @@ namespace Cardofun.DataContext.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Cardofun.Domain.Models.Language", b =>
-                {
-                    b.HasOne("Cardofun.Domain.Models.Country", "CountryOfOrigin")
-                        .WithMany("Languages")
-                        .HasForeignKey("CountryOfOriginCode")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("Cardofun.Domain.Models.Photo", b =>
                 {
                     b.HasOne("Cardofun.Domain.Models.User", "User")
@@ -232,7 +222,7 @@ namespace Cardofun.DataContext.Migrations
                 {
                     b.HasOne("Cardofun.Domain.Models.Language", "Language")
                         .WithMany("LanguageLearningLevels")
-                        .HasForeignKey("LanguageName")
+                        .HasForeignKey("LanguageCode")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Cardofun.Domain.Models.User", "User")
@@ -245,8 +235,8 @@ namespace Cardofun.DataContext.Migrations
                 {
                     b.HasOne("Cardofun.Domain.Models.Language", "Language")
                         .WithMany("LanguageSpeakingLevels")
-                        .HasForeignKey("LanguageName")
-                        .HasConstraintName("FK_LanguageLevel_Languages_LanguageName1")
+                        .HasForeignKey("LanguageCode")
+                        .HasConstraintName("FK_LanguageLevel_Languages_LanguageCode1")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Cardofun.Domain.Models.User", "User")
