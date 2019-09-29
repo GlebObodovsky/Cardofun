@@ -4,8 +4,13 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Cardofun.DataContext.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using Cardofun.Domain.Models;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Cardofun.DataContext.Seeding
 {
@@ -40,6 +45,41 @@ namespace Cardofun.DataContext.Seeding
 
             var txtFiles = Directory.GetFiles(rootPath, "*.txt");
             Parallel.ForEach(txtFiles, t => File.Delete(t));
+        }
+
+        public static void SeedUsers(CardofunContext context)
+        {
+            if(context.Users.Any())
+                return;
+
+            var userData = File.ReadAllText("../Cardofun.DataContext/Seeding/Resources/Users.json");
+            var users = JsonConvert.DeserializeObject<List<User>>(userData);
+
+            Parallel.ForEach(users, user => 
+                {
+                    byte[] passwordHash, passwordSalt; 
+                    CreatePasswordHash("password", out passwordHash, out passwordSalt);
+                    user.PasswordHash = passwordHash;
+                    user.PasswordSalt = passwordSalt;
+                });
+
+            context.Users.AddRange(users);
+            context.SaveChanges();
+        }
+
+        /// <summary>
+        /// Creating password hash and password salt out of given password
+        /// </summary>
+        /// <param name="password"></param>
+        /// <param name="passwordHash"></param>
+        /// <param name="passwordSalt"></param>
+        private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        {
+            using(var hmac = new HMACSHA512())
+            {
+                passwordSalt = hmac.Key;
+                passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+            }
         }
     }
 }

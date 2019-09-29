@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cardofun.DataContext.Migrations
 {
     [DbContext(typeof(CardofunContext))]
-    [Migration("20190926204406_Init")]
+    [Migration("20190929105711_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -110,7 +110,7 @@ namespace Cardofun.DataContext.Migrations
 
                     b.Property<DateTime>("DateAdded")
                         .ValueGeneratedOnAdd()
-                        .HasDefaultValue(new DateTime(2019, 9, 26, 23, 44, 6, 599, DateTimeKind.Local).AddTicks(7591));
+                        .HasDefaultValueSql("getdate()");
 
                     b.Property<string>("Description");
 
@@ -123,8 +123,6 @@ namespace Cardofun.DataContext.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Id");
-
                     b.HasIndex("UserId", "IsMain")
                         .IsUnique()
                         .HasFilter("[IsMain] = 1");
@@ -134,7 +132,9 @@ namespace Cardofun.DataContext.Migrations
 
             modelBuilder.Entity("Cardofun.Domain.Models.User", b =>
                 {
-                    b.Property<int>("Id");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("BirthDate");
 
@@ -142,7 +142,7 @@ namespace Cardofun.DataContext.Migrations
 
                     b.Property<DateTime>("Created")
                         .ValueGeneratedOnAdd()
-                        .HasDefaultValue(new DateTime(2019, 9, 26, 23, 44, 6, 594, DateTimeKind.Local).AddTicks(8475));
+                        .HasDefaultValueSql("getdate()");
 
                     b.Property<string>("Introduction");
 
@@ -217,7 +217,7 @@ namespace Cardofun.DataContext.Migrations
                     b.HasOne("Cardofun.Domain.Models.City", "City")
                         .WithMany("Users")
                         .HasForeignKey("Id")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Cardofun.Domain.Models.LanguageLearningLevel", b =>

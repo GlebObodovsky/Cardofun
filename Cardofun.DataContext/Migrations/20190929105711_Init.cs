@@ -74,14 +74,15 @@ namespace Cardofun.DataContext.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Login = table.Column<string>(nullable: false),
                     Name = table.Column<string>(nullable: true),
                     BirthDate = table.Column<DateTime>(nullable: false),
                     Sex = table.Column<int>(nullable: false),
                     CityId = table.Column<int>(nullable: false),
                     Introduction = table.Column<string>(nullable: true),
-                    Created = table.Column<DateTime>(nullable: false, defaultValue: new DateTime(2019, 9, 26, 23, 44, 6, 594, DateTimeKind.Local).AddTicks(8475)),
+                    Created = table.Column<DateTime>(nullable: false, defaultValueSql: "getdate()"),
                     LastActive = table.Column<DateTime>(nullable: false),
                     PasswordHash = table.Column<byte[]>(nullable: false),
                     PasswordSalt = table.Column<byte[]>(nullable: false)
@@ -94,7 +95,7 @@ namespace Cardofun.DataContext.Migrations
                         column: x => x.Id,
                         principalTable: "Cities",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -143,7 +144,7 @@ namespace Cardofun.DataContext.Migrations
                     UserId = table.Column<int>(nullable: false),
                     Url = table.Column<string>(nullable: false),
                     Description = table.Column<string>(nullable: true),
-                    DateAdded = table.Column<DateTime>(nullable: false, defaultValue: new DateTime(2019, 9, 26, 23, 44, 6, 599, DateTimeKind.Local).AddTicks(7591)),
+                    DateAdded = table.Column<DateTime>(nullable: false, defaultValueSql: "getdate()"),
                     IsMain = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
@@ -178,11 +179,6 @@ namespace Cardofun.DataContext.Migrations
                 name: "IX_LanguageLevel_UserId1",
                 table: "LanguageLevel",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Photos_Id",
-                table: "Photos",
-                column: "Id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Photos_UserId_IsMain",

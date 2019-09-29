@@ -23,6 +23,7 @@ namespace Cardofun.API
                     var context = services.GetRequiredService<CardofunContext>();
                     context.Database.Migrate();
                     Seed.SeedCitiesAndLanguages(context);
+                    Seed.SeedUsers(context);
                 }
                 catch (Exception ex)
                 {

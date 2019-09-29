@@ -63,6 +63,13 @@ namespace Cardofun.DataContext.Data
         {
             #region User
             modelBuilder.Entity<User>()
+                .HasKey(x => x.Id);
+            
+            modelBuilder.Entity<User>()
+                .Property(x => x.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<User>()
                 .HasIndex(x => x.Login)
                 .IsUnique();
             
@@ -72,7 +79,7 @@ namespace Cardofun.DataContext.Data
                 
             modelBuilder.Entity<User>()
                 .Property(x => x.Created)
-                .HasDefaultValue(DateTime.Now);
+                .HasDefaultValueSql("getdate()");
 
             modelBuilder.Entity<User>()
                 .Property(x => x.PasswordHash)
@@ -86,13 +93,17 @@ namespace Cardofun.DataContext.Data
                 .HasOne(x => x.City)
                 .WithMany(x => x.Users)
                 .HasForeignKey(x => x.Id)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired();
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
             #endregion User
 
             #region Photos
             modelBuilder.Entity<Photo>()
-                .HasIndex(x => x.Id);
+                .HasKey(x => x.Id);
+
+            modelBuilder.Entity<Photo>()
+                .Property(x => x.Id)
+                .ValueGeneratedOnAdd();
             
             modelBuilder.Entity<Photo>()
                 .HasOne(x => x.User)
@@ -109,7 +120,7 @@ namespace Cardofun.DataContext.Data
                 
             modelBuilder.Entity<Photo>()
                 .Property(x => x.DateAdded)
-                .HasDefaultValue(DateTime.Now);
+                .HasDefaultValueSql("getdate()");
 
             modelBuilder.Entity<Photo>()
                 .HasIndex(e => new { e.UserId, e.IsMain })
