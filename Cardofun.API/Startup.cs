@@ -16,6 +16,7 @@ using Cardofun.DataContext.Repositories;
 using Cardofun.Interfaces.Repositories;
 using Microsoft.AspNetCore.Http;
 using Cardofun.API.Helpers.Extensions;
+using AutoMapper;
 
 namespace Cardofun.API
 {
@@ -45,11 +46,15 @@ namespace Cardofun.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<CardofunContext>(x => x.UseSqlServer(Configuration.GetConnectionString(ConnectionStringConstants.CardofunSqlServerConnection)));
-            // Uncomment next line ifyou want to use SqlLite
+            // Uncomment next line if you want to use SqlLite
             // services.AddDbContext<CardofunContext>(x => x.UseSqlite(Configuration.GetConnectionString(ConnectionStringConstants.CardofunSqlLiteConnection)));
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                .AddJsonOptions(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             services.AddCors();
+            services.AddAutoMapper(typeof(Startup).Assembly);
             services.AddScoped<IAuthRepository, AuthRepository>();
+            services.AddScoped<ICardofunRepository, CardofunRepository>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options => 
                     options.TokenValidationParameters = new TokenValidationParameters

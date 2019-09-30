@@ -18,14 +18,14 @@ namespace Cardofun.API.Controllers
     public class AuthController: ControllerBase
     {
         #region Fields
-        private readonly IAuthRepository _authRepoitory;
+        private readonly IAuthRepository _authRepository;
         private readonly IConfiguration _config;
         #endregion Fields
 
         #region  Constructor
         public AuthController(IAuthRepository authRepoitory, IConfiguration config)
         {
-            _authRepoitory = authRepoitory;
+            _authRepository = authRepoitory;
             _config = config;
         }
         #endregion  Constructor
@@ -38,7 +38,7 @@ namespace Cardofun.API.Controllers
         [HttpPost(nameof(Register))]
         public async Task<IActionResult> Register(UserForRegisterDto userForRegister)
         {
-            if(await _authRepoitory.IsExistAsync(userForRegister.Login))
+            if(await _authRepository.IsExistAsync(userForRegister.Login))
                 return BadRequest("Login already exists");
             
             var newUser = new User
@@ -46,7 +46,7 @@ namespace Cardofun.API.Controllers
                 Login = userForRegister.Login
             };
 
-            var registeredUser = await _authRepoitory.RegisterAsync(newUser, userForRegister.Password);
+            var registeredUser = await _authRepository.RegisterAsync(newUser, userForRegister.Password);
 
             return StatusCode(201);
         }
@@ -57,7 +57,7 @@ namespace Cardofun.API.Controllers
         [HttpPost(nameof(Login))]
         public async Task<IActionResult> Login(UserForLoginDto userForLogin)
         {
-            var userFromRepo = await _authRepoitory.LoginAsync(userForLogin.Login, userForLogin.Password);
+            var userFromRepo = await _authRepository.LoginAsync(userForLogin.Login, userForLogin.Password);
         
             if(userFromRepo == null)
                 return Unauthorized();
