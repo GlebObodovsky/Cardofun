@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Cardofun.DataContext.Data;
-using Cardofun.DataContext.Helpers;
 using Cardofun.Domain.Models;
 using Cardofun.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
