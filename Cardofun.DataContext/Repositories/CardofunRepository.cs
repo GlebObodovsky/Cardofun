@@ -32,21 +32,24 @@ namespace Cardofun.DataContext.Repositories
         /// <summary>
         /// Gets an item with specified Id out of db context
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">Key</param>
+        /// <param name="include">Set of includes</param>
         /// <typeparam name="TEntity">Type of entity to get</typeparam>
-        /// <typeparam name="TKey">Primary key of entity to get</typeparam>
+        /// <typeparam name="TKey">Type of the passing key (id) of entity to get</typeparam>
         /// <returns></returns>
-        private async Task<TEntity> GetItemAsync<TEntity, TKey>(TKey id, params Expression<Func<TEntity, object>>[] includes) 
-            where TEntity: class
+        private async Task<TEntity> GetItemAsync<TEntity, TKey>(TKey id, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null) 
+            where TEntity : class
         {
             // Getting the primary key info
             var keyProperty = _context.Model.FindEntityType(typeof(TEntity)).FindPrimaryKey().Properties[0];
 
+            var result = _context.Set<TEntity>().AsQueryable();
+
+            if (include != null)
+                result = include(result);
+
             // Getting the requested entity joining along all the needed properties (tables)
-            return (TEntity)await _context
-                .Set<TEntity>()
-                .IncludeAll(includes)
-                .FirstOrDefaultAsync(e => EF.Property<TKey>(e, keyProperty.Name).Equals(id));
+            return await result.FirstOrDefaultAsync(e => EF.Property<TKey>(e, keyProperty.Name).Equals(id));
         }
 
         /// <summary>
@@ -56,8 +59,16 @@ namespace Cardofun.DataContext.Repositories
         /// <param name="includes">Included navigation properties</param>
         /// <typeparam name="TEntity"></typeparam>
         /// <returns></returns>
-		private async Task<IEnumerable<TEntity>> GetAllItemsAsync<TEntity>(params Expression<Func<TEntity, object>>[] includes) where TEntity : class
-            => await _context.Set<TEntity>().IncludeAll(includes).ToArrayAsync();
+		private async Task<IEnumerable<TEntity>> GetAllItemsAsync<TEntity>(Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null) 
+            where TEntity : class
+        {
+            var result = _context.Set<TEntity>().AsQueryable();
+
+            if(include != null)
+                result = include(result);
+
+            return await result.ToArrayAsync();
+        }
         #endregion Functions
 
         #region ICardofunRepository
@@ -87,30 +98,29 @@ namespace Cardofun.DataContext.Repositories
         /// <returns></returns>
         public async Task<User> GetUserAsync(int id)
             => await GetItemAsync<User, Int32>(id, 
-            x => x.City,
-            x => x.City.Country,
-            x => x.Photos,
-            x => x.LanguagesTheUserLearns,
-            x => x.LanguagesTheUserLearns.Select(l => l.Language),
-            x => x.LanguagesTheUserSpeaks,
-            x => x.LanguagesTheUserSpeaks.Select(l => l.Language));
+                source => source
+                    .Include(u => u.City)
+                        .ThenInclude(c => c.Country)
+                    .Include(u => u.Photos)
+                    .Include(u => u.LanguagesTheUserLearns)
+                        .ThenInclude(u => u.Language)
+                    .Include(u => u.LanguagesTheUserSpeaks)
+                        .ThenInclude(u => u.Language)); 
          
         /// <summary>
         /// Gets all of the users out of the repository
         /// </summary>
         /// <returns></returns>
         public async Task<IEnumerable<User>> GetUsersAsync()
-        {
-            return await _context.Users
-                .Include(x => x.City) 
-                    .ThenInclude(x => x.Country) 
-                .Include(x => x.Photos) 
-                .Include(x => x.LanguagesTheUserLearns) 
-                    .ThenInclude(x => x.Language) 
-                .Include(x => x.LanguagesTheUserSpeaks) 
-                    .ThenInclude(x => x.Language)
-                .ToListAsync();
-        }
-        #endregion ICardofunRepository
+            => await GetAllItemsAsync<User>(
+                source => source
+                    .Include(x => x.City) 
+                        .ThenInclude(x => x.Country) 
+                    .Include(x => x.Photos) 
+                    .Include(x => x.LanguagesTheUserLearns) 
+                        .ThenInclude(x => x.Language) 
+                    .Include(x => x.LanguagesTheUserSpeaks) 
+                        .ThenInclude(x => x.Language));
     }
+    #endregion ICardofunRepository
 }

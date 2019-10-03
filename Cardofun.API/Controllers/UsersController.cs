@@ -6,6 +6,7 @@ using System;
 using AutoMapper;
 using Cardofun.Interfaces.DTOs;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Cardofun.API.Controllers
 {

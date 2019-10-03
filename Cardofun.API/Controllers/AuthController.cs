@@ -58,7 +58,7 @@ namespace Cardofun.API.Controllers
         public async Task<IActionResult> Login(UserForLoginDto userForLogin)
         {
             var userFromRepo = await _authRepository.LoginAsync(userForLogin.Login, userForLogin.Password);
-        
+
             if(userFromRepo == null)
                 return Unauthorized();
 
