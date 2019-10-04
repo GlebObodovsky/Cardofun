@@ -17,6 +17,7 @@ using Cardofun.Interfaces.Repositories;
 using Microsoft.AspNetCore.Http;
 using Cardofun.API.Helpers.Extensions;
 using AutoMapper;
+using Newtonsoft.Json.Serialization;
 
 namespace Cardofun.API
 {
@@ -51,7 +52,7 @@ namespace Cardofun.API
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore)
-                .AddJsonOptions(options => options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter()));
+                .AddJsonOptions(options => options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter() { NamingStrategy = new CamelCaseNamingStrategy() }));
             services.AddCors();
             services.AddAutoMapper(typeof(Startup).Assembly);
             services.AddScoped<IAuthRepository, AuthRepository>();

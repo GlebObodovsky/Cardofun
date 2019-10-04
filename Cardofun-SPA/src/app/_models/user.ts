@@ -1,6 +1,6 @@
-import { City } from "./City";
-import { Language } from "./language";
-import { Photo } from "./photo";
+import { City } from './City';
+import { Language } from './language';
+import { Photo } from './photo';
 
 export interface User {
     id: number;

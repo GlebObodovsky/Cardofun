@@ -14,9 +14,10 @@ import { AuthService } from './_services/auth/auth.service';
 import { AlertifyService } from './_services/alertify/alertify.service';
 import { ListsComponent } from './lists/lists.component';
 import { MessagesComponent } from './messages/messages.component';
-import { MatchesComponent } from './matches/matches.component';
+import { MatchesComponent } from './members/matches/matches.component';
 import { appRoutes } from './routes';
 import { AuthGuard } from './_guards/auth.guard';
+import { MemberCardComponent } from './members/member-card/member-card.component';
 
 @NgModule({
    declarations: [
@@ -26,7 +27,8 @@ import { AuthGuard } from './_guards/auth.guard';
       RegisterComponent,
       ListsComponent,
       MessagesComponent,
-      MatchesComponent
+      MatchesComponent,
+      MemberCardComponent
    ],
    imports: [
       BrowserModule,

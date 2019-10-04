@@ -92,7 +92,7 @@ namespace Cardofun.DataContext.Data
             modelBuilder.Entity<User>()
                 .HasOne(x => x.City)
                 .WithMany(x => x.Users)
-                .HasForeignKey(x => x.Id)
+                .HasForeignKey(x => x.CityId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
             #endregion User

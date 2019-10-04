@@ -14,7 +14,7 @@ namespace Cardofun.Domain.Models
         public String ContinentName { get; set; }
         public virtual Continent Continent { get; set; }
         /// <summary>
-        /// Cities that country has
+        /// Cities that the country has
         /// </summary>
         /// <value></value>
         public virtual ICollection<City> Cities { get; set; }
