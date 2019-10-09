@@ -15,10 +15,10 @@ import { debounceTime, distinctUntilChanged, tap, switchMap, catchError } from '
 export class MemberEditComponent implements OnInit {
   user: User;
 
-  // citiesLoading = false;
-  // selectedCity: City;
-  // cities$: Observable<City[]>;
-  // citiesInput$ = new Subject<string>();
+  citiesLoading = false;
+  selectedCity: City;
+  cities$: Observable<City[]>;
+  citiesInput$ = new Subject<string>();
 
   constructor(private route: ActivatedRoute, private cityService: CityService) { }
 
@@ -27,20 +27,22 @@ export class MemberEditComponent implements OnInit {
       this.user = data['user'];
     });
 
-    // this.loadCities();
+    this.loadCities();
   }
 
-  // private loadCities() {
-  //   this.cities$ = concat(
-  //       of([]), // default items
-  //       this.citiesInput$.pipe(
-  //           debounceTime(200),
-  //           distinctUntilChanged(),
-  //           tap(() => this.citiesLoading = true),
-  //           switchMap(term => this.cityService.getCities(term).pipe(
-  //               catchError(() => of([])), // empty list on error
-  //               tap(() => this.citiesLoading = false)
-  //           ))
-  //       )
-  //   );
+  private loadCities() {
+    this.cities$ = concat(
+        of([]), // default items
+        this.citiesInput$.pipe(
+            debounceTime(200),
+            distinctUntilChanged(),
+            tap(() => this.citiesLoading = true),
+            switchMap(term => this.cityService.getCities(term).pipe(
+                catchError(() => of([])), // empty list on error
+                tap(() => this.citiesLoading = false)
+            ))
+        )
+    );
+  }
+
 }

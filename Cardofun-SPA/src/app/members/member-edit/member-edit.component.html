@@ -4,7 +4,12 @@
             <h1>Your Profile</h1>
         </div>
         <div class="col-sm-8">
-
+          <ng-select [items]="cities$ | async"
+           bindLabel="name"
+           [loading]="citiesLoading"
+           [typeahead]="citiesInput$"
+           [(ngModel)]="selectedCity">
+          </ng-select>
         </div>
     </div>
     <div class="row">
