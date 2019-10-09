@@ -5,7 +5,9 @@
 @import '../node_modules/alertifyjs/build/css/alertify.min.css';
 @import '../node_modules/alertifyjs/build/css/themes/bootstrap.min.css';
 @import '../node_modules/flag-icon-css/css/flag-icon.min.css';
-
+/*@import "~@ng-select/ng-select/themes/default.theme.css";
+/* or 
+@import "~@ng-select/ng-select/themes/material.theme.css"; */
 
 .tab-panel {
     border: 1px solid #ddd;

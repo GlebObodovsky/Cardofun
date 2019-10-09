@@ -15,32 +15,44 @@ namespace Cardofun.Interfaces.Repositories
         /// </summary>
         /// <param name="entity"></param>
         /// <typeparam name="T"></typeparam>
-         void Add<T>(T entity);
+        void Add<T>(T entity);
          
         /// <summary>
         /// Deletes an entity from the repository
         /// </summary>
         /// <param name="entity"></param>
         /// <typeparam name="T"></typeparam>
-         void Delete<T>(T entity);
+        void Delete<T>(T entity);
 
         /// <summary>
         /// Saves all changes being made previously
         /// </summary>
         /// <returns>true - changes saved</returns>
-         Task<Boolean> SaveChangesAsync();
+        Task<Boolean> SaveChangesAsync();
 
         /// <summary>
         /// Gets a user out of the repository
         /// </summary>
         /// <param name="id">id of the user that ought to be returned</param>
         /// <returns></returns>
-         Task<User> GetUserAsync(Int32 id);
+        Task<User> GetUserAsync(Int32 id);
          
         /// <summary>
         /// Gets all of the users out of the repository
         /// </summary>
         /// <returns></returns>
-         Task<IEnumerable<User>> GetUsersAsync();
+        Task<IEnumerable<User>> GetUsersAsync();
+
+        /// <summary>
+        /// Gets languages by given search pattern
+        /// </summary>
+        /// <returns></returns>
+        Task<IEnumerable<Language>> GetLanguages(string languageSearchPattern);
+
+        /// <summary>
+        /// Gets cities by given search pattern
+        /// </summary>
+        /// <returns></returns>
+        Task<IEnumerable<City>> GetCities(string citySearchPattern);
     }
 }

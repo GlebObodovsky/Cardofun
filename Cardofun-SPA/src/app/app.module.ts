@@ -6,6 +6,7 @@ import { BsDropdownModule, TabsModule } from 'ngx-bootstrap';
 import { RouterModule } from '@angular/router';
 import { JwtModule } from '@auth0/angular-jwt';
 import { NgxGalleryModule } from 'ngx-gallery';
+// import { NgSelectModule } from '@ng-select/ng-select';
 
 import { AppComponent } from './app.component';
 import { NavComponent } from './nav/nav.component';
@@ -13,6 +14,8 @@ import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './register/register.component';
 import { ErrorInterceptorProvider } from './_services/error.interceptor';
 import { AuthService } from './_services/auth/auth.service';
+import { UserService } from './_services/user/user.service';
+import { CityService } from './_services/city/city.service';
 import { AlertifyService } from './_services/alertify/alertify.service';
 import { ListsComponent } from './lists/lists.component';
 import { MessagesComponent } from './messages/messages.component';
@@ -25,6 +28,7 @@ import { MemberDetailResolver } from './_resolvers/member-detail-resolver';
 import { MemberListResolver } from './_resolvers/member-list-resolver';
 import { MemberEditComponent } from './members/member-edit/member-edit.component';
 import { MemberEditResolver } from './_resolvers/member-edit-resolver';
+
 
 export function tokenGetter() {
    return localStorage.getItem('token');
@@ -51,6 +55,7 @@ export function tokenGetter() {
       TabsModule.forRoot(),
       RouterModule.forRoot(appRoutes),
       NgxGalleryModule,
+      // NgSelectModule,
       JwtModule.forRoot({
          config: {
             tokenGetter: tokenGetter,
@@ -61,6 +66,8 @@ export function tokenGetter() {
    ],
    providers: [
       AuthService,
+      UserService,
+      CityService,
       AlertifyService,
       ErrorInterceptorProvider,
       AuthGuard,

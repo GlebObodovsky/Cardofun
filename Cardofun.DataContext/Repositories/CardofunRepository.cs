@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Cardofun.DataContext.Data;
 using Cardofun.Domain.Models;
@@ -67,6 +68,28 @@ namespace Cardofun.DataContext.Repositories
 
             return await result.ToArrayAsync();
         }
+
+        /// <summary>
+        /// Gets items with a given type and predicate out of db context
+        /// </summary>
+        /// <param name="Expression<Func<T"></param>
+        /// <param name="includes">Included navigation properties</param>
+        /// <param name="predicates">Conditions</param>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <returns></returns>
+		private async Task<IEnumerable<TEntity>> GetItemsAsync<TEntity>(Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null, params Expression<Func<TEntity, bool>> [] predicates) 
+            where TEntity : class
+        {
+            var result = _context.Set<TEntity>().AsQueryable();
+                        
+            if(include != null)
+                result = include(result);
+
+            foreach (var predicate in predicates)
+                result = result.Where(predicate);
+
+            return await result.ToArrayAsync();
+        }
         #endregion Functions
 
         #region ICardofunRepository
@@ -119,6 +142,22 @@ namespace Cardofun.DataContext.Repositories
                         .ThenInclude(x => x.Language) 
                     .Include(x => x.LanguagesTheUserSpeaks) 
                         .ThenInclude(x => x.Language));
+
+        /// <summary>
+        /// Gets languages by given search pattern
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<Language>> GetLanguages(string languageSearchPattern)
+            => await GetItemsAsync<Language>(predicates: source => source.Name.ToUpper().Contains(languageSearchPattern.ToUpper()));
+
+        /// <summary>
+        /// Gets cities by given search pattern
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<City>> GetCities(string citySearchPattern)
+            => await GetItemsAsync<City>(
+                include: source => source.Include(c => c.Country),
+                predicates: source => source.Name.ToUpper().StartsWith(citySearchPattern.ToUpper()));
     }
     #endregion ICardofunRepository
 }
