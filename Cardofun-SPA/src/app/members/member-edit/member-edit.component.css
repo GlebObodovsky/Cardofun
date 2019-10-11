@@ -1,0 +1,11 @@
+.fa-remove-i-btn:hover {
+    transform: scale(1.2, 1.2);
+    transition-duration: 200ms;
+    transition-timing-function: ease-out;
+}
+
+.fa-remove-i-btn {
+    transform: scale(1.0, 1.0);
+    transition-duration: 200ms;
+    transition-timing-function: ease-out;
+}
