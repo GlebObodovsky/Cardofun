@@ -14,10 +14,11 @@ using Cardofun.Core.NameConstants;
 using Cardofun.DataContext.Data;
 using Cardofun.DataContext.Repositories;
 using Cardofun.Interfaces.Repositories;
-using Microsoft.AspNetCore.Http;
 using Cardofun.API.Helpers.Extensions;
 using AutoMapper;
 using Newtonsoft.Json.Serialization;
+using Cardofun.Interfaces.ServiceProviders;
+using Cardofun.Modules.Cloudinary;
 
 namespace Cardofun.API
 {
@@ -67,6 +68,13 @@ namespace Cardofun.API
                         ValidateAudience = false
                     }
                 );
+            services.AddOptions();
+            #region ImageProvider config
+            // Next section configures cloudinary image provider. Change the configs
+            // in case if you decided to use another one (own file system, for instance)
+            services.Configure<CloudinaryProviderSettings>(Configuration.GetSection("ImageProviderProviderSettings"));
+            services.AddTransient<IImageProvider, CloudinaryImageProvider>();
+            #endregion ImageProvider config
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
