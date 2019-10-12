@@ -1,13 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { User } from 'src/app/_models/user';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/internal/Observable';
 import { City } from 'src/app/_models/City';
 import { CityService } from 'src/app/_services/city/city.service';
 import { Subject, of, concat } from 'rxjs';
-import { debounceTime, distinctUntilChanged, tap, switchMap, catchError } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, tap, switchMap, catchError, defaultIfEmpty, map } from 'rxjs/operators';
 import { Language } from 'src/app/_models/language';
 import { LanguageService } from 'src/app/_services/language/language.service';
+import { AlertifyService } from 'src/app/_services/alertify/alertify.service';
+import { NgForm } from '@angular/forms';
+import { UserService } from 'src/app/_services/user/user.service';
+import { AuthService } from 'src/app/_services/auth/auth.service';
 
 @Component({
   selector: 'app-member-edit',
@@ -40,16 +44,33 @@ export class MemberEditComponent implements OnInit {
   learningLanguagesInput$ = new Subject<string>();
 
   constructor(private route: ActivatedRoute, private cityService: CityService,
-    private languageService: LanguageService) { }
+    private languageService: LanguageService, private alertifyService: AlertifyService,
+    private userService: UserService, private authService: AuthService) { }
+    @ViewChild('editForm', {static: true}) editForm: NgForm;
+    @HostListener('window:beforeunload', ['$event'])
+    unloadNotification($event: any) {
+      if (this.editForm.dirty) {
+        $event.returnValue = true;
+      }
+    }
 
-  ngOnInit() {
-    this.route.data.subscribe(data => {
-      this.user = data['user'];
-    });
+    ngOnInit() {
+      this.route.data.subscribe(data => {
+        this.user = data['user'];
+      });
 
     this.loadCities();
     this.loadSpeakingLanguages();
     this.loadLearningLanguages();
+  }
+
+  updateUser() {
+    this.userService.putUser(this.authService.decodedToken.nameid, this.user).subscribe(next => {
+      this.alertifyService.success('Profile updated successfully');
+      this.editForm.reset(this.user);
+    }, error => {
+      this.alertifyService.error(error);
+    });
   }
 
   addSpeakingLanguage() {
@@ -59,6 +80,7 @@ export class MemberEditComponent implements OnInit {
       return;
     }
     this.user.languagesTheUserSpeaks.push(this.selectedSpeakingLanguage);
+    this.editForm.form.markAsDirty();
   }
 
   addLearningLanguage() {
@@ -68,6 +90,7 @@ export class MemberEditComponent implements OnInit {
       return;
     }
     this.user.languagesTheUserLearns.push(this.selectedLearningLanguage);
+    this.editForm.form.markAsDirty();
   }
 
   removeSpeaking(language: Language) {
@@ -75,6 +98,7 @@ export class MemberEditComponent implements OnInit {
     if (index > -1) {
       this.user.languagesTheUserSpeaks.splice(index, 1);
     }
+    this.editForm.form.markAsDirty();
   }
 
   removeLearning(language: Language) {
@@ -82,6 +106,7 @@ export class MemberEditComponent implements OnInit {
     if (index > -1) {
       this.user.languagesTheUserLearns.splice(index, 1);
     }
+    this.editForm.form.markAsDirty();
   }
 
   isSpeakingSelected() {
@@ -100,6 +125,10 @@ export class MemberEditComponent implements OnInit {
     return this.isLearningSelected() && this.selectedLearningLanguage.levelOfSpeaking != null;
   }
 
+  citySelectionChanged() {
+    this.editForm.form.markAsDirty();
+  }
+
   private loadCities() {
     this.cities$ = concat(
         of([]), // default items
@@ -107,12 +136,19 @@ export class MemberEditComponent implements OnInit {
             debounceTime(200),
             distinctUntilChanged(),
             tap(() => this.citiesLoading = true),
-            switchMap(term => this.cityService.getCities(term != null ? term : '').pipe(
+            switchMap(term => this.getCities(term).pipe(
                 catchError(() => of([])), // empty list on error
                 tap(() => this.citiesLoading = false)
             ))
         )
     );
+  }
+
+  private getCities(term): Observable<City[]> {
+    if (term == null) {
+      return of([]);
+    }
+    return this.cityService.getCities(term);
   }
 
   private loadSpeakingLanguages() {
@@ -122,7 +158,7 @@ export class MemberEditComponent implements OnInit {
             debounceTime(200),
             distinctUntilChanged(),
             tap(() => this.speakingLanguagesLoading = true),
-            switchMap(term => this.languageService.getCities(term != null ? term : '').pipe(
+            switchMap(term => this.getLanguages(term).pipe(
                 catchError(() => of([])), // empty list on error
                 tap(() => this.speakingLanguagesLoading = false)
             ))
@@ -137,11 +173,18 @@ export class MemberEditComponent implements OnInit {
             debounceTime(200),
             distinctUntilChanged(),
             tap(() => this.learningLanguagesLoading = true),
-            switchMap(term => this.languageService.getCities(term != null ? term : '').pipe(
+            switchMap(term => this.getLanguages(term).pipe(
                 catchError(() => of([])), // empty list on error
                 tap(() => this.learningLanguagesLoading = false)
             ))
         )
     );
+  }
+
+  private getLanguages(term): Observable<Language[]> {
+    if (term == null) {
+      return of([]);
+    }
+    return this.languageService.getLanguages(term);
   }
 }

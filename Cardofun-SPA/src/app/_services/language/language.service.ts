@@ -13,7 +13,7 @@ export class LanguageService {
 
   constructor(private http: HttpClient) { }
 
-  getCities(searchPattern: string): Observable<Language[]> {
+  getLanguages(searchPattern: string): Observable<Language[]> {
     return this.http.get<Language[]>(this.baseUrl + 'languages/' + searchPattern);
   }
 }

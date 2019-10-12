@@ -17,6 +17,12 @@ namespace Cardofun.API.Helpers
                 .ForMember(dest => dest.Code, m => m.MapFrom(src => src.Language.Code))
                 .ForMember(dest => dest.Name, m => m.MapFrom(src => src.Language.Name));
 
+            CreateMap<LanguageLevelDto, LanguageLearningLevel>()
+                .ForMember(dest => dest.LanguageCode, m => m.MapFrom(src => src.Code));
+
+            CreateMap<LanguageLevelDto, LanguageSpeakingLevel>()
+                .ForMember(dest => dest.LanguageCode, m => m.MapFrom(src => src.Code));
+
             CreateMap<Language, LanguageDto>().ReverseMap();
 
             CreateMap<Photo, PhotoDto>().ReverseMap();
@@ -28,6 +34,10 @@ namespace Cardofun.API.Helpers
             CreateMap<User, UserForDetailedDto>()
                 .ForMember(dest => dest.Age, m => m.MapFrom(src => src.BirthDate.ToAges()))
                 .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => src.Photos.First(p => p.IsMain).Url));
+        
+            CreateMap<UserForUpdateDto, User>()
+                .ForMember(dest => dest.CityId, m => m.MapFrom(src => src.City.Id))
+                .ForMember(dest => dest.City, m => m.Ignore());
         }
     }
 }

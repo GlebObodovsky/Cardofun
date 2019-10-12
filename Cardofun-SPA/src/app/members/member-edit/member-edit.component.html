@@ -4,7 +4,9 @@
             <h1>Your Profile</h1>
         </div>
         <div class="col-sm-8">
-          
+          <div *ngIf="editForm.dirty" class="alert alert-info">
+            <strong>Information:</strong> You have made changes. Any unsaved changes will be lost!
+          </div>
         </div>
     </div>
     <div class="row">
@@ -14,12 +16,16 @@
           <div class="card-body">
             <div>
               <strong>Location:</strong>
-              <ng-select [items]="cities$ | async"
+              <ng-select
+                form="editForm"
+                [items]="cities$ | async"
                 placeholder="Select city"
                 bindLabel="name"
                 [loading]="citiesLoading"
                 [typeahead]="citiesInput$"
-                [(ngModel)]="user.city">
+                [(ngModel)]="user.city"
+                [clearable]="false"
+                (change)="citySelectionChanged()">
                 <ng-template ng-label-tmp let-item="item">
                   <span class="flag-icon flag-icon-{{item.countryIsoCode}}" title="{{item.country}}"></span> {{item.name}}, {{item.country}}
                 </ng-template>
@@ -42,10 +48,7 @@
             </div>
           </div>
           <div class="card-footer">
-            <div class="btn-group d-flex">
-              <button class="btn btn-primary w-100">Like</button>
-              <button class="btn btn-success w-100">Message</button>
-            </div>
+              <button [disabled]="!editForm.dirty" form="editForm" class="btn btn-success btn-block">Save Changes</button>
           </div>
         </div>
       </div>
@@ -53,10 +56,11 @@
         <div class="tab-panel">
           <tabset class="member-tabset">
               <tab heading="Edit Profile">
-                <form>
+                <form #editForm="ngForm" id="editForm" (ngSubmit)="updateUser()">
                     <h4>Introduction</h4>
                     <textarea name="introduction" rows="6" class="form-control" 
                       [(ngModel)]="user.introduction"></textarea>
+                </form>
                     <h4>Speaks</h4>
                     <div class="form-inline">
                       <div class="col-sm-4">
@@ -78,7 +82,7 @@
                         </ng-select>
                       </div>
                       <div class="col-sm-4" *ngIf="(isSpeakingLevelSelected())" >
-                          <button class="btn btn-primary w-100" (click)="addSpeakingLanguage()">Add</button>
+                          <button class="btn btn-primary w-100" (click)="addSpeakingLanguage()" type="button">Add</button>
                       </div>
                     </div>
                     <ul class="list-inline ml-3">
@@ -106,7 +110,7 @@
                         </ng-select>
                       </div>
                       <div class="col-sm-4" *ngIf="(isLearningLevelSelected())">
-                          <button class="btn btn-primary w-100" (click)="addLearningLanguage()">Add</button>
+                          <button class="btn btn-primary w-100" (click)="addLearningLanguage()" type="button">Add</button>
                       </div>
                     </div>
                     <ul class="list-inline ml-3">
@@ -114,7 +118,6 @@
                           <p>{{language.name}}: {{language.levelOfSpeaking}} <i (click)="removeLearning(language)" class="fa fa-remove fa-remove-i-btn"></i></p>
                         </li>
                     </ul>
-                </form>
               </tab>
               <tab heading="Edit Photos">
                 <p>Photo edit will go here</p>

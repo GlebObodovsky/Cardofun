@@ -22,6 +22,7 @@ import { MessagesComponent } from './messages/messages.component';
 import { MemberListComponent } from './members/member-list/member-list.component';
 import { appRoutes } from './routes';
 import { AuthGuard } from './_guards/auth.guard';
+import { PreventUnsavedChangesGuard } from './_guards/prevent-unsaved-changes.guard';
 import { MemberCardComponent } from './members/member-card/member-card.component';
 import { MemberDetailComponent } from './members/member-detail/member-detail.component';
 import { MemberDetailResolver } from './_resolvers/member-detail-resolver';
@@ -79,6 +80,7 @@ export class CustomHammerConfig extends HammerGestureConfig  {
       AlertifyService,
       ErrorInterceptorProvider,
       AuthGuard,
+      PreventUnsavedChangesGuard,
       MemberDetailResolver,
       MemberListResolver,
       MemberEditResolver,
