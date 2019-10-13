@@ -54,5 +54,12 @@ namespace Cardofun.Interfaces.Repositories
         /// </summary>
         /// <returns></returns>
         Task<IEnumerable<City>> GetCities(string citySearchPattern);
+
+        /// <summary>
+        /// Gets photo by given id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<Photo> GetPhoto(Guid id);
     }
 }

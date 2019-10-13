@@ -147,17 +147,25 @@ namespace Cardofun.DataContext.Repositories
         /// Gets languages by given search pattern
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<Language>> GetLanguages(string languageSearchPattern)
+        public async Task<IEnumerable<Language>> GetLanguages(String languageSearchPattern)
             => await GetItemsAsync<Language>(predicates: source => source.Name.ToUpper().Contains(languageSearchPattern.ToUpper()));
 
         /// <summary>
         /// Gets cities by given search pattern
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<City>> GetCities(string citySearchPattern)
+        public async Task<IEnumerable<City>> GetCities(String citySearchPattern)
             => await GetItemsAsync<City>(
                 include: source => source.Include(c => c.Country),
                 predicates: source => source.Name.ToUpper().StartsWith(citySearchPattern.ToUpper()));
+    
+        /// <summary>
+        /// Gets photo by given id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<Photo> GetPhoto(Guid id)
+            => await GetItemAsync<Photo, Guid>(id);
     }
     #endregion ICardofunRepository
 }

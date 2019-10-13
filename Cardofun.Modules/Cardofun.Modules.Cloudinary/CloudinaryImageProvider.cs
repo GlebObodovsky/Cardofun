@@ -1,15 +1,59 @@
 ﻿using Cardofun.Interfaces.ServiceProviders;
+using CloudinaryDotNet;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Http;
+using Cardofun.Interfaces.DTOs;
+using CloudinaryDotNet.Actions;
+using System;
 
 namespace Cardofun.Modules.Cloudinary
 {
+    /// <summary>
+    /// An image manager based on Cloudinary
+    /// </summary>
     public class CloudinaryImageProvider: IImageProvider
     {
-        private readonly CloudinaryProviderSettings _providerSettings;
-
+        private readonly CloudinaryDotNet.Cloudinary _cloudinary;
         public CloudinaryImageProvider(IOptions<CloudinaryProviderSettings> providerSettings)
         {
-            _providerSettings = providerSettings.Value;
+            // Creating an account to access the service
+            Account acc = new Account(
+                providerSettings.Value.CloudName,
+                providerSettings.Value.ApiKey,
+                providerSettings.Value.ApiSecret
+            );
+
+            // Access the service
+            _cloudinary = new CloudinaryDotNet.Cloudinary(acc);
+        }
+
+        /// <summary>
+        /// Saves a given picture to a storage, cropping it and resizing along the process
+        /// </summary>
+        /// <param name="file">The picture to save</param>
+        /// <returns>Identifiers of the picture after it has been saved</returns>
+        public GlobalPhotoIdentifiersDto SavePicture(IFormFile file)
+        {
+            var uploadResult = new ImageUploadResult();
+
+            if (file != null && file.Length > 0)
+            {
+                using (var stream = file.OpenReadStream())
+                {
+                    var param = new ImageUploadParams 
+                    {
+                        File = new FileDescription(file.Name, stream),
+                        Transformation = new Transformation()
+                            .Width(500).Height(500).Crop("fill").Gravity("face")                  
+                    };
+
+                    uploadResult = _cloudinary.Upload(param);
+                }
+            }
+            else
+                throw new ArgumentException("The file hasn't been found in request");
+
+            return new GlobalPhotoIdentifiersDto { Url = uploadResult.Uri.ToString(), PublicId = uploadResult.PublicId };
         }
     }
 }

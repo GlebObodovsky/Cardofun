@@ -6,7 +6,6 @@ using System;
 using AutoMapper;
 using Cardofun.Interfaces.DTOs;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Query;
 using System.Security.Claims;
 using Cardofun.Domain.Models;
 
