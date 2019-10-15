@@ -23,7 +23,11 @@
     </form>
 
     <div *ngIf=(isLoggedIn()) class="dropdown" dropdown>
+
       <a class="dropdown-toggle text-light" dropdownToggle>
+        <span class="mr-1">
+          <img src="{{authService.currentUser.photoUrl}}" alt="">
+        </span>
         Welcome {{authService.decodedToken?.unique_name}}
       </a>
 

@@ -31,6 +31,16 @@ namespace Cardofun.Interfaces.Repositories
         Task<Boolean> SaveChangesAsync();
 
         /// <summary>
+        /// Starts transaction for the repository
+        /// </summary>
+        void StartTransaction();
+        
+        /// <summary>
+        /// Commits transaction for the repository
+        /// </summary>
+        void CommitTransaction();
+
+        /// <summary>
         /// Gets a user out of the repository
         /// </summary>
         /// <param name="id">id of the user that ought to be returned</param>
@@ -47,19 +57,26 @@ namespace Cardofun.Interfaces.Repositories
         /// Gets languages by given search pattern
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<Language>> GetLanguages(string languageSearchPattern);
+        Task<IEnumerable<Language>> GetLanguagesAsync(String languageSearchPattern);
 
         /// <summary>
         /// Gets cities by given search pattern
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<City>> GetCities(string citySearchPattern);
+        Task<IEnumerable<City>> GetCitiesAsync(String citySearchPattern);
 
         /// <summary>
         /// Gets photo by given id
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task<Photo> GetPhoto(Guid id);
+        Task<Photo> GetPhotoAsync(Guid id);
+
+        /// <summary>
+        /// Gets user's main photo
+        /// </summary>
+        /// <param name="userId">User of which main photo is needed</param>
+        /// <returns></returns>
+        Task<Photo> GetMainPhotoForUserAsync(Int32 userId);
     }
 }

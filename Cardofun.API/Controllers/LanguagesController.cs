@@ -34,7 +34,7 @@ namespace Cardofun.API.Controllers
         /// <returns></returns>
         [HttpGet("{searchBy}")]
         public async Task<IActionResult> GetLanguages(String searchBy)
-            => Ok(_mapper.Map<IEnumerable<LanguageDto>>(await _cardofunRepository.GetLanguages(searchBy)));
+            => Ok(_mapper.Map<IEnumerable<LanguageDto>>(await _cardofunRepository.GetLanguagesAsync(searchBy)));
         #endregion Controller methods
     }
 }

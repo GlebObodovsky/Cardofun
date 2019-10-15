@@ -36,7 +36,7 @@ namespace Cardofun.API.Controllers
         [HttpGet("{id}", Name = "GetPhoto")]
         public async Task<IActionResult> GetPhoto(Guid id)
         {
-            var photo = await _cardofunRepository.GetPhoto(id);
+            var photo = await _cardofunRepository.GetPhotoAsync(id);
 
             if(photo == null)
                 return BadRequest("The requested photo hasn't been found");
@@ -70,6 +70,42 @@ namespace Cardofun.API.Controllers
             }
 
             return BadRequest("Could not add the photo");
+        }
+
+        [HttpPost("{id}/setMain")]
+        public async Task<IActionResult> SetMainPhoto(Int32 userId, Guid id)
+        {
+            if(userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            var mainPhoto = await _cardofunRepository.GetMainPhotoForUserAsync(userId);
+            var newMainPhoto = await _cardofunRepository.GetPhotoAsync(id);
+
+            if(newMainPhoto == null)
+                return BadRequest("Could not find the photo");
+
+            if(newMainPhoto.IsMain)
+                return BadRequest("The photo is already main");
+
+            if(mainPhoto != null)
+                mainPhoto.IsMain = false;
+            
+            // Wrapping it with transaction because of circular dependency of IsMain property.
+            // As the property has Unique constraint for there might me only one main pic for each user
+            // It'll crush if saving both at a time
+            _cardofunRepository.StartTransaction();
+
+            await _cardofunRepository.SaveChangesAsync();
+
+            newMainPhoto.IsMain = true;
+
+            if(await _cardofunRepository.SaveChangesAsync())
+            {
+                _cardofunRepository.CommitTransaction();
+                return NoContent();
+            }
+            
+            return BadRequest("Could not set the photo as main");
         }
         #endregion Controller methods
     }

@@ -46,22 +46,26 @@ export class MemberEditComponent implements OnInit {
   constructor(private route: ActivatedRoute, private cityService: CityService,
     private languageService: LanguageService, private alertifyService: AlertifyService,
     private userService: UserService, private authService: AuthService) { }
-    @ViewChild('editForm', {static: true}) editForm: NgForm;
-    @HostListener('window:beforeunload', ['$event'])
-    unloadNotification($event: any) {
-      if (this.editForm.dirty) {
-        $event.returnValue = true;
-      }
+  @ViewChild('editForm', {static: true}) editForm: NgForm;
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification($event: any) {
+    if (this.editForm.dirty) {
+      $event.returnValue = true;
     }
+  }
 
-    ngOnInit() {
-      this.route.data.subscribe(data => {
-        this.user = data['user'];
-      });
+  ngOnInit() {
+    this.route.data.subscribe(data => {
+      this.user = data['user'];
+    });
 
     this.loadCities();
     this.loadSpeakingLanguages();
     this.loadLearningLanguages();
+  }
+
+  setMainPhoto(photUrl: string) {
+    this.user.photoUrl = photUrl;
   }
 
   updateUser() {

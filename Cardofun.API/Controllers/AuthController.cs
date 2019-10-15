@@ -10,21 +10,24 @@ using System.Text;
 using Cardofun.Core.NameConstants;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using AutoMapper;
 
 namespace Cardofun.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController: ControllerBase
+    public class AuthController : ControllerBase
     {
         #region Fields
         private readonly IAuthRepository _authRepository;
         private readonly IConfiguration _config;
+        private readonly IMapper _mapper;
         #endregion Fields
 
         #region  Constructor
-        public AuthController(IAuthRepository authRepoitory, IConfiguration config)
+        public AuthController(IAuthRepository authRepoitory, IConfiguration config, IMapper mapper)
         {
+            _mapper = mapper;
             _authRepository = authRepoitory;
             _config = config;
         }
@@ -38,9 +41,9 @@ namespace Cardofun.API.Controllers
         [HttpPost(nameof(Register))]
         public async Task<IActionResult> Register(UserForRegisterDto userForRegister)
         {
-            if(await _authRepository.IsExistAsync(userForRegister.Login))
+            if (await _authRepository.IsExistAsync(userForRegister.Login))
                 return BadRequest("Login already exists");
-            
+
             var newUser = new User
             {
                 Login = userForRegister.Login
@@ -59,7 +62,7 @@ namespace Cardofun.API.Controllers
         {
             var userFromRepo = await _authRepository.LoginAsync(userForLogin.Login, userForLogin.Password);
 
-            if(userFromRepo == null)
+            if (userFromRepo == null)
                 return Unauthorized();
 
             var claims = new[]
@@ -75,7 +78,7 @@ namespace Cardofun.API.Controllers
 
             var tokenExpirationTime = _config.GetSection(AppSettingsConstants.TokenExpiresInHours).Value;
 
-            if(!int.TryParse(tokenExpirationTime, out int addHours))
+            if (!int.TryParse(tokenExpirationTime, out int addHours))
                 addHours = 24;
 
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -89,8 +92,10 @@ namespace Cardofun.API.Controllers
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            return Ok(new {
-                token = tokenHandler.WriteToken(token)
+            return Ok(new
+            {
+                token = tokenHandler.WriteToken(token),
+                user = _mapper.Map<UserForListDto>(userFromRepo)
             });
         }
         #endregion Controller methods

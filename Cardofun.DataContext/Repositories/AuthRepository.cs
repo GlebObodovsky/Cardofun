@@ -59,7 +59,9 @@ namespace Cardofun.DataContext.Repositories
         /// <returns>Authenticated user</returns>        
         public async Task<User> LoginAsync(string login, string password)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Login.ToUpper() == login.ToUpper());
+            var user = await _context.Users
+                .Include(u => u.Photos)
+                .FirstOrDefaultAsync(u => u.Login.ToUpper() == login.ToUpper());
 
             if(user == null)
                 return null;

@@ -34,7 +34,7 @@ namespace Cardofun.API.Controllers
         /// <returns></returns>
         [HttpGet("{searchBy}")]
         public async Task<IActionResult> GetCountries(String searchBy)
-            => Ok(_mapper.Map<IEnumerable<CityDto>>(await _cardofunRepository.GetCities(searchBy)));
+            => Ok(_mapper.Map<IEnumerable<CityDto>>(await _cardofunRepository.GetCitiesAsync(searchBy)));
         #endregion Controller methods
     }
 }

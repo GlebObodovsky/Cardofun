@@ -44,7 +44,7 @@ namespace Cardofun.DataContext.Repositories
 
             var result = _context.Set<TEntity>().AsQueryable();
 
-            if (include != null)
+            if(include != null)
                 result = include(result);
 
             // Getting the requested entity joining along all the needed properties (tables)
@@ -52,9 +52,29 @@ namespace Cardofun.DataContext.Repositories
         }
 
         /// <summary>
+        /// Gets an item with a given type and predicate out of db context
+        /// </summary>
+        /// <param name="includes">Included navigation properties</param>
+        /// <param name="predicates">Conditions</param>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <returns></returns>
+		private async Task<TEntity> GetItemByPredicatesAsync<TEntity>(Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null, params Expression<Func<TEntity, bool>> [] predicates) 
+            where TEntity : class
+        {
+            var result = _context.Set<TEntity>().AsQueryable();
+                        
+            if(include != null)
+                result = include(result);
+
+            foreach (var predicate in predicates)
+                result = result.Where(predicate);
+
+            return await result.FirstOrDefaultAsync();
+        }
+
+        /// <summary>
         /// Gets all of items with a given type out of db context
         /// </summary>
-        /// <param name="Expression<Func<T"></param>
         /// <param name="includes">Included navigation properties</param>
         /// <typeparam name="TEntity"></typeparam>
         /// <returns></returns>
@@ -72,16 +92,15 @@ namespace Cardofun.DataContext.Repositories
         /// <summary>
         /// Gets items with a given type and predicate out of db context
         /// </summary>
-        /// <param name="Expression<Func<T"></param>
         /// <param name="includes">Included navigation properties</param>
         /// <param name="predicates">Conditions</param>
         /// <typeparam name="TEntity"></typeparam>
         /// <returns></returns>
-		private async Task<IEnumerable<TEntity>> GetItemsAsync<TEntity>(Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null, params Expression<Func<TEntity, bool>> [] predicates) 
+		private async Task<IEnumerable<TEntity>> GetItemsByPredicates<TEntity>(Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null, params Expression<Func<TEntity, bool>> [] predicates) 
             where TEntity : class
         {
             var result = _context.Set<TEntity>().AsQueryable();
-                        
+            
             if(include != null)
                 result = include(result);
 
@@ -111,6 +130,18 @@ namespace Cardofun.DataContext.Repositories
         /// <returns>true - changes saved</returns>
         public async Task<Boolean> SaveChangesAsync()
             => await _context.SaveChangesAsync() > 0;
+        
+        /// <summary>
+        /// Starts transaction for the repository
+        /// </summary>
+        public void StartTransaction()
+            => _context.Database.BeginTransaction();
+
+        /// <summary>
+        /// Commits transaction for the repository
+        /// </summary>
+        public void CommitTransaction()
+            => _context.Database.CommitTransaction();
 
         /// <summary>
         /// Gets a user out of the repository
@@ -119,7 +150,7 @@ namespace Cardofun.DataContext.Repositories
         /// <returns></returns>
         public async Task<User> GetUserAsync(int id)
             => await GetItemAsync<User, Int32>(id, 
-                source => source
+                user => user
                     .Include(u => u.City)
                         .ThenInclude(c => c.Country)
                     .Include(u => u.Photos)
@@ -134,7 +165,7 @@ namespace Cardofun.DataContext.Repositories
         /// <returns></returns>
         public async Task<IEnumerable<User>> GetUsersAsync()
             => await GetAllItemsAsync<User>(
-                source => source
+                user => user
                     .Include(x => x.City) 
                         .ThenInclude(x => x.Country) 
                     .Include(x => x.Photos) 
@@ -147,25 +178,35 @@ namespace Cardofun.DataContext.Repositories
         /// Gets languages by given search pattern
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<Language>> GetLanguages(String languageSearchPattern)
-            => await GetItemsAsync<Language>(predicates: source => source.Name.ToUpper().Contains(languageSearchPattern.ToUpper()));
+        public async Task<IEnumerable<Language>> GetLanguagesAsync(String languageSearchPattern)
+            => await GetItemsByPredicates<Language>(predicates: language => language.Name.ToUpper().Contains(languageSearchPattern.ToUpper()));
 
         /// <summary>
         /// Gets cities by given search pattern
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<City>> GetCities(String citySearchPattern)
-            => await GetItemsAsync<City>(
-                include: source => source.Include(c => c.Country),
-                predicates: source => source.Name.ToUpper().StartsWith(citySearchPattern.ToUpper()));
+        public async Task<IEnumerable<City>> GetCitiesAsync(String citySearchPattern)
+            => await GetItemsByPredicates<City>(
+                include: city => city.Include(c => c.Country),
+                predicates: city => city.Name.ToUpper().StartsWith(citySearchPattern.ToUpper()));
     
         /// <summary>
         /// Gets photo by given id
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<Photo> GetPhoto(Guid id)
+        public async Task<Photo> GetPhotoAsync(Guid id)
             => await GetItemAsync<Photo, Guid>(id);
+
+        /// <summary>
+        /// Gets user's main photo
+        /// </summary>
+        /// <param name="userId">User of which main photo is needed</param>
+        /// <returns></returns>
+        public async Task<Photo> GetMainPhotoForUserAsync(Int32 userId)
+            => await GetItemByPredicatesAsync<Photo>(null,
+                photo => photo.UserId == userId,
+                photo => photo.IsMain);
     }
     #endregion ICardofunRepository
 }
