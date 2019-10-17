@@ -53,7 +53,7 @@ namespace Cardofun.API.Controllers
 
             var user = await _cardofunRepository.GetUserAsync(userId);
 
-            var photoIdentifiers = _imageProvider.SavePicture(photoForCreation.File);
+            var photoIdentifiers = await _imageProvider.SavePictureAsync(photoForCreation.File);
             photoForCreation.Url = photoIdentifiers.Url;
             photoForCreation.PublicId = photoIdentifiers.PublicId;
 
@@ -84,6 +84,9 @@ namespace Cardofun.API.Controllers
             if(newMainPhoto == null)
                 return BadRequest("Could not find the photo");
 
+            if(newMainPhoto.UserId != userId)
+                return Unauthorized();
+
             if(newMainPhoto.IsMain)
                 return BadRequest("The photo is already main");
 
@@ -106,6 +109,41 @@ namespace Cardofun.API.Controllers
             }
             
             return BadRequest("Could not set the photo as main");
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePhoto(Int32 userId, Guid id)
+        {
+            if(userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+            
+            var photoToRemove = await _cardofunRepository.GetPhotoAsync(id);
+                        
+            if(photoToRemove == null)
+                return BadRequest("The photo does not exist");
+
+            if(photoToRemove.UserId != userId)
+                return Unauthorized();
+
+            if(photoToRemove.IsMain)
+                return BadRequest("You cannot delete your main photo");
+
+            // In case if the photo doesn't have PublicId - we are proceeding with
+            // removing it just out of the repository
+            var canProceed = String.IsNullOrWhiteSpace(photoToRemove.PublicId)
+                // othervise - we're removing it from the image provider storage
+                || await _imageProvider.DeletePictureAsync(photoToRemove.PublicId);
+
+            if(canProceed)
+            {
+                _cardofunRepository.Delete(photoToRemove);
+                canProceed = await _cardofunRepository.SaveChangesAsync();
+            }
+            
+            if(canProceed)
+                return Ok();
+            
+            return BadRequest("Failed to delete the photo");
         }
         #endregion Controller methods
     }

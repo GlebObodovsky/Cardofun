@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Photo } from 'src/app/_models/photo';
 import { FileUploader } from 'ng2-file-upload';
 import { AuthService } from 'src/app/_services/auth/auth.service';
@@ -13,7 +13,6 @@ import { AlertifyService } from 'src/app/_services/alertify/alertify.service';
 })
 export class PhotoEditorComponent implements OnInit {
   @Input() photos: Photo[];
-  @Output() getMemberPhotoChange = new EventEmitter<string>();
   constructor(private authService: AuthService, private userService: UserService,
     private alertifyService: AlertifyService) { }
   baseUrl = environment.apiUrl;
@@ -34,9 +33,22 @@ export class PhotoEditorComponent implements OnInit {
       this.currentMainPhoto = this.photos.filter(p => p.isMain === true)[0];
       this.currentMainPhoto.isMain = false;
       photo.isMain = true;
-      this.getMemberPhotoChange.emit(photo.url);
+      this.authService.changeMemberPhoto(photo.url);
+      this.authService.currentUser.photoUrl = photo.url;
+      localStorage.setItem('user', JSON.stringify(this.authService.currentUser));
     }, error => {
       this.alertifyService.error(error);
+    });
+  }
+
+  deletePhoto(photoId: string) {
+    this.alertifyService.confirm('Are you sure you want to delete this photo?', () => {
+      this.userService.deletePhoto(this.authService.decodedToken.nameid, photoId).subscribe(() => {
+        this.photos.splice(this.photos.findIndex(p => p.id === photoId), 1);
+        this.alertifyService.success('The photo has been deleted');
+      }, error => {
+        this.alertifyService.error(error);
+      });
     });
   }
 

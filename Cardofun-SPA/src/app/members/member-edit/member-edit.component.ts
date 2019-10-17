@@ -59,13 +59,14 @@ export class MemberEditComponent implements OnInit {
       this.user = data['user'];
     });
 
+    this.authService.currentPhotoUrl
+      .subscribe(photoUrl => {
+        this.user.photoUrl = photoUrl;
+      });
+
     this.loadCities();
     this.loadSpeakingLanguages();
     this.loadLearningLanguages();
-  }
-
-  setMainPhoto(photUrl: string) {
-    this.user.photoUrl = photUrl;
   }
 
   updateUser() {

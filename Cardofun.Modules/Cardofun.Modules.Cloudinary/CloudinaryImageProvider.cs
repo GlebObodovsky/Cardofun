@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Cardofun.Interfaces.DTOs;
 using CloudinaryDotNet.Actions;
 using System;
+using System.Threading.Tasks;
 
 namespace Cardofun.Modules.Cloudinary
 {
@@ -32,28 +33,51 @@ namespace Cardofun.Modules.Cloudinary
         /// </summary>
         /// <param name="file">The picture to save</param>
         /// <returns>Identifiers of the picture after it has been saved</returns>
-        public GlobalPhotoIdentifiersDto SavePicture(IFormFile file)
+        public async Task<GlobalPhotoIdentifiersDto> SavePictureAsync(IFormFile file)
         {
             var uploadResult = new ImageUploadResult();
 
             if (file != null && file.Length > 0)
             {
-                using (var stream = file.OpenReadStream())
+                await Task.Run(() => 
                 {
-                    var param = new ImageUploadParams 
+                    using (var stream = file.OpenReadStream())
                     {
-                        File = new FileDescription(file.Name, stream),
-                        Transformation = new Transformation()
-                            .Width(500).Height(500).Crop("fill").Gravity("face")                  
-                    };
+                        var param = new ImageUploadParams 
+                        {
+                            File = new FileDescription(file.Name, stream),
+                            Transformation = new Transformation()
+                                .Width(500).Height(500).Crop("fill").Gravity("face")                  
+                        };
 
-                    uploadResult = _cloudinary.Upload(param);
-                }
+                        uploadResult = _cloudinary.Upload(param);
+                    }
+                });
             }
             else
                 throw new ArgumentException("The file hasn't been found in request");
 
             return new GlobalPhotoIdentifiersDto { Url = uploadResult.Uri.ToString(), PublicId = uploadResult.PublicId };
+        }
+
+        /// <summary>
+        /// Removes the picture from a storage
+        /// </summary>
+        /// <param name="publicId">PublicId on cloudinary service</param>
+        /// <returns></returns>
+        public async Task<Boolean> DeletePictureAsync(string publicId)
+        {
+            if(String.IsNullOrWhiteSpace(publicId))
+                throw new ArgumentNullException("PublicId hasn't been provided for the Cloudinary service destroy method");
+
+            var isDeleted = false;
+
+            await Task.Run(() => 
+            {
+                isDeleted = _cloudinary.Destroy(new DeletionParams(publicId)).Result == "ok";
+            });
+
+            return isDeleted;
         }
     }
 }
