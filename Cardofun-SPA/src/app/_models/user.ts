@@ -14,6 +14,9 @@ export interface User {
     photoUrl: string;
     languagesTheUserSpeaks: Language[];
     languagesTheUserLearns: Language[];
+    birthDate?: Date;
+    cityId?: number;
     introduction?: string;
+    email?: string;
     photos?: Photo[];
 }

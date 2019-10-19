@@ -20,7 +20,7 @@ export class AuthService {
   photoUrl = new BehaviorSubject<string>('../../assets/user.png');
   currentPhotoUrl = this.photoUrl.asObservable();
 
-  login(model: any) {
+  login(model: User) {
     return this.http.post(this.baseUrl + 'login', model).pipe(
       map((response: any) => {
         const user = response;
@@ -42,8 +42,8 @@ export class AuthService {
     this.currentUser = null;
   }
 
-  register(model: any) {
-    return this.http.post(this.baseUrl + 'register', model);
+  register(user: User) {
+    return this.http.post(this.baseUrl + 'register', user);
   }
 
   isLoggedIn() {

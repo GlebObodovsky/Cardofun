@@ -4,14 +4,16 @@ using Cardofun.DataContext.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Cardofun.DataContext.Migrations
 {
     [DbContext(typeof(CardofunContext))]
-    partial class CardofunContextModelSnapshot : ModelSnapshot
+    [Migration("20191019202458_AddingEmailToUser")]
+    partial class AddingEmailToUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

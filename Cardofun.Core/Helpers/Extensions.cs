@@ -13,7 +13,7 @@ namespace Cardofun.Core.Helpers
         {
             var age = DateTime.Today.Year - dateTime.Year;
 
-            if (DateTime.Today < dateTime)
+            if (DateTime.Today.DayOfYear < dateTime.DayOfYear)
                 age--;
 
             return age;

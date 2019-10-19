@@ -33,9 +33,7 @@ export class PhotoEditorComponent implements OnInit {
       this.currentMainPhoto = this.photos.filter(p => p.isMain === true)[0];
       this.currentMainPhoto.isMain = false;
       photo.isMain = true;
-      this.authService.changeMemberPhoto(photo.url);
-      this.authService.currentUser.photoUrl = photo.url;
-      localStorage.setItem('user', JSON.stringify(this.authService.currentUser));
+      this.changeMainPhotoGlobally(photo.url);
     }, error => {
       this.alertifyService.error(error);
     });
@@ -63,20 +61,23 @@ export class PhotoEditorComponent implements OnInit {
       maxFileSize: 10 * 1024 * 1024
     });
 
-    this.uploader.onAfterAddingFile = (file) => {file.withCredentials = false; };
+    this.uploader.onAfterAddingFile = (file) => { file.withCredentials = false; };
 
     this.uploader.onSuccessItem = (item, response, status, headers) => {
       if (response) {
-        const res: Photo = JSON.parse(response);
-        // const photo = {
-        //   id: res.id,
-        //   url: res.url,
-        //   dateAdded: res.dateAdded,
-        //   description: res.description,
-        //   isMain: res.isMain
-        // };
-        this.photos.push(res);
+        const photo: Photo = JSON.parse(response);
+        this.photos.push(photo);
+
+        if (photo.isMain) {
+          this.changeMainPhotoGlobally(photo.url);
+        }
       }
     };
+  }
+
+  changeMainPhotoGlobally(photoUrl: string) {
+    this.authService.changeMemberPhoto(photoUrl);
+    this.authService.currentUser.photoUrl = photoUrl;
+    localStorage.setItem('user', JSON.stringify(this.authService.currentUser));
   }
 }

@@ -18,6 +18,8 @@ namespace Cardofun.Domain.Models
         public DateTime LastActive { get; set; }
         public Byte[] PasswordHash { get; set; }
         public Byte[] PasswordSalt { get; set; }
+        public String Email { get; set; }
+        public Boolean IsEmailVerified { get; set; }
         public virtual ICollection<Photo> Photos { get; set; }
         public virtual ICollection<LanguageSpeakingLevel> LanguagesTheUserSpeaks { get; set; }
         public virtual ICollection<LanguageLearningLevel> LanguagesTheUserLearns { get; set; }

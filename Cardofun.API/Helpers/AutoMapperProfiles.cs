@@ -42,18 +42,33 @@ namespace Cardofun.API.Helpers
             #endregion Photo
 
             #region User
+            CreateMap<UserForRegisterDto, User>();
+
+            CreateMap<User, UserShortInfoDto>()
+                .ForMember(dest => dest.Age, m => m.MapFrom(src => src.BirthDate.ToAges()))
+                .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => GetUserMaintPhotoUrl(src)));
+
             CreateMap<User, UserForListDto>()
                 .ForMember(dest => dest.Age, m => m.MapFrom(src => src.BirthDate.ToAges()))
-                .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => src.Photos.First(p => p.IsMain).Url));
+                .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => GetUserMaintPhotoUrl(src)));
 
             CreateMap<User, UserForDetailedDto>()
                 .ForMember(dest => dest.Age, m => m.MapFrom(src => src.BirthDate.ToAges()))
-                .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => src.Photos.First(p => p.IsMain).Url));
+                .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => GetUserMaintPhotoUrl(src)));
         
             CreateMap<UserForUpdateDto, User>()
                 .ForMember(dest => dest.CityId, m => m.MapFrom(src => src.City.Id))
                 .ForMember(dest => dest.City, m => m.Ignore());
+
+         
             #endregion User
+        }
+        private String GetUserMaintPhotoUrl(User user)
+        {
+            if(user == null || user.Photos == null)
+                return null;
+
+            return user.Photos.FirstOrDefault(u => u.IsMain)?.Url;
         }
     }
 }

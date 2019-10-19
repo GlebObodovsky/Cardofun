@@ -14,6 +14,10 @@ export class UserService {
 
   constructor(private http: HttpClient, private alertifyService: AlertifyService) { }
 
+  checkIfUserExists(login: string) {
+    return this.http.head(this.baseUrl + 'users/' + login);
+  }
+
   getUsers(): Observable<User[]> {
     return this.http.get<User[]>(this.baseUrl + 'users');
   }

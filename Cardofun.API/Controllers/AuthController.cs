@@ -44,14 +44,13 @@ namespace Cardofun.API.Controllers
             if (await _authRepository.IsExistAsync(userForRegister.Login))
                 return BadRequest("Login already exists");
 
-            var newUser = new User
-            {
-                Login = userForRegister.Login
-            };
+            var newUser = _mapper.Map<User>(userForRegister);
 
             var registeredUser = await _authRepository.RegisterAsync(newUser, userForRegister.Password);
 
-            return StatusCode(201);
+            var userForReturn = _mapper.Map<UserShortInfoDto>(newUser);
+
+            return CreatedAtRoute("GetUser", new { Controller = "Users", Id = newUser.Id }, userForReturn);
         }
         /// <summary>
         /// Allows a user to login to the service
@@ -95,7 +94,7 @@ namespace Cardofun.API.Controllers
             return Ok(new
             {
                 token = tokenHandler.WriteToken(token),
-                user = _mapper.Map<UserForListDto>(userFromRepo)
+                user = _mapper.Map<UserShortInfoDto>(userFromRepo)
             });
         }
         #endregion Controller methods

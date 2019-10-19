@@ -143,6 +143,15 @@ namespace Cardofun.DataContext.Repositories
         public void CommitTransaction()
             => _context.Database.CommitTransaction();
 
+        #region Users
+        /// <summary>
+        /// Checks if user with the given login already exists 
+        /// </summary>
+        /// <param name="login">login by which to make a search</param>
+        /// <returns></returns>
+        public async Task<Boolean> CheckIfUserExists(String login)
+            => await _context.Users.AnyAsync(u => u.Login.Equals(login, StringComparison.OrdinalIgnoreCase));
+
         /// <summary>
         /// Gets a user out of the repository
         /// </summary>
@@ -173,14 +182,18 @@ namespace Cardofun.DataContext.Repositories
                         .ThenInclude(x => x.Language) 
                     .Include(x => x.LanguagesTheUserSpeaks) 
                         .ThenInclude(x => x.Language));
+        #endregion Users
 
+        #region Languages
         /// <summary>
         /// Gets languages by given search pattern
         /// </summary>
         /// <returns></returns>
         public async Task<IEnumerable<Language>> GetLanguagesAsync(String languageSearchPattern)
             => await GetItemsByPredicates<Language>(predicates: language => language.Name.ToUpper().Contains(languageSearchPattern.ToUpper()));
+        #endregion Languages
 
+        #region Cities
         /// <summary>
         /// Gets cities by given search pattern
         /// </summary>
@@ -189,7 +202,9 @@ namespace Cardofun.DataContext.Repositories
             => await GetItemsByPredicates<City>(
                 include: city => city.Include(c => c.Country),
                 predicates: city => city.Name.ToUpper().StartsWith(citySearchPattern.ToUpper()));
+        #endregion Cities
     
+        #region Photos
         /// <summary>
         /// Gets photo by given id
         /// </summary>
@@ -207,6 +222,7 @@ namespace Cardofun.DataContext.Repositories
             => await GetItemByPredicatesAsync<Photo>(null,
                 photo => photo.UserId == userId,
                 photo => photo.IsMain);
+        #endregion Photos
     }
     #endregion ICardofunRepository
 }

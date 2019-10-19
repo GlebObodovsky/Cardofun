@@ -31,6 +31,20 @@ namespace Cardofun.API.Controllers
 
         #region Controller methods
         /// <summary>
+        /// Checks if user with the given login already exists
+        /// </summary>
+        /// <returns></returns>
+        [HttpHead("{login}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> CheckIfUserExists(String login)
+        {
+            if(await _cardofunRepository.CheckIfUserExists(login))
+                return Ok();
+            
+            return NotFound();
+        }
+
+        /// <summary>
         /// Gets all awailable users
         /// </summary>
         /// <returns></returns>
@@ -42,7 +56,7 @@ namespace Cardofun.API.Controllers
         /// Gets a user by the given id
         /// </summary>
         /// <returns></returns>
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = nameof(GetUser))]
         public async Task<IActionResult> GetUser(Int32 id)
             => Ok(_mapper.Map<UserForDetailedDto>(await _cardofunRepository.GetUserAsync(id)));
 

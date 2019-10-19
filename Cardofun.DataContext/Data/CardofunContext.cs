@@ -76,9 +76,23 @@ namespace Cardofun.DataContext.Data
             modelBuilder.Entity<User>()
                 .Property(x => x.Login)
                 .IsRequired();
-                
+
+            modelBuilder.Entity<User>()
+                .Property(x => x.Email)
+                .IsRequired();
+
+            modelBuilder.Entity<User>()
+                .Property(x => x.IsEmailVerified)
+                .IsRequired();
+            
+            // Created time would be the exact time when the User is created  
             modelBuilder.Entity<User>()
                 .Property(x => x.Created)
+                .HasDefaultValueSql("getdate()");
+
+            // Last active time would be the exact time when the User is created
+            modelBuilder.Entity<User>()
+                .Property(x => x.LastActive)
                 .HasDefaultValueSql("getdate()");
 
             modelBuilder.Entity<User>()
@@ -118,10 +132,12 @@ namespace Cardofun.DataContext.Data
                 .Property(x => x.DateAdded)
                 .IsRequired();
                 
+            // DateAdded would be the exact date and time when the picture is created  
             modelBuilder.Entity<Photo>()
                 .Property(x => x.DateAdded)
                 .HasDefaultValueSql("getdate()");
 
+            // There should be only one main photo for each users
             modelBuilder.Entity<Photo>()
                 .HasIndex(e => new { e.UserId, e.IsMain })
                 .IsUnique()

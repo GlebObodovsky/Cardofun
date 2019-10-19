@@ -41,6 +41,13 @@ namespace Cardofun.Interfaces.Repositories
         void CommitTransaction();
 
         /// <summary>
+        /// Checks if user with the given login already exists 
+        /// </summary>
+        /// <param name="login">login by which to make a search</param>
+        /// <returns></returns>
+        Task<Boolean> CheckIfUserExists(String login);
+
+        /// <summary>
         /// Gets a user out of the repository
         /// </summary>
         /// <param name="id">id of the user that ought to be returned</param>
