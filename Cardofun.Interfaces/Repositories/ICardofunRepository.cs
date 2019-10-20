@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Cardofun.Core.ApiParameters;
+using Cardofun.Core.Enumerables;
 using Cardofun.Domain.Models;
 
 namespace Cardofun.Interfaces.Repositories
@@ -55,10 +57,10 @@ namespace Cardofun.Interfaces.Repositories
         Task<User> GetUserAsync(Int32 id);
          
         /// <summary>
-        /// Gets all of the users out of the repository
+        /// Gets page of users out of the repository
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<User>> GetUsersAsync();
+        Task<PagedList<User>> GetPageOfUsersAsync(PaginationParams paginationParams);
 
         /// <summary>
         /// Gets languages by given search pattern

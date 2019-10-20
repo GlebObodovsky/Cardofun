@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Cardofun.Core.ApiParameters;
+using Cardofun.Core.Enumerables;
 using Cardofun.DataContext.Data;
+using Cardofun.DataContext.Helpers;
 using Cardofun.Domain.Models;
 using Cardofun.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -90,6 +93,23 @@ namespace Cardofun.DataContext.Repositories
         }
 
         /// <summary>
+        /// Gets all of items with a given type out of db context
+        /// </summary>
+        /// <param name="includes">Included navigation properties</param>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <returns></returns>
+		private async Task<PagedList<TEntity>> GetPageOfItemsAsync<TEntity>(PaginationParams paginationParams, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null) 
+            where TEntity : class
+        {
+            var result = _context.Set<TEntity>().AsQueryable();
+
+            if(include != null)
+                result = include(result);
+
+            return await result.ToPagedListAsync(paginationParams.PageNumber, paginationParams.PageSize);
+        }
+
+        /// <summary>
         /// Gets items with a given type and predicate out of db context
         /// </summary>
         /// <param name="includes">Included navigation properties</param>
@@ -169,11 +189,11 @@ namespace Cardofun.DataContext.Repositories
                         .ThenInclude(u => u.Language)); 
          
         /// <summary>
-        /// Gets all of the users out of the repository
+        /// Gets page of users out of the repository
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<User>> GetUsersAsync()
-            => await GetAllItemsAsync<User>(
+        public async Task<PagedList<User>> GetPageOfUsersAsync(PaginationParams paginationParams)
+            => await GetPageOfItemsAsync<User>(paginationParams,
                 user => user
                     .Include(x => x.City) 
                         .ThenInclude(x => x.Country) 

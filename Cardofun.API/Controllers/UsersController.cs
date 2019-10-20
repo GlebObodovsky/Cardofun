@@ -8,6 +8,8 @@ using Cardofun.Interfaces.DTOs;
 using System.Collections.Generic;
 using System.Security.Claims;
 using Cardofun.Domain.Models;
+using Cardofun.Core.ApiParameters;
+using Cardofun.API.Helpers.Extensions;
 
 namespace Cardofun.API.Controllers
 {
@@ -45,12 +47,16 @@ namespace Cardofun.API.Controllers
         }
 
         /// <summary>
-        /// Gets all awailable users
+        /// Gets a page of users
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> GetUsers()
-            => Ok(_mapper.Map<IEnumerable<UserForListDto>>(await _cardofunRepository.GetUsersAsync()));
+        public async Task<IActionResult> GetUsers([FromQuery]PaginationParams paginationParams)
+        {
+            var userPages = await _cardofunRepository.GetPageOfUsersAsync(paginationParams);
+            Response.AddPagination(userPages.PageNumber, userPages.PageSize, userPages.TotalCount, userPages.TotalPages);
+            return Ok(_mapper.Map<IEnumerable<UserForListDto>>(userPages));
+        }
 
         /// <summary>
         /// Gets a user by the given id
