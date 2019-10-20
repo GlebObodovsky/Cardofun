@@ -19,6 +19,7 @@ using AutoMapper;
 using Newtonsoft.Json.Serialization;
 using Cardofun.Interfaces.ServiceProviders;
 using Cardofun.Modules.Cloudinary;
+using Cardofun.API.Helpers;
 
 namespace Cardofun.API
 {
@@ -50,7 +51,11 @@ namespace Cardofun.API
             services.AddDbContext<CardofunContext>(x => x.UseSqlServer(Configuration.GetConnectionString(ConnectionStringConstants.CardofunSqlServerConnection)));
             // Uncomment next line if you want to use SqlLite
             // services.AddDbContext<CardofunContext>(x => x.UseSqlite(Configuration.GetConnectionString(ConnectionStringConstants.CardofunSqlLiteConnection)));
-            services.AddMvc()
+            services.AddMvc(options => 
+                {
+                    // Updates "LastActive" property of a User that executed an action
+                    options.Filters.Add(typeof(LogUserActivity));
+                })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore)
                 .AddJsonOptions(options => options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter() { NamingStrategy = new CamelCaseNamingStrategy() }));
@@ -75,6 +80,7 @@ namespace Cardofun.API
             services.Configure<CloudinaryProviderSettings>(Configuration.GetSection("ImageProviderProviderSettings"));
             services.AddTransient<IImageProvider, CloudinaryImageProvider>();
             #endregion ImageProvider config
+            services.AddScoped<LogUserActivity>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
