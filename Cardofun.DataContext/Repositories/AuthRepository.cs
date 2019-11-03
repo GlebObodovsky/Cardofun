@@ -61,6 +61,7 @@ namespace Cardofun.DataContext.Repositories
         {
             var user = await _context.Users
                 .Include(u => u.Photos)
+                .Include(u => u.LanguagesTheUserLearns).ThenInclude(l => l.Language)
                 .FirstOrDefaultAsync(u => u.Login.ToUpper() == login.ToUpper());
 
             if(user == null)

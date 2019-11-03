@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Cardofun.Core.ApiParameters;
 using Cardofun.Core.Enumerables;
+using Cardofun.Core.Helpers;
 using Cardofun.DataContext.Data;
 using Cardofun.DataContext.Helpers;
 using Cardofun.Domain.Models;
@@ -98,13 +99,16 @@ namespace Cardofun.DataContext.Repositories
         /// <param name="includes">Included navigation properties</param>
         /// <typeparam name="TEntity"></typeparam>
         /// <returns></returns>
-		private async Task<PagedList<TEntity>> GetPageOfItemsAsync<TEntity>(PaginationParams paginationParams, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null) 
+		private async Task<PagedList<TEntity>> GetPageOfItemsAsync<TEntity>(PaginationParams paginationParams, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,  params Expression<Func<TEntity, bool>> [] predicates) 
             where TEntity : class
         {
             var result = _context.Set<TEntity>().AsQueryable();
 
             if(include != null)
                 result = include(result);
+
+            foreach (var predicate in predicates)
+                result = result.Where(predicate);
 
             return await result.ToPagedListAsync(paginationParams.PageNumber, paginationParams.PageSize);
         }
@@ -192,8 +196,11 @@ namespace Cardofun.DataContext.Repositories
         /// Gets page of users out of the repository
         /// </summary>
         /// <returns></returns>
-        public async Task<PagedList<User>> GetPageOfUsersAsync(PaginationParams paginationParams)
-            => await GetPageOfItemsAsync<User>(paginationParams,
+        public async Task<PagedList<User>> GetPageOfUsersAsync(UserParams userParams)
+            => await GetPageOfItemsAsync<User>(
+                // Pagination parameters
+                userParams,
+                // Includes
                 user => user
                     .Include(x => x.City) 
                         .ThenInclude(x => x.Country) 
@@ -201,7 +208,16 @@ namespace Cardofun.DataContext.Repositories
                     .Include(x => x.LanguagesTheUserLearns) 
                         .ThenInclude(x => x.Language) 
                     .Include(x => x.LanguagesTheUserSpeaks) 
-                        .ThenInclude(x => x.Language));
+                        .ThenInclude(x => x.Language),
+                // Filterings
+                user => user.Id != userParams.UserId,
+                user => !userParams.Sex.HasValue || user.Sex == userParams.Sex,
+                user => !userParams.AgeMin.HasValue || user.BirthDate.ToAges() >= userParams.AgeMin,
+                user => !userParams.AgeMax.HasValue || user.BirthDate.ToAges() <= userParams.AgeMax,
+                user => !userParams.CityId.HasValue || user.CityId == userParams.CityId,
+                user => userParams.CityId.HasValue || String.IsNullOrEmpty(userParams.CountryIsoCode) || user.City.CountryIsoCode.Equals(userParams.CountryIsoCode),
+                user => String.IsNullOrEmpty(userParams.LanguageLearningCode) || user.LanguagesTheUserLearns.Any(l => l.LanguageCode.Equals(userParams.LanguageLearningCode)),
+                user => String.IsNullOrEmpty(userParams.LanguageSpeakingCode) || user.LanguagesTheUserSpeaks.Any(l => l.LanguageCode.Equals(userParams.LanguageSpeakingCode)));
         #endregion Users
 
         #region Languages
@@ -212,6 +228,16 @@ namespace Cardofun.DataContext.Repositories
         public async Task<IEnumerable<Language>> GetLanguagesAsync(String languageSearchPattern)
             => await GetItemsByPredicates<Language>(predicates: language => language.Name.ToUpper().Contains(languageSearchPattern.ToUpper()));
         #endregion Languages
+
+        #region Countries
+        /// <summary>
+        /// Gets countries by given search pattern
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<Country>> GetCountriesAsync(String countrySearchPattern)
+            => await GetItemsByPredicates<Country>(
+                predicates: country => country.Name.ToUpper().StartsWith(countrySearchPattern.ToUpper()));
+        #endregion Countries
 
         #region Cities
         /// <summary>

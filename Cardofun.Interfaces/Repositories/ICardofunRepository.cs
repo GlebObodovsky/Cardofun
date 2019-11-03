@@ -60,13 +60,19 @@ namespace Cardofun.Interfaces.Repositories
         /// Gets page of users out of the repository
         /// </summary>
         /// <returns></returns>
-        Task<PagedList<User>> GetPageOfUsersAsync(PaginationParams paginationParams);
+        Task<PagedList<User>> GetPageOfUsersAsync(UserParams userParams);
 
         /// <summary>
         /// Gets languages by given search pattern
         /// </summary>
         /// <returns></returns>
         Task<IEnumerable<Language>> GetLanguagesAsync(String languageSearchPattern);
+
+        /// <summary>
+        /// Gets countries by given search pattern
+        /// </summary>
+        /// <returns></returns>
+        Task<IEnumerable<Country>> GetCountriesAsync(String countrySearchPattern);
 
         /// <summary>
         /// Gets cities by given search pattern

@@ -32,7 +32,8 @@ export class RegisterComponent implements OnInit {
 
   ngOnInit() {
     this.bsConfig = {
-      containerClass: 'theme-default'
+      containerClass: 'theme-default',
+      dateInputFormat: 'YYYY-MM-DD'
     };
     this.createRegisterForm();
     this.loadCities();

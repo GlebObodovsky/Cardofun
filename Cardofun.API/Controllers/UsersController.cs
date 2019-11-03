@@ -51,9 +51,10 @@ namespace Cardofun.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> GetUsers([FromQuery]PaginationParams paginationParams)
+        public async Task<IActionResult> GetUsers([FromQuery]UserParams userParams)
         {
-            var userPages = await _cardofunRepository.GetPageOfUsersAsync(paginationParams);
+            userParams.UserId = Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var userPages = await _cardofunRepository.GetPageOfUsersAsync(userParams);
             Response.AddPagination(userPages.PageNumber, userPages.PageSize, userPages.TotalCount, userPages.TotalPages);
             return Ok(_mapper.Map<IEnumerable<UserForListDto>>(userPages));
         }

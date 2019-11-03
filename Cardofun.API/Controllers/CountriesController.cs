@@ -9,10 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cardofun.API.Controllers
 {
-    // [Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class CitiesController: ControllerBase
+    public class CountriesController: ControllerBase
     {
         #region Fields
         private readonly ICardofunRepository _cardofunRepository;
@@ -20,7 +20,7 @@ namespace Cardofun.API.Controllers
         #endregion Fields
 
         #region Constructor
-        public CitiesController(ICardofunRepository cardofunRepository, IMapper mapper)
+        public CountriesController(ICardofunRepository cardofunRepository, IMapper mapper)
         {
             _cardofunRepository = cardofunRepository;
             _mapper = mapper;
@@ -33,8 +33,9 @@ namespace Cardofun.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("{searchBy}")]
-        public async Task<IActionResult> GetCities(String searchBy)
-            => Ok(_mapper.Map<IEnumerable<CityDto>>(await _cardofunRepository.GetCitiesAsync(searchBy)));
+        public async Task<IActionResult> GetCountries(String searchBy)
+            => Ok(_mapper.Map<IEnumerable<CountryDto>>(await _cardofunRepository.GetCountriesAsync(searchBy)));
         #endregion Controller methods
     }
+
 }

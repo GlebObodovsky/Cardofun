@@ -5,13 +5,14 @@ import { Observable } from 'rxjs/internal/Observable';
 import { City } from 'src/app/_models/City';
 import { CityService } from 'src/app/_services/city/city.service';
 import { Subject, of, concat } from 'rxjs';
-import { debounceTime, distinctUntilChanged, tap, switchMap, catchError, defaultIfEmpty, map } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, tap, switchMap, catchError } from 'rxjs/operators';
 import { Language } from 'src/app/_models/language';
 import { LanguageService } from 'src/app/_services/language/language.service';
 import { AlertifyService } from 'src/app/_services/alertify/alertify.service';
 import { NgForm } from '@angular/forms';
 import { UserService } from 'src/app/_services/user/user.service';
 import { AuthService } from 'src/app/_services/auth/auth.service';
+import { BsDatepickerConfig } from 'ngx-bootstrap';
 
 @Component({
   selector: 'app-member-edit',
@@ -20,6 +21,7 @@ import { AuthService } from 'src/app/_services/auth/auth.service';
 })
 export class MemberEditComponent implements OnInit {
   user: User;
+  bsConfig: Partial<BsDatepickerConfig>;
 
   levelsOfSpeaking: any[] = [
     'beginner',
@@ -48,6 +50,7 @@ export class MemberEditComponent implements OnInit {
     private userService: UserService, private authService: AuthService) { }
   @ViewChild('editForm', {static: true}) editForm: NgForm;
   @HostListener('window:beforeunload', ['$event'])
+
   unloadNotification($event: any) {
     if (this.editForm.dirty) {
       $event.returnValue = true;
@@ -55,6 +58,11 @@ export class MemberEditComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.bsConfig = {
+      containerClass: 'theme-default',
+      dateInputFormat: 'YYYY-MM-DD'
+    };
+
     this.route.data.subscribe(data => {
       this.user = data['user'];
     });
@@ -73,6 +81,8 @@ export class MemberEditComponent implements OnInit {
     this.userService.putUser(this.authService.decodedToken.nameid, this.user).subscribe(next => {
       this.alertifyService.success('Profile updated successfully');
       this.editForm.reset(this.user);
+      this.authService.currentUser = this.user;
+      localStorage.setItem('user', JSON.stringify(this.authService.currentUser));
     }, error => {
       this.alertifyService.error(error);
     });
@@ -130,7 +140,7 @@ export class MemberEditComponent implements OnInit {
     return this.isLearningSelected() && this.selectedLearningLanguage.levelOfSpeaking != null;
   }
 
-  citySelectionChanged() {
+  modelChanged() {
     this.editForm.form.markAsDirty();
   }
 
@@ -149,7 +159,7 @@ export class MemberEditComponent implements OnInit {
     );
   }
 
-  private getCities(term): Observable<City[]> {
+  private getCities(term: string): Observable<City[]> {
     if (term == null) {
       return of([]);
     }
@@ -186,7 +196,7 @@ export class MemberEditComponent implements OnInit {
     );
   }
 
-  private getLanguages(term): Observable<Language[]> {
+  private getLanguages(term: string): Observable<Language[]> {
     if (term == null) {
       return of([]);
     }

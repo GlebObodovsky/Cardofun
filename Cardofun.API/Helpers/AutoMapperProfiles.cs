@@ -16,6 +16,10 @@ namespace Cardofun.API.Helpers
                 .ForMember(dest => dest.Country, m => m.MapFrom(src => src.Country.Name));
             #endregion City
 
+            #region Country
+            CreateMap<Country, CountryDto>();
+            #endregion City
+
             #region Language
             CreateMap<LanguageLevel, LanguageLevelDto>()
                 .ForMember(dest => dest.Code, m => m.MapFrom(src => src.Language.Code))
@@ -53,8 +57,8 @@ namespace Cardofun.API.Helpers
                 .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => GetUserMaintPhotoUrl(src)));
 
             CreateMap<User, UserForDetailedDto>()
-                .ForMember(dest => dest.Age, m => m.MapFrom(src => src.BirthDate.ToAges()))
-                .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => GetUserMaintPhotoUrl(src)));
+                .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => GetUserMaintPhotoUrl(src)))
+                .ForMember(dest => dest.Age, m => m.MapFrom(src => src.BirthDate.ToAges()));
         
             CreateMap<UserForUpdateDto, User>()
                 .ForMember(dest => dest.CityId, m => m.MapFrom(src => src.City.Id))

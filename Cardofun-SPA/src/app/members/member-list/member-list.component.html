@@ -1,6 +1,103 @@
-<div class="container mt-5">
+<div class="text-center mt-3">
+  <h2>Your matches - {{pagination.totalItems}} found</h2>
+</div>
+
+<div class="container mt-3">
+
+    <form class="form-inline" #form="ngForm" (ngSubmit)="loadUsers()" novalidate>
+        <div>
+          <label for="minAge">Age From</label>
+          <input type="number" [(ngModel)]="userParams.ageMin" class="form-control ml-1" style="width: 70px" id="minAge" name="minAge">
+        </div>
+      
+        <div>
+          <label for="maxAge">Age To</label>
+          <input type="number" [(ngModel)]="userParams.ageMax" class="form-control ml-1" style="width: 70px" id="maxAge" name="maxAge">
+        </div>
+      
+        <div>
+          <label for="gender">Sex</label>
+          <select class="form-control ml-1" style="width: 130px" id="gender" 
+            [(ngModel)]="userParams.sex" name="gender">
+            <option *ngFor="let gender of genderList" [value]="gender.value">
+              {{gender.display}}
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label (click)="speakingLanguage.focus()">Speaking</label>
+          <ng-select 
+            class="form-control"
+            #speakingLanguage
+            name="speakingLanguage"
+            [items]="speakingLanguages$ | async"
+            placeholder="Select language"
+            bindLabel="name"
+            bindValue="code"
+            [loading]="speakingLanguagesLoading"
+            [typeahead]="speakingLanguagesInput$"
+            [(ngModel)]="userParams.languageSpeakingCode">
+          </ng-select>
+        </div>
+
+        <div>
+          <label (click)="country.focus()" for="country">Country</label>
+          <ng-select
+            style="width: 250px;"
+            class="form-control"
+            #country
+            name="country"
+            class="form-control"
+            [items]="countries$ | async"
+            placeholder="Select country"
+            bindLabel="name"
+            bindValue="isoCode"
+            [loading]="countriesLoading"
+            [typeahead]="countriesInput$"
+            [(ngModel)]="userParams.countryIsoCode"
+            (change)="locationChanged('country')">
+            <ng-template ng-label-tmp let-item="item">
+              <span class="flag-icon flag-icon-{{item.isoCode}}" title="{{item.country}}"></span> {{item.name}}, {{item.continentName}}
+            </ng-template>
+            <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+              <span class="flag-icon flag-icon-{{item.isoCode}}" title="{{item.country}}"></span> {{item.name}}, {{item.continentName}}
+            </ng-template>
+          </ng-select>
+        </div>
+
+        <div>
+          <label (click)="city.focus()" for="city">City</label>
+          <ng-select
+            class="form-control"
+            #city
+            name="city"
+            class="form-control"
+            [items]="cities$ | async"
+            placeholder="Select city"
+            bindLabel="name"
+            bindValue="id"
+            [loading]="citiesLoading"
+            [typeahead]="citiesInput$"
+            [(ngModel)]="userParams.cityId"
+            (change)="locationChanged('city')">
+            <ng-template ng-label-tmp let-item="item">
+              <span class="flag-icon flag-icon-{{item.countryIsoCode}}" title="{{item.country}}"></span> {{item.name}}, {{item.country}}
+            </ng-template>
+            <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+              <span class="flag-icon flag-icon-{{item.countryIsoCode}}" title="{{item.country}}"></span> {{item.name}}, {{item.country}}
+            </ng-template>
+          </ng-select>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-left:10px">Apply Filters</button>
+        <button type="button" class="btn btn-info" style="margin-left:10px" (click)="resetFilters(true)">Reset Filter</button>
+      
+      </form>
+      <br>
+
   <div class="row">
-    <div *ngFor="let user of users" class="col-lg-2 col-md-3 col-sm-6">
+    <div *ngFor="let user of users" class="col-xl-2 col-lg-3 col-md-3 col-sm-4">
       <app-member-card [user]='user'></app-member-card>
     </div>
   </div>

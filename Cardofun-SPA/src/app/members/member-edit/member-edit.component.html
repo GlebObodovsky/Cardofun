@@ -26,7 +26,7 @@
                 [typeahead]="citiesInput$"
                 [(ngModel)]="user.city"
                 [clearable]="false"
-                (change)="citySelectionChanged()">
+                (change)="modelChanged()">
                 <ng-template ng-label-tmp let-item="item">
                   <span class="flag-icon flag-icon-{{item.countryIsoCode}}" title="{{item.country}}"></span> {{item.name}}, {{item.country}}
                 </ng-template>
@@ -35,11 +35,19 @@
                 </ng-template>
               </ng-select>
             </div>
-            <div>
-              <strong>Age:</strong>
-              <p>{{user.age}}</p>
+            <div class="mt-2">
+              <strong>Date of Birth:</strong>
+              <input
+                form="editForm"
+                name="birthDate"
+                class="form-control"
+                [(ngModel)]="user.birthDate"
+                placeholder="Date of Birth" 
+                type="text" bsDatepicker
+                (ngModelChange)="modelChanged()"
+                [bsConfig]="bsConfig">
             </div>
-            <div>
+            <div class="mt-2">
               <strong>Member Since:</strong>
               <p>{{user.created | date}}</p>
             </div>
@@ -55,11 +63,13 @@
               <tab heading="Edit Profile">
                 <form #editForm="ngForm" id="editForm" (ngSubmit)="updateUser()">
                     <h4>Introduction</h4>
-                    <textarea name="introduction" rows="6" class="form-control" 
+                    <div class="col-sm-12">
+                      <textarea name="introduction" rows="6" class="form-control" 
                       [(ngModel)]="user.introduction"></textarea>
+                    </div>
                 </form>
-                    <h4>Speaks</h4>
-                    <div class="form-inline">
+                    <h4 class="mt-3">Speaks</h4>
+                    <div class="form-inline mb-2">
                       <div class="col-sm-4">
                           <ng-select 
                           name="selectedSpeakingLanguage"
@@ -84,11 +94,11 @@
                     </div>
                     <ul class="list-inline ml-3">
                       <li *ngFor="let language of user.languagesTheUserSpeaks">
-                          <p>{{language.name}}: {{language.levelOfSpeaking}} <i (click)="removeSpeaking(language)" class="fa fa-remove fa-remove-i-btn"></i></p>                        
+                          {{language.name}}: {{language.levelOfSpeaking}} <i (click)="removeSpeaking(language)" class="fa fa-remove fa-remove-i-btn"></i>                     
                       </li>
                     </ul>
                     <h4>Learns</h4>
-                    <div class="form-inline">
+                    <div class="form-inline mb-2">
                       <div class="col-sm-4">
                           <ng-select [items]="learningLanguages$ | async"
                           name="selectedLearningLanguage"
@@ -112,7 +122,7 @@
                     </div>
                     <ul class="list-inline ml-3">
                         <li *ngFor="let language of user.languagesTheUserLearns">
-                          <p>{{language.name}}: {{language.levelOfSpeaking}} <i (click)="removeLearning(language)" class="fa fa-remove fa-remove-i-btn"></i></p>
+                          {{language.name}}: {{language.levelOfSpeaking}} <i (click)="removeLearning(language)" class="fa fa-remove fa-remove-i-btn"></i>
                         </li>
                     </ul>
               </tab>
