@@ -10,6 +10,7 @@
   
     <select class="form-control ml-1 mt-1" id="gender" 
       [(ngModel)]="userParams.sex" name="gender">
+      <option [ngValue]="null">Any gender</option>
       <option *ngFor="let gender of genderList" [value]="gender.value">
         {{gender.display}}
       </option>

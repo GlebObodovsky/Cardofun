@@ -10,6 +10,7 @@ using System.Security.Claims;
 using Cardofun.Domain.Models;
 using Cardofun.Core.ApiParameters;
 using Cardofun.API.Helpers.Extensions;
+using System.Linq;
 
 namespace Cardofun.API.Controllers
 {
@@ -76,6 +77,10 @@ namespace Cardofun.API.Controllers
         {
             if(id != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
                 return Unauthorized();
+
+            // If there is any learning language that is the same as speaking
+            if(newUserInfo.LanguagesTheUserLearns.Any(ll => newUserInfo.LanguagesTheUserSpeaks.Any(sl => sl.Code.Equals(ll.Code))))
+                return BadRequest("One cannot speak and learn same language");
 
             _mapper.Map<UserForUpdateDto, User>(newUserInfo, await _cardofunRepository.GetUserAsync(id));
             

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Cardofun.Core.Enums;
 
 namespace Cardofun.Interfaces.DTOs
@@ -19,15 +18,19 @@ namespace Cardofun.Interfaces.DTOs
         /// </summary>
         /// <value></value>
         public String PhotoUrl { get; set; }
+
+
+        // Uncomment next lines if there's a need to return languages users speak and learn
+
         /// <summary>
         /// Collection of languages the user speaks and want to help out with
         /// </summary>
         /// <value></value>
-        public IEnumerable<LanguageLevelDto> LanguagesTheUserSpeaks { get; set; }
+        // public IEnumerable<LanguageLevelDto> LanguagesTheUserSpeaks { get; set; }
         /// <summary>
         /// Collection of languages the user learns and seeks for helping with
         /// </summary>
         /// <value></value>
-        public IEnumerable<LanguageLevelDto> LanguagesTheUserLearns { get; set; }
+        // public IEnumerable<LanguageLevelDto> LanguagesTheUserLearns { get; set; }
     }
 }

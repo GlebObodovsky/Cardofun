@@ -22,7 +22,7 @@ import { CountryService } from 'src/app/_services/country/country.service';
 export class MemberListComponent implements OnInit {
   users: User[];
   user: User = JSON.parse(localStorage.getItem('user'));
-  genderList = [{value: null, display: 'Any gender'}, {value: 'male', display: 'Males'}, {value: 'female', display: 'Females'}];
+  genderList = [{value: 'male', display: 'Males'}, {value: 'female', display: 'Females'}];
   userParams: UserFilterParams = {};
   pagination: Pagination;
 

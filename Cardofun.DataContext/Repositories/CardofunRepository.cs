@@ -33,23 +33,43 @@ namespace Cardofun.DataContext.Repositories
 
         #region Functions
         /// <summary>
+        /// Sets up includes predicates and orderings
+        /// </summary>
+        /// <param name="requestSettings">Set of includes, orderings and other request settings</param>
+        /// <param name="predicates">Set of predicates</param>
+        /// <typeparam name="TEntity">Db entities for getting back</typeparam>
+        /// <returns></returns>
+        private IQueryable<TEntity> SetUpRequest<TEntity>(
+            Func<IQueryable<TEntity>, IQueryable<TEntity>> requestSettings = null, 
+            params Expression<Func<TEntity, bool>> [] predicates) 
+            where TEntity : class
+        {
+            var result = _context.Set<TEntity>().AsQueryable();
+                        
+            if(requestSettings != null)
+                result = requestSettings(result);
+
+            foreach (var predicate in predicates)
+                result = result.Where(predicate);
+
+            return result;
+        }
+
+        /// <summary>
         /// Gets an item with specified Id out of db context
         /// </summary>
         /// <param name="id">Key</param>
-        /// <param name="include">Set of includes</param>
+        /// <param name="requestSettings">Set of includes, orderings and other request settings</param>
         /// <typeparam name="TEntity">Type of entity to get</typeparam>
         /// <typeparam name="TKey">Type of the passing key (id) of entity to get</typeparam>
         /// <returns></returns>
-        private async Task<TEntity> GetItemAsync<TEntity, TKey>(TKey id, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null) 
+        private async Task<TEntity> GetItemAsync<TEntity, TKey>(TKey id, Func<IQueryable<TEntity>, IQueryable<TEntity>> requestSettings = null) 
             where TEntity : class
         {
             // Getting the primary key info
             var keyProperty = _context.Model.FindEntityType(typeof(TEntity)).FindPrimaryKey().Properties[0];
 
-            var result = _context.Set<TEntity>().AsQueryable();
-
-            if(include != null)
-                result = include(result);
+            var result = SetUpRequest(requestSettings: requestSettings);
 
             // Getting the requested entity joining along all the needed properties (tables)
             return await result.FirstOrDefaultAsync(e => EF.Property<TKey>(e, keyProperty.Name).Equals(id));
@@ -58,81 +78,47 @@ namespace Cardofun.DataContext.Repositories
         /// <summary>
         /// Gets an item with a given type and predicate out of db context
         /// </summary>
-        /// <param name="includes">Included navigation properties</param>
+        /// <param name="requestSettings">Set of includes, orderings and other request settings</param>
         /// <param name="predicates">Conditions</param>
         /// <typeparam name="TEntity"></typeparam>
         /// <returns></returns>
-		private async Task<TEntity> GetItemByPredicatesAsync<TEntity>(Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null, params Expression<Func<TEntity, bool>> [] predicates) 
+		private async Task<TEntity> GetItemByPredicatesAsync<TEntity>(Func<IQueryable<TEntity>, IQueryable<TEntity>> requestSettings = null, params Expression<Func<TEntity, bool>> [] predicates) 
             where TEntity : class
-        {
-            var result = _context.Set<TEntity>().AsQueryable();
-                        
-            if(include != null)
-                result = include(result);
-
-            foreach (var predicate in predicates)
-                result = result.Where(predicate);
-
-            return await result.FirstOrDefaultAsync();
-        }
+                => await SetUpRequest(requestSettings: requestSettings, predicates: predicates).FirstOrDefaultAsync();
 
         /// <summary>
         /// Gets all of items with a given type out of db context
         /// </summary>
-        /// <param name="includes">Included navigation properties</param>
+        /// <param name="requestSettings">Set of includes, orderings and other request settings</param>
         /// <typeparam name="TEntity"></typeparam>
         /// <returns></returns>
-		private async Task<IEnumerable<TEntity>> GetAllItemsAsync<TEntity>(Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null) 
+		private async Task<IEnumerable<TEntity>> GetAllItemsAsync<TEntity>(Func<IQueryable<TEntity>, IQueryable<TEntity>> requestSettings = null) 
             where TEntity : class
-        {
-            var result = _context.Set<TEntity>().AsQueryable();
-
-            if(include != null)
-                result = include(result);
-
-            return await result.ToArrayAsync();
-        }
+                => await SetUpRequest(requestSettings: requestSettings).ToArrayAsync(); 
 
         /// <summary>
         /// Gets all of items with a given type out of db context
         /// </summary>
-        /// <param name="includes">Included navigation properties</param>
+        /// <param name="requestSettings">Set of includes, orderings and other request settings</param>
         /// <typeparam name="TEntity"></typeparam>
         /// <returns></returns>
-		private async Task<PagedList<TEntity>> GetPageOfItemsAsync<TEntity>(PaginationParams paginationParams, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null,  params Expression<Func<TEntity, bool>> [] predicates) 
-            where TEntity : class
-        {
-            var result = _context.Set<TEntity>().AsQueryable();
-
-            if(include != null)
-                result = include(result);
-
-            foreach (var predicate in predicates)
-                result = result.Where(predicate);
-
-            return await result.ToPagedListAsync(paginationParams.PageNumber, paginationParams.PageSize);
-        }
+		private async Task<PagedList<TEntity>> GetPageOfItemsAsync<TEntity>(PaginationParams paginationParams, 
+            Func<IQueryable<TEntity>, IQueryable<TEntity>> requestSettings = null,
+            params Expression<Func<TEntity, bool>> [] predicates) 
+                where TEntity : class
+                    => await SetUpRequest(requestSettings: requestSettings, predicates: predicates)
+                        .ToPagedListAsync(paginationParams.PageNumber, paginationParams.PageSize);
 
         /// <summary>
         /// Gets items with a given type and predicate out of db context
         /// </summary>
-        /// <param name="includes">Included navigation properties</param>
+        /// <param name="requestSettings">Set of includes, orderings and other request settings</param>
         /// <param name="predicates">Conditions</param>
         /// <typeparam name="TEntity"></typeparam>
         /// <returns></returns>
-		private async Task<IEnumerable<TEntity>> GetItemsByPredicates<TEntity>(Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null, params Expression<Func<TEntity, bool>> [] predicates) 
+		private async Task<IEnumerable<TEntity>> GetItemsByPredicates<TEntity>(Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> requestSettings = null, params Expression<Func<TEntity, bool>> [] predicates) 
             where TEntity : class
-        {
-            var result = _context.Set<TEntity>().AsQueryable();
-            
-            if(include != null)
-                result = include(result);
-
-            foreach (var predicate in predicates)
-                result = result.Where(predicate);
-
-            return await result.ToArrayAsync();
-        }
+                => await SetUpRequest(requestSettings: requestSettings, predicates: predicates).ToArrayAsync();
         #endregion Functions
 
         #region ICardofunRepository
@@ -200,15 +186,22 @@ namespace Cardofun.DataContext.Repositories
             => await GetPageOfItemsAsync<User>(
                 // Pagination parameters
                 userParams,
-                // Includes
-                user => user
+                // Request settings
+                requestSettings: 
+                    user => user
+                    // Includes
                     .Include(x => x.City) 
                         .ThenInclude(x => x.Country) 
                     .Include(x => x.Photos) 
-                    .Include(x => x.LanguagesTheUserLearns) 
-                        .ThenInclude(x => x.Language) 
-                    .Include(x => x.LanguagesTheUserSpeaks) 
-                        .ThenInclude(x => x.Language),
+
+                    // Uncomment next lines if there's a need to include languages users speak and learn
+                    // .Include(x => x.LanguagesTheUserLearns) 
+                    //     .ThenInclude(x => x.Language) 
+                    // .Include(x => x.LanguagesTheUserSpeaks) 
+                    //     .ThenInclude(x => x.Language)
+
+                    //  Orderings
+                    .OrderByDescending(x => x.LastActive),
                 // Filterings
                 user => user.Id != userParams.UserId,
                 user => !userParams.Sex.HasValue || user.Sex == userParams.Sex,
@@ -246,7 +239,7 @@ namespace Cardofun.DataContext.Repositories
         /// <returns></returns>
         public async Task<IEnumerable<City>> GetCitiesAsync(String citySearchPattern)
             => await GetItemsByPredicates<City>(
-                include: city => city.Include(c => c.Country),
+                requestSettings: city => city.Include(c => c.Country),
                 predicates: city => city.Name.ToUpper().StartsWith(citySearchPattern.ToUpper()));
         #endregion Cities
     
