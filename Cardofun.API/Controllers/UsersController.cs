@@ -82,12 +82,32 @@ namespace Cardofun.API.Controllers
             if(newUserInfo.LanguagesTheUserLearns.Any(ll => newUserInfo.LanguagesTheUserSpeaks.Any(sl => sl.Code.Equals(ll.Code))))
                 return BadRequest("One cannot speak and learn same language");
 
-            _mapper.Map<UserForUpdateDto, User>(newUserInfo, await _cardofunRepository.GetUserAsync(id));
+            _cardofunRepository.StartTransaction();
+
+            var user = await _cardofunRepository.GetUserAsync(id);
+
+            // checking if there's a language that the user was learning before but is speaking now
+            var anyUpgraded = user.LanguagesTheUserLearns.Any(oldLearningLang => newUserInfo.LanguagesTheUserSpeaks.Any(newSpeakingLang => oldLearningLang.LanguageCode.Equals(newSpeakingLang.Code)));
+            // checking if there's a language that the user was speaking before but is learning now
+            var anyDowngraded = user.LanguagesTheUserSpeaks.Any(oldSpeakingLang => newUserInfo.LanguagesTheUserLearns.Any(newLearningLang => oldSpeakingLang.LanguageCode.Equals(newLearningLang.Code)));
+            // if any of above is true - clearing up old values in order not to get 
+            // unique constraint error while saving after new values are applied
+            if(anyUpgraded || anyDowngraded)
+            {
+                user.LanguagesTheUserLearns = null;
+                user.LanguagesTheUserSpeaks = null;
+                await _cardofunRepository.SaveChangesAsync();
+            }
+
+            _mapper.Map<UserForUpdateDto, User>(newUserInfo, user);
             
             if(await _cardofunRepository.SaveChangesAsync())
+            {
+                _cardofunRepository.CommitTransaction();
                 return NoContent();
+            }
 
-            throw new Exception($"Updating user failed on save");
+            throw new Exception("Updating user failed on save");
         }
         #endregion Controller methods
     }
