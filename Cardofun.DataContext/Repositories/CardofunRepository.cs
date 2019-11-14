@@ -33,7 +33,7 @@ namespace Cardofun.DataContext.Repositories
 
         #region Functions
         /// <summary>
-        /// Sets up includes predicates and orderings
+        /// Sets up includes, predicates and orderings
         /// </summary>
         /// <param name="requestSettings">Set of includes, orderings and other request settings</param>
         /// <param name="predicates">Set of predicates</param>
@@ -176,33 +176,33 @@ namespace Cardofun.DataContext.Repositories
                     .Include(u => u.LanguagesTheUserLearns)
                         .ThenInclude(u => u.Language)
                     .Include(u => u.LanguagesTheUserSpeaks)
-                        .ThenInclude(u => u.Language)); 
-         
+                        .ThenInclude(u => u.Language));          
+        
+        
         /// <summary>
-        /// Gets page of users out of the repository
+        /// Sets up includes, predicates and orderings
         /// </summary>
+        /// <param name="userParams"></param>
         /// <returns></returns>
-        public async Task<PagedList<User>> GetPageOfUsersAsync(UserParams userParams)
-            => await GetPageOfItemsAsync<User>(
-                // Pagination parameters
-                userParams,
-                // Request settings
+        private IQueryable<User> SetUpUsersRequest(UserParams userParams)
+        {
+            var result = SetUpRequest<User>(
+                // request settings
                 requestSettings: 
                     user => user
-                    // Includes
-                    .Include(x => x.City) 
+                        .Include(x=>x.City)
                         .ThenInclude(x => x.Country) 
-                    .Include(x => x.Photos) 
+                        .Include(x => x.Photos) 
 
-                    // Uncomment next lines if there's a need to include languages users speak and learn
-                    // .Include(x => x.LanguagesTheUserLearns) 
-                    //     .ThenInclude(x => x.Language) 
-                    // .Include(x => x.LanguagesTheUserSpeaks) 
-                    //     .ThenInclude(x => x.Language)
+                        // Uncomment next lines if there's a need to include languages users speak and learn
+                        // .Include(x => x.LanguagesTheUserLearns) 
+                        //     .ThenInclude(x => x.Language) 
+                        // .Include(x => x.LanguagesTheUserSpeaks) 
+                        //     .ThenInclude(x => x.Language)
 
-                    //  Orderings
-                    .OrderByDescending(x => x.LastActive),
-                // Filterings
+                        //  Orderings
+                        .OrderByDescending(x => x.LastActive),
+                // predicates
                 user => user.Id != userParams.UserId,
                 user => !userParams.Sex.HasValue || user.Sex == userParams.Sex,
                 user => !userParams.AgeMin.HasValue || user.BirthDate.ToAges() >= userParams.AgeMin,
@@ -211,6 +211,30 @@ namespace Cardofun.DataContext.Repositories
                 user => userParams.CityId.HasValue || String.IsNullOrEmpty(userParams.CountryIsoCode) || user.City.CountryIsoCode.Equals(userParams.CountryIsoCode),
                 user => String.IsNullOrEmpty(userParams.LanguageLearningCode) || user.LanguagesTheUserLearns.Any(l => l.LanguageCode.Equals(userParams.LanguageLearningCode)),
                 user => String.IsNullOrEmpty(userParams.LanguageSpeakingCode) || user.LanguagesTheUserSpeaks.Any(l => l.LanguageCode.Equals(userParams.LanguageSpeakingCode)));
+            return result;
+        }
+        
+        /// <summary>
+        /// Gets page of users out of the repository
+        /// </summary>
+        /// <returns></returns>
+        public async Task<PagedList<User>> GetPageOfUsersAsync(UserParams userParams)
+            => await SetUpUsersRequest(userParams)
+                .ToPagedListAsync(userParams.PageNumber, userParams.PageSize);
+        
+        /// <summary>
+        /// Gets page of friends out of the repository
+        /// </summary>
+        /// <returns></returns>
+        public async Task<PagedList<User>> GetPageOfFriendsAsync(UserFriendParams userFriendParams)
+            => await SetUpUsersRequest(userFriendParams)
+                // Appart of the previous settings we should set up that those users also shoud have
+                // related friend requests with needed status
+                .Where(user => (
+                    user.OutcomingFriendRequests.Any(ifr => ifr.ToUserId == userFriendParams.UserId && ifr.Status == userFriendParams.Status)
+                    ||
+                    user.IncomingFriendRequests.Any(ofr => ofr.FromUserId == userFriendParams.UserId && ofr.Status == userFriendParams.Status)))
+                .ToPagedListAsync(userFriendParams.PageNumber, userFriendParams.PageSize);
         #endregion Users
 
         #region Languages
@@ -262,6 +286,17 @@ namespace Cardofun.DataContext.Repositories
                 photo => photo.UserId == userId,
                 photo => photo.IsMain);
         #endregion Photos
+
+        #region FriendshipRequests
+        /// <summary>
+        /// Gets a request for friendship
+        /// </summary>
+        /// <param name="fromUserId">Id of a user that sent the request</param>
+        /// <param name="toUserId">Id of a user that received the request</param>
+        /// <returns></returns>
+        public async Task<FriendRequest> GetFriendRequestAsync(Int32 fromUserId, Int32 toUserId)
+            => await _context.FriendRequests.FindAsync(fromUserId, toUserId);
+        #endregion FriendshipRequests
     }
     #endregion ICardofunRepository
 }

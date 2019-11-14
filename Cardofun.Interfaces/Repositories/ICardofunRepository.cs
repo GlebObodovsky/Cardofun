@@ -63,6 +63,12 @@ namespace Cardofun.Interfaces.Repositories
         Task<PagedList<User>> GetPageOfUsersAsync(UserParams userParams);
 
         /// <summary>
+        /// Gets page of friends with specified status out of the repository
+        /// </summary>
+        /// <returns></returns>
+        Task<PagedList<User>> GetPageOfFriendsAsync(UserFriendParams userFriendParams);
+
+        /// <summary>
         /// Gets languages by given search pattern
         /// </summary>
         /// <returns></returns>
@@ -93,5 +99,13 @@ namespace Cardofun.Interfaces.Repositories
         /// <param name="userId">User of which main photo is needed</param>
         /// <returns></returns>
         Task<Photo> GetMainPhotoForUserAsync(Int32 userId);
+
+        /// <summary>
+        /// Gets a request for friendship
+        /// </summary>
+        /// <param name="fromUserId">Id of a user that sent the request</param>
+        /// <param name="toUserId">Id of a user that received the request</param>
+        /// <returns></returns>
+        Task<FriendRequest> GetFriendRequestAsync(Int32 fromUserId, Int32 toUserId);
     }
 }

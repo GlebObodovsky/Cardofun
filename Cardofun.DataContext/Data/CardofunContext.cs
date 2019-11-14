@@ -51,7 +51,11 @@ namespace Cardofun.DataContext.Data
         /// </summary>
         /// <value></value>
         public DbSet<LanguageLearningLevel> LanguageLearningLevels { get; set; }
-
+        /// <summary>
+        /// Represents all of friend requests being made by users
+        /// </summary>
+        /// <value></value>
+        public DbSet<FriendRequest> FriendRequests { get; set; }
         #endregion DbSets
 
 
@@ -237,6 +241,27 @@ namespace Cardofun.DataContext.Data
                 .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
             #endregion LanguageSpeakingLevel
+        
+            #region FriendRequests
+            modelBuilder.Entity<FriendRequest>()
+                .HasKey(x => new { x.FromUserId, x.ToUserId });
+
+            modelBuilder.Entity<FriendRequest>()
+                .HasOne(x => x.ToUser)
+                .WithMany(x => x.IncomingFriendRequests)
+                .HasForeignKey(x => x.ToUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<FriendRequest>()
+                .HasOne(x => x.FromUser)
+                .WithMany(x => x.OutcomingFriendRequests)
+                .HasForeignKey(x => x.FromUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<FriendRequest>()
+                .Property(x => x.RequestedAt)
+                .HasDefaultValueSql("getdate()");
+            #endregion FriendRequests
         }     
     }
 }

@@ -41,7 +41,9 @@ namespace Cardofun.API
         {
             await Task.Run(() => 
             {
-                Configuration.GetSection(AppSettingsConstants.Token).Value = TokenGenerator.Generate();
+                // ToDo: Uncomment next line before production
+                // Configuration.GetSection(AppSettingsConstants.Token).Value = TokenGenerator.Generate();
+                Configuration.GetSection(AppSettingsConstants.Token).Value = "super strong key";
             });
         }
 

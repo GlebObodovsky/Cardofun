@@ -23,11 +23,14 @@ namespace Cardofun.Domain.Models
         public virtual ICollection<Photo> Photos { get; set; }
         public virtual ICollection<LanguageSpeakingLevel> LanguagesTheUserSpeaks { get; set; }
         public virtual ICollection<LanguageLearningLevel> LanguagesTheUserLearns { get; set; }
-
+        public virtual ICollection<FriendRequest> OutcomingFriendRequests { get; set; }
+        public virtual ICollection<FriendRequest> IncomingFriendRequests { get; set; }
         public User()
         {
             LanguagesTheUserSpeaks = new List<LanguageSpeakingLevel>();
             LanguagesTheUserLearns = new List<LanguageLearningLevel>();
+            OutcomingFriendRequests = new List<FriendRequest>();
+            IncomingFriendRequests = new List<FriendRequest>();
         }
     }
 }
