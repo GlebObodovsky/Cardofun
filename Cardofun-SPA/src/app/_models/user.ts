@@ -1,6 +1,7 @@
 import { City } from './City';
 import { Language } from './language';
 import { Photo } from './photo';
+import { FriendshipStatus } from './friendshipStatus';
 
 export interface User {
     id: number;
@@ -18,5 +19,6 @@ export interface User {
     cityId?: number;
     introduction?: string;
     email?: string;
+    friendshipStatus?: FriendshipStatus;
     photos?: Photo[];
 }

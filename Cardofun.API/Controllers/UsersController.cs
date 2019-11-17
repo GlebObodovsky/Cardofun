@@ -205,6 +205,31 @@ namespace Cardofun.API.Controllers
 
             return BadRequest("Changing friendship status failed on save");
         }
+
+        /// <summary>
+        /// Removing a friendship request
+        /// </summary>
+        /// <param name="id">User Id</param>
+        /// <param name="recepientId">Id of a user that will be excluded from friend list</param>
+        /// <returns></returns>
+        [HttpDelete("{id}/friends/{recepientId}")]
+        public async Task<IActionResult> RemoveFriendshipRequest(Int32 id, Int32 recepientId)
+        {
+            if(id != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            var request = await _cardofunRepository.GetFriendRequestAsync(id, recepientId);
+
+            if(request == null)
+                return BadRequest("The friend request hasn't been found");
+
+            _cardofunRepository.Delete(request);
+
+            if(await _cardofunRepository.SaveChangesAsync())
+                return Ok();
+
+            return BadRequest("Friendship request deletion failed on save");
+        }
         #endregion Controller methods
     }
 }

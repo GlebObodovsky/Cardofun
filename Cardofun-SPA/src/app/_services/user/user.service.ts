@@ -16,7 +16,7 @@ export class UserService {
 
   baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient, private alertifyService: AlertifyService, private authService: AuthService) { }
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
   checkIfUserExists(login: string) {
     return this.http.head(this.baseUrl + 'users/' + login);
@@ -72,6 +72,14 @@ export class UserService {
 
   getUser(id: number): Observable<User> {
     return this.http.get<User>(this.baseUrl + 'users/' + id);
+  }
+
+  requestFriendship(id: number) {
+    return this.http.post(this.baseUrl + 'users/' + this.authService.currentUser.id + '/friends/' + id, {});
+  }
+
+  deleteFriendship(id: number) {
+    return this.http.delete(this.baseUrl + 'users/' + this.authService.currentUser.id + '/friends/' + id);
   }
 
   putUser(id: number, user: User) {
