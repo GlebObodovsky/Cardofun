@@ -13,6 +13,7 @@ import { City } from 'src/app/_models/City';
 import { CityService } from 'src/app/_services/city/city.service';
 import { Country } from 'src/app/_models/country';
 import { CountryService } from 'src/app/_services/country/country.service';
+import { LocalStorageService } from 'src/app/_services/local-storage/local-storage.service';
 
 @Component({
   selector: 'app-member-list',
@@ -21,7 +22,7 @@ import { CountryService } from 'src/app/_services/country/country.service';
 })
 export class MemberListComponent implements OnInit {
   users: User[];
-  user: User = JSON.parse(localStorage.getItem('user'));
+  user: User = this.localStorageService.getUser();
   genderList = [{value: 'male', display: 'Males'}, {value: 'female', display: 'Females'}];
   userParams: UserFilterParams = {};
   pagination: Pagination;
@@ -40,7 +41,8 @@ export class MemberListComponent implements OnInit {
 
   constructor(private route: ActivatedRoute, private userService: UserService,
     private alertifyService: AlertifyService, private languageService: LanguageService,
-    private countryService: CountryService, private cityService: CityService) { }
+    private countryService: CountryService, private cityService: CityService,
+    private localStorageService: LocalStorageService) { }
 
   ngOnInit() {
     this.route.data.subscribe(data => {

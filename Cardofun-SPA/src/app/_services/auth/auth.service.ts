@@ -5,13 +5,14 @@ import { map } from 'rxjs/operators';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environments/environment';
 import { User } from 'src/app/_models/user';
+import { LocalStorageService } from '../local-storage/local-storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private localStorageService: LocalStorageService) { }
 
   baseUrl = environment.apiUrl + 'auth/';
   jwtHelper = new JwtHelperService();
@@ -25,8 +26,8 @@ export class AuthService {
       map((response: any) => {
         const user = response;
         if (user) {
-          localStorage.setItem('token', user.token);
-          localStorage.setItem('user', JSON.stringify(user.user));
+          this.localStorageService.setToken(user.token);
+          this.localStorageService.setUser(user.user);
           this.decodedToken = this.jwtHelper.decodeToken(user.token);
           this.currentUser = user.user;
           this.changeMemberPhoto(user.user.photoUrl);
@@ -36,8 +37,8 @@ export class AuthService {
   }
 
   logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    this.localStorageService.removeToken();
+    this.localStorageService.removeUser();
     this.decodedToken = null;
     this.currentUser = null;
   }
@@ -47,7 +48,7 @@ export class AuthService {
   }
 
   isLoggedIn() {
-    const token = localStorage.getItem('token');
+    const token = this.localStorageService.getToken();
     return !this.jwtHelper.isTokenExpired(token);
   }
 
@@ -56,8 +57,8 @@ export class AuthService {
   }
 
   refreshUserInformation() {
-    const token = localStorage.getItem('token');
-    const user: User = JSON.parse(localStorage.getItem('user'));
+    const token = this.localStorageService.getToken();
+    const user: User = this.localStorageService.getUser();
     if (token) {
       this.decodedToken = this.jwtHelper.decodeToken(token);
     }
