@@ -12,6 +12,7 @@ using Cardofun.Core.ApiParameters;
 using Cardofun.API.Helpers.Extensions;
 using System.Linq;
 using Cardofun.Core.Enums;
+using System.Diagnostics;
 
 namespace Cardofun.API.Controllers
 {
@@ -56,9 +57,12 @@ namespace Cardofun.API.Controllers
         public async Task<IActionResult> GetUsers([FromQuery]UserParams userParams)
         {
             userParams.UserId = Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
             var userPages = await _cardofunRepository.GetPageOfUsersAsync(userParams);
+            var mappedCollection = _mapper.Map<IEnumerable<User>, IEnumerable<UserForListDto>>(userPages, UserAfterMap);
+
             Response.AddPagination(userPages.PageNumber, userPages.PageSize, userPages.TotalCount, userPages.TotalPages);
-            return Ok(_mapper.Map<IEnumerable<UserForListDto>>(userPages));
+            return Ok(mappedCollection);
         }
 
         /// <summary>
@@ -111,7 +115,6 @@ namespace Cardofun.API.Controllers
             return BadRequest("Updating user failed on save");
         }
 
-        
         /// <summary>
         /// Returns list of the user's friends
         /// </summary>
@@ -126,8 +129,11 @@ namespace Cardofun.API.Controllers
             userFriendParams.UserId = id;
 
             var userPages = await _cardofunRepository.GetPageOfFriendsAsync(userFriendParams);
+
+            var mappedCollection = _mapper.Map<IEnumerable<User>, IEnumerable<UserForListDto>>(userPages, UserAfterMap);
+                
             Response.AddPagination(userPages.PageNumber, userPages.PageSize, userPages.TotalCount, userPages.TotalPages);
-            return Ok(_mapper.Map<IEnumerable<UserForListDto>>(userPages));
+            return Ok(mappedCollection);
         }
 
         /// <summary>
@@ -231,5 +237,38 @@ namespace Cardofun.API.Controllers
             return BadRequest("Friendship request deletion failed on save");
         }
         #endregion Controller methods
+
+        #region Private methods
+        /// <summary>
+        /// Sets aftermap otions for collection of UserForListDto's. 
+        /// Main purpose of which is to add friendship status information
+        /// </summary>
+        /// <param name="opt"></param>
+        private void UserAfterMap(IMappingOperationOptions<IEnumerable<User>, IEnumerable<UserForListDto>> opt)
+        {
+            if (!Int32.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out Int32 id))
+                return;
+
+            opt.AfterMap((src, dest) =>
+            {
+                for (int i = 0; i < dest.Count(); i++)
+                {
+                    var elementFrom = src.ElementAt(i);
+                    var elementTo = dest.ElementAt(i);
+                    var outcomming = elementFrom.OutcomingFriendRequests.FirstOrDefault(ofr => ofr.ToUserId == id);
+                    var incomming = elementFrom.IncomingFriendRequests.FirstOrDefault(ofr => ofr.FromUserId == id);
+                    
+                    if (outcomming == null && incomming == null)
+                        continue;
+                        
+                    elementTo.Friendship = new FriendshipRequestDto 
+                    {
+                        IsOwner = outcomming != null,
+                        Status = outcomming != null ? outcomming.Status : incomming.Status
+                    };
+                }
+            });
+        }
+        #endregion Private methods
     }
 }

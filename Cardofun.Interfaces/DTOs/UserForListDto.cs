@@ -18,6 +18,11 @@ namespace Cardofun.Interfaces.DTOs
         /// </summary>
         /// <value></value>
         public String PhotoUrl { get; set; }
+        /// <summary>
+        /// Frienship status (related to a requested user)
+        /// </summary>
+        /// <value></value>
+        public FriendshipRequestDto Friendship { get; set; }        
 
 
         // Uncomment next lines if there's a need to return languages users speak and learn

@@ -191,9 +191,10 @@ namespace Cardofun.DataContext.Repositories
                 requestSettings: 
                     user => user
                         .Include(x=>x.City)
-                        .ThenInclude(x => x.Country) 
+                            .ThenInclude(x => x.Country) 
                         .Include(x => x.Photos) 
-
+                        .Include(x => x.IncomingFriendRequests)
+                        .Include(x => x.OutcomingFriendRequests)
                         // Uncomment next lines if there's a need to include languages users speak and learn
                         // .Include(x => x.LanguagesTheUserLearns) 
                         //     .ThenInclude(x => x.Language) 
