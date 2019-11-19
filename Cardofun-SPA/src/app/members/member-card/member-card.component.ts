@@ -19,19 +19,40 @@ export class MemberCardComponent implements OnInit {
 
   addUserAsFriend(id: number) {
     this.userService.requestFriendship(id).subscribe(next => {
-      this.user.friendshipStatus = FriendshipStatus.requested;
+      this.user.friendship = {
+        isOwner: false,
+        status: FriendshipStatus.requested
+      };
       this.alerifyService.success('Friend request has been successfully sent');
     }, error => {
       this.alerifyService.error(error);
     });
   }
 
-  deleteUserFromFriends(id: number) {
-    this.userService.deleteFriendship(id).subscribe(next => {
-      this.user.friendshipStatus = null;
-      this.alerifyService.success('Friendship has been successfully deleted');
+  acceptFriendship(id: number) {
+    this.userService.changeFriendshipStatus(id, FriendshipStatus.accepted).subscribe(next => {
+      this.user.friendship.status = FriendshipStatus.accepted;
+      this.alerifyService.success('Friendship has been successfully accepted');
     }, error => {
       this.alerifyService.error(error);
     });
+  }
+
+  deleteUserFromFriends(id: number, isOwner?: boolean) {
+    if (isOwner) {
+      this.userService.changeFriendshipStatus(id, FriendshipStatus.declined).subscribe(next => {
+        this.user.friendship.status = FriendshipStatus.declined;
+        this.alerifyService.success('Friendship has been successfully declined');
+      }, error => {
+        this.alerifyService.error(error);
+      });
+    } else {
+      this.userService.deleteFriendship(id).subscribe(next => {
+        this.user.friendship = null;
+        this.alerifyService.success('Friendship has been successfully deleted');
+      }, error => {
+        this.alerifyService.error(error);
+      });
+    }
   }
 }

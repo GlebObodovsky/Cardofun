@@ -8,6 +8,7 @@ import { PaginatedResult } from 'src/app/_models/pagination';
 import { map } from 'rxjs/operators';
 import { UserFilterParams } from 'src/app/_models/userFilterParams';
 import { AuthService } from '../auth/auth.service';
+import { FriendshipStatus } from 'src/app/_models/friendshipStatus';
 
 @Injectable({
   providedIn: 'root'
@@ -76,6 +77,10 @@ export class UserService {
 
   requestFriendship(id: number) {
     return this.http.post(this.baseUrl + 'users/' + this.authService.currentUser.id + '/friends/' + id, {});
+  }
+
+  changeFriendshipStatus(id: number, status: FriendshipStatus) {
+    return this.http.put(this.baseUrl + 'users/' + this.authService.currentUser.id + '/friends/' + id, {status});
   }
 
   deleteFriendship(id: number) {

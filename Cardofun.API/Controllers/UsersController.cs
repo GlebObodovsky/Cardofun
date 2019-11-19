@@ -178,10 +178,10 @@ namespace Cardofun.API.Controllers
         /// </summary>
         /// <param name="id">User Id</param>
         /// <param name="recepientId">Id of a user that requested the friendship</param>
-        /// <param name="status">New friendship status (Requested, Accepted, Declined)</param>
+        /// <param name="friendshipStatus">New friendship status (Requested, Accepted, Declined)</param>
         /// <returns></returns>
         [HttpPut("{id}/friends/{recepientId}")]
-        public async Task<IActionResult> ReplyOnFriendshipRequest(Int32 id, Int32 recepientId, [FromBody]String status)
+        public async Task<IActionResult> ReplyOnFriendshipRequest(Int32 id, Int32 recepientId, [FromBody]FriendshipStatusParams friendshipStatus)
         {
             if(id != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
                 return Unauthorized();
@@ -194,7 +194,7 @@ namespace Cardofun.API.Controllers
             if(friendRequest == null)
                 return BadRequest("The friend request has not been found");
 
-            if(!Enum.TryParse(typeof(FriendshipStatus), status, true, out object fStatus))
+            if(!Enum.TryParse(typeof(FriendshipStatus), friendshipStatus.Status, true, out object fStatus))
             {
                 var statuses = String.Join(", ", 
                     Enum.GetValues(typeof(FriendshipStatus))
