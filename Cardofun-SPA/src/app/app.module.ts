@@ -18,12 +18,12 @@ import { RegisterComponent } from './register/register.component';
 import { ErrorInterceptorProvider } from './_services/error.interceptor';
 import { AuthService } from './_services/auth/auth.service';
 import { UserService } from './_services/user/user.service';
+import { FriendService } from './_services/friend/friend.service';
 import { CityService } from './_services/city/city.service';
 import { CountryService } from './_services/country/country.service';
 import { LanguageService } from './_services/language/language.service';
 import { AlertifyService } from './_services/alertify/alertify.service';
 import { LocalStorageService } from './_services/local-storage/local-storage.service';
-import { ListsComponent } from './lists/lists.component';
 import { MessagesComponent } from './messages/messages.component';
 import { MemberListComponent } from './members/member-list/member-list.component';
 import { appRoutes } from './routes';
@@ -33,10 +33,12 @@ import { MemberCardComponent } from './members/member-card/member-card.component
 import { MemberDetailComponent } from './members/member-detail/member-detail.component';
 import { MemberDetailResolver } from './_resolvers/member-detail-resolver';
 import { MemberListResolver } from './_resolvers/member-list-resolver';
+import { MemberEditResolver } from './_resolvers/member-edit-resolver';
+import { FriendListResolver } from './_resolvers/friend-list-resolver';
 import { MemberEditComponent } from './members/member-edit/member-edit.component';
 import { PhotoEditorComponent } from './members/photo-editor/photo-editor.component';
-import { MemberEditResolver } from './_resolvers/member-edit-resolver';
 import { environment } from 'src/environments/environment';
+import { EnumToArrayPipe } from './_pipes/enumToArray/enumToArray.pipe';
 
 export const jwtOptionsFactory = (localStorageSvc: LocalStorageService) => ({
    tokenGetter: () => localStorageSvc.getToken(),
@@ -57,14 +59,14 @@ export class CustomHammerConfig extends HammerGestureConfig  {
       NavComponent,
       HomeComponent,
       RegisterComponent,
-      ListsComponent,
       MessagesComponent,
       MemberListComponent,
       MemberCardComponent,
       MemberDetailComponent,
       MemberEditComponent,
       PhotoEditorComponent,
-      TimeAgoPipe
+      TimeAgoPipe,
+      EnumToArrayPipe
    ],
    imports: [
       BrowserModule,
@@ -91,6 +93,7 @@ export class CustomHammerConfig extends HammerGestureConfig  {
    providers: [
       AuthService,
       UserService,
+      FriendService,
       CityService,
       CountryService,
       LanguageService,
@@ -102,6 +105,7 @@ export class CustomHammerConfig extends HammerGestureConfig  {
       MemberDetailResolver,
       MemberListResolver,
       MemberEditResolver,
+      FriendListResolver,
       { provide: HAMMER_GESTURE_CONFIG, useClass: CustomHammerConfig }
    ],
    bootstrap: [

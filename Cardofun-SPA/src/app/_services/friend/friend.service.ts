@@ -1,29 +1,24 @@
 import { Injectable } from '@angular/core';
+import { AuthService } from '../auth/auth.service';
 import { environment } from 'src/environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { User } from 'src/app/_models/user';
-import { AlertifyService } from '../alertify/alertify.service';
-import { PaginatedResult } from 'src/app/_models/pagination';
-import { map } from 'rxjs/operators';
-import { UserFilterParams } from 'src/app/_models/userFilterParams';
-import { AuthService } from '../auth/auth.service';
 import { FriendshipStatus } from 'src/app/_models/friendshipStatus';
+import { FriendFilterParams } from 'src/app/_models/friendFilterParams';
+import { PaginatedResult } from 'src/app/_models/pagination';
+import { User } from 'src/app/_models/user';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
-export class UserService {
+export class FriendService {
 
-  baseUrl = environment.apiUrl;
+  baseUrl = environment.apiUrl + 'users/' + this.authService.currentUser.id + '/friends/';
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
-  checkIfUserExists(login: string) {
-    return this.http.head(this.baseUrl + 'users/' + login);
-  }
-
-  getUsers(page?, itemsPerPage?, userParams?: UserFilterParams): Observable<PaginatedResult<User[]>> {
+  getFriends(page?, itemsPerPage?, userParams?: FriendFilterParams): Observable<PaginatedResult<User[]>> {
     const paginatedResult: PaginatedResult<User[]> = new PaginatedResult<User[]>();
 
     let params = new HttpParams();
@@ -59,7 +54,7 @@ export class UserService {
       params = params.append('languageSpeakingCode', this.authService.currentUser.languagesTheUserLearns[0].code);
     }
 
-    return this.http.get<User[]>(this.baseUrl + 'users', { observe: 'response', params })
+    return this.http.get<User[]>(this.baseUrl, { observe: 'response', params })
       .pipe(
         map(response => {
           paginatedResult.result = response.body;
@@ -71,19 +66,15 @@ export class UserService {
       );
   }
 
-  getUser(id: number): Observable<User> {
-    return this.http.get<User>(this.baseUrl + 'users/' + id);
+  requestFriendship(id: number) {
+    return this.http.post(this.baseUrl + id, {});
   }
 
-  putUser(id: number, user: User) {
-    return this.http.put<User>(this.baseUrl + 'users/' + id, user);
+  changeFriendshipStatus(id: number, status: FriendshipStatus) {
+    return this.http.put(this.baseUrl + id, {status});
   }
 
-  setMainPhoto(userId: number, id: string) {
-    return this.http.post(this.baseUrl + 'users/' + userId + '/photos/' + id + '/setMain', {});
-  }
-
-  deletePhoto(userId: number, id: string) {
-    return this.http.delete(this.baseUrl + 'users/' + userId + '/photos/' + id);
+  deleteFriendship(id: number) {
+    return this.http.delete(this.baseUrl + id);
   }
 }

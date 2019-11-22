@@ -14,6 +14,9 @@ import { CityService } from 'src/app/_services/city/city.service';
 import { Country } from 'src/app/_models/country';
 import { CountryService } from 'src/app/_services/country/country.service';
 import { LocalStorageService } from 'src/app/_services/local-storage/local-storage.service';
+import { FriendService } from 'src/app/_services/friend/friend.service';
+import { FriendshipStatus } from 'src/app/_models/friendshipStatus';
+import { EnumToArrayPipe } from 'src/app/_pipes/enumToArray/enumToArray.pipe';
 
 @Component({
   selector: 'app-member-list',
@@ -21,6 +24,10 @@ import { LocalStorageService } from 'src/app/_services/local-storage/local-stora
   styleUrls: ['./member-list.component.css']
 })
 export class MemberListComponent implements OnInit {
+  currentPath: string;
+  memberPath = 'members';
+  friendPath = 'friends';
+
   users: User[];
   user: User = this.localStorageService.getUser();
   genderList = [{value: 'male', display: 'Males'}, {value: 'female', display: 'Females'}];
@@ -39,12 +46,18 @@ export class MemberListComponent implements OnInit {
   speakingLanguagesInput$ = new Subject<string>();
   speakingLanguagesLoading = false;
 
+  friendshipStatuses = FriendshipStatus;
+
   constructor(private route: ActivatedRoute, private userService: UserService,
-    private alertifyService: AlertifyService, private languageService: LanguageService,
-    private countryService: CountryService, private cityService: CityService,
-    private localStorageService: LocalStorageService) { }
+    private friendService: FriendService, private alertifyService: AlertifyService,
+    private languageService: LanguageService, private countryService: CountryService,
+    private cityService: CityService, private localStorageService: LocalStorageService) { }
 
   ngOnInit() {
+    this.route.url.subscribe(params => {
+      this.currentPath = params[0].path;
+    });
+
     this.route.data.subscribe(data => {
       this.users = data['users'].result;
       this.pagination = data['users'].pagination;
@@ -61,13 +74,23 @@ export class MemberListComponent implements OnInit {
   }
 
   loadUsers() {
-    this.userService.getUsers(this.pagination.currentPage, this.pagination.itemsPerPage, this.userParams)
+    if (this.currentPath === this.memberPath) {
+      this.userService.getUsers(this.pagination.currentPage, this.pagination.itemsPerPage, this.userParams)
       .subscribe((res: PaginatedResult<User[]>) => {
         this.users = res.result;
         this.pagination = res.pagination;
       }, error => {
         this.alertifyService.error(error);
       });
+    } else {
+      this.friendService.getFriends(this.pagination.currentPage, this.pagination.itemsPerPage, this.userParams)
+      .subscribe((res: PaginatedResult<User[]>) => {
+        this.users = res.result;
+        this.pagination = res.pagination;
+      }, error => {
+        this.alertifyService.error(error);
+      });
+    }
   }
 
   resetFilters(applyFilters?: boolean) {
@@ -85,6 +108,15 @@ export class MemberListComponent implements OnInit {
 
     if (applyFilters) {
       this.loadUsers();
+    }
+  }
+
+  excludedFromFriendlist(friend: User) {
+    if (this.currentPath === this.friendPath) {
+      const index = this.users.indexOf(friend, 0);
+      if (index > -1) {
+        this.users.splice(index, 1);
+      }
     }
   }
 
