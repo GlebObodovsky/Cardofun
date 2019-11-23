@@ -1,6 +1,7 @@
 import { UserFilterParams } from './userFilterParams';
-import { FriendshipStatus } from './friendshipStatus';
+import { FriendshipStatus } from './enums/friendshipStatus';
 
 export interface FriendFilterParams extends UserFilterParams {
-    status?: FriendshipStatus;
+    friendshipStatus?: FriendshipStatus;
+    isFriendshipOwned?: Boolean;
 }

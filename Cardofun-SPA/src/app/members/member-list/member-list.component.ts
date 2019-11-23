@@ -15,7 +15,7 @@ import { Country } from 'src/app/_models/country';
 import { CountryService } from 'src/app/_services/country/country.service';
 import { LocalStorageService } from 'src/app/_services/local-storage/local-storage.service';
 import { FriendService } from 'src/app/_services/friend/friend.service';
-import { FriendshipStatus } from 'src/app/_models/friendshipStatus';
+import { FriendshipStatus } from 'src/app/_models/enums/friendshipStatus';
 import { EnumToArrayPipe } from 'src/app/_pipes/enumToArray/enumToArray.pipe';
 
 @Component({

@@ -1,4 +1,4 @@
-import { FriendshipStatus } from './friendshipStatus';
+import { FriendshipStatus } from './enums/friendshipStatus';
 
 export interface FriendshipRequest {
     isOwner: boolean;

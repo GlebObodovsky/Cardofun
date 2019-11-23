@@ -6,14 +6,17 @@
       <li class="nav-item" routerLinkActive="active" >
         <a class="nav-link" [routerLink]="['/members']">Members</a>
       </li>
-      <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" [routerLink]="['/friends']">Friends</a>
+      <li class="nav-item dropdown" routerLinkActive="active" dropdown>
+        <a data-toggle="dropdown" class="nav-link dropdown-toggle" [routerLink]="['/friends']">Friends</a>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" [routerLink]="['/friends/', 'subscribers']">Subscribers</a></li>
+          <li><a class="dropdown-item" [routerLink]="['/friends/', 'subscriptions']">My subscriptions</a></li>
+        </ul>
       </li>
       <li class="nav-item" routerLinkActive="active" >
         <a class="nav-link" [routerLink]="['/messages']">Messages</a>
       </li>
     </ul>
-
     <form *ngIf=(!isLoggedIn()) #loginForm='ngForm' class="form-inline my-2 my-lg-0" (ngSubmit)="login()">
       <input class="form-control mr-sm-2" type="text" name="login" 
         placeholder="Login" required [(ngModel)]="model.login">

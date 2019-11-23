@@ -24,6 +24,7 @@ export const appRoutes: Routes = [
                 canDeactivate: [PreventUnsavedChangesGuard] },
             { path: 'messages', component: MessagesComponent },
             { path: 'friends', component: MemberListComponent, resolve: { users: FriendListResolver }  },
+            { path: 'friends/:state', component: MemberListComponent, resolve: { users: FriendListResolver }  }
         ]
     },
     { path: '**', redirectTo: '', pathMatch: 'full' }

@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { User } from 'src/app/_models/user';
 import { AlertifyService } from 'src/app/_services/alertify/alertify.service';
-import { FriendshipStatus } from 'src/app/_models/friendshipStatus';
+import { FriendshipStatus } from 'src/app/_models/enums/friendshipStatus';
 import { FriendService } from 'src/app/_services/friend/friend.service';
 
 @Component({

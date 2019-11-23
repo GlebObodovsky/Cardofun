@@ -8,7 +8,7 @@ import { PaginatedResult } from 'src/app/_models/pagination';
 import { map } from 'rxjs/operators';
 import { UserFilterParams } from 'src/app/_models/userFilterParams';
 import { AuthService } from '../auth/auth.service';
-import { FriendshipStatus } from 'src/app/_models/friendshipStatus';
+import { FriendshipStatus } from 'src/app/_models/enums/friendshipStatus';
 
 @Injectable({
   providedIn: 'root'

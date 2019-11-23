@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 import { environment } from 'src/environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { FriendshipStatus } from 'src/app/_models/friendshipStatus';
+import { FriendshipStatus } from 'src/app/_models/enums/friendshipStatus';
 import { FriendFilterParams } from 'src/app/_models/friendFilterParams';
 import { PaginatedResult } from 'src/app/_models/pagination';
 import { User } from 'src/app/_models/user';
@@ -14,11 +14,11 @@ import { map } from 'rxjs/operators';
 })
 export class FriendService {
 
-  baseUrl = environment.apiUrl + 'users/' + this.authService.currentUser.id + '/friends/';
+  baseUrl = environment.apiUrl + 'users/';
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
-  getFriends(page?, itemsPerPage?, userParams?: FriendFilterParams): Observable<PaginatedResult<User[]>> {
+  getFriends(page?, itemsPerPage?, userFriendParams?: FriendFilterParams): Observable<PaginatedResult<User[]>> {
     const paginatedResult: PaginatedResult<User[]> = new PaginatedResult<User[]>();
 
     let params = new HttpParams();
@@ -28,33 +28,39 @@ export class FriendService {
       params = params.append('pageSize', itemsPerPage);
     }
 
-    if (userParams) {
-      if (userParams.sex) {
-        params = params.append('sex', userParams.sex);
+    if (userFriendParams) {
+      if (userFriendParams.sex) {
+        params = params.append('sex', userFriendParams.sex);
       }
-      if (userParams.ageMin) {
-        params = params.append('ageMin', userParams.ageMin.toString());
+      if (userFriendParams.ageMin) {
+        params = params.append('ageMin', userFriendParams.ageMin.toString());
       }
-      if (userParams.ageMax) {
-        params = params.append('ageMax', userParams.ageMax.toString());
+      if (userFriendParams.ageMax) {
+        params = params.append('ageMax', userFriendParams.ageMax.toString());
       }
-      if (userParams.cityId) {
-        params = params.append('cityId', userParams.cityId.toString());
+      if (userFriendParams.cityId) {
+        params = params.append('cityId', userFriendParams.cityId.toString());
       }
-      if (userParams.countryIsoCode) {
-        params = params.append('countryIsoCode', userParams.countryIsoCode);
+      if (userFriendParams.countryIsoCode) {
+        params = params.append('countryIsoCode', userFriendParams.countryIsoCode);
       }
-      if (userParams.languageSpeakingCode) {
-        params = params.append('languageSpeakingCode', userParams.languageSpeakingCode);
+      if (userFriendParams.languageSpeakingCode) {
+        params = params.append('languageSpeakingCode', userFriendParams.languageSpeakingCode);
       }
-      if (userParams.languageLearningCode) {
-        params = params.append('languageLearningCode', userParams.languageLearningCode);
+      if (userFriendParams.languageLearningCode) {
+        params = params.append('languageLearningCode', userFriendParams.languageLearningCode);
+      }
+      if (userFriendParams.friendshipStatus) {
+        params = params.append('friendshipStatus', userFriendParams.friendshipStatus);
+      }
+      if (userFriendParams.isFriendshipOwned != null) {
+        params = params.append('isFriendshipOwned', String(userFriendParams.isFriendshipOwned));
       }
     } else if (this.authService.currentUser.languagesTheUserLearns.length === 1) {
       params = params.append('languageSpeakingCode', this.authService.currentUser.languagesTheUserLearns[0].code);
     }
 
-    return this.http.get<User[]>(this.baseUrl, { observe: 'response', params })
+    return this.http.get<User[]>(this.baseUrl + this.authService.currentUser.id + '/friends/', { observe: 'response', params })
       .pipe(
         map(response => {
           paginatedResult.result = response.body;
@@ -67,14 +73,14 @@ export class FriendService {
   }
 
   requestFriendship(id: number) {
-    return this.http.post(this.baseUrl + id, {});
+    return this.http.post(this.baseUrl + this.authService.currentUser.id + '/friends/' + id, {});
   }
 
   changeFriendshipStatus(id: number, status: FriendshipStatus) {
-    return this.http.put(this.baseUrl + id, {status});
+    return this.http.put(this.baseUrl + this.authService.currentUser.id + '/friends/' + id, {status});
   }
 
   deleteFriendship(id: number) {
-    return this.http.delete(this.baseUrl + id);
+    return this.http.delete(this.baseUrl + this.authService.currentUser.id + '/friends/' + id);
   }
 }

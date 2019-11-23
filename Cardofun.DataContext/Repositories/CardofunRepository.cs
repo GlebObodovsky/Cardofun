@@ -232,9 +232,18 @@ namespace Cardofun.DataContext.Repositories
                 // Appart of the previous settings we should set up that those users also shoud have
                 // related friend requests with needed status
                 .Where(user => (
-                    user.OutcomingFriendRequests.Any(ifr => ifr.ToUserId == userFriendParams.UserId && ifr.Status == userFriendParams.Status)
+                    user.OutcomingFriendRequests.Any(ifr => ifr.ToUserId == userFriendParams.UserId && ifr.Status == userFriendParams.FriendshipStatus)
                     ||
-                    user.IncomingFriendRequests.Any(ofr => ofr.FromUserId == userFriendParams.UserId && ofr.Status == userFriendParams.Status)))
+                    user.IncomingFriendRequests.Any(ofr => ofr.FromUserId == userFriendParams.UserId && ofr.Status == userFriendParams.FriendshipStatus)))
+                .Where(user =>
+                    // Get all friends regardless of who initiated firendship
+                    userFriendParams.IsFriendshipOwned == null 
+                    ||
+                    // Get friendships initiated not by requested user  
+                    (!userFriendParams.IsFriendshipOwned.Value && user.OutcomingFriendRequests.Any(ofr => ofr.ToUserId == userFriendParams.UserId))
+                    ||
+                    // Get friendships initiated by requested user
+                    (userFriendParams.IsFriendshipOwned.Value && user.IncomingFriendRequests.Any(ofr => ofr.FromUserId == userFriendParams.UserId)))
                 .ToPagedListAsync(userFriendParams.PageNumber, userFriendParams.PageSize);
         #endregion Users
 
