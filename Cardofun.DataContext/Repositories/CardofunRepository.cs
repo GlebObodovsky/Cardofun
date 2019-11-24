@@ -232,9 +232,9 @@ namespace Cardofun.DataContext.Repositories
                 // Appart of the previous settings we should set up that those users also shoud have
                 // related friend requests with needed status
                 .Where(user => (
-                    user.OutcomingFriendRequests.Any(ifr => ifr.ToUserId == userFriendParams.UserId && ifr.Status == userFriendParams.FriendshipStatus)
+                    user.OutcomingFriendRequests.Any(ifr => ifr.ToUserId == userFriendParams.UserId && userFriendParams.FriendshipStatus.Contains(ifr.Status))
                     ||
-                    user.IncomingFriendRequests.Any(ofr => ofr.FromUserId == userFriendParams.UserId && ofr.Status == userFriendParams.FriendshipStatus)))
+                    user.IncomingFriendRequests.Any(ofr => ofr.FromUserId == userFriendParams.UserId && userFriendParams.FriendshipStatus.Contains(ofr.Status))))
                 .Where(user =>
                     // Get all friends regardless of who initiated firendship
                     userFriendParams.IsFriendshipOwned == null 

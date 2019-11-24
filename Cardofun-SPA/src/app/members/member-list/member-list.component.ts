@@ -17,6 +17,7 @@ import { LocalStorageService } from 'src/app/_services/local-storage/local-stora
 import { FriendService } from 'src/app/_services/friend/friend.service';
 import { FriendshipStatus } from 'src/app/_models/enums/friendshipStatus';
 import { EnumToArrayPipe } from 'src/app/_pipes/enumToArray/enumToArray.pipe';
+import { SupscriptionState } from 'src/app/_models/enums/supscriptionState';
 
 @Component({
   selector: 'app-member-list',
@@ -56,6 +57,9 @@ export class MemberListComponent implements OnInit {
   ngOnInit() {
     this.route.url.subscribe(params => {
       this.currentPath = params[0].path;
+      if (params[1]) {
+        this.userParams.subscriptionState = SupscriptionState[params[1].path];
+      }
     });
 
     this.route.data.subscribe(data => {

@@ -9,7 +9,7 @@ namespace Cardofun.Core.ApiParameters
         /// Friendship status is Accepted by default
         /// </summary>
         /// <value></value>
-        public FriendshipStatus FriendshipStatus { get; set; } = FriendshipStatus.Accepted;
+        public FriendshipStatus[] FriendshipStatus { get; set; } = new FriendshipStatus[] { Enums.FriendshipStatus.Accepted };
         /// <summary>
         /// Null - All friendships (default)
         /// True - Friendships owned by the requested user

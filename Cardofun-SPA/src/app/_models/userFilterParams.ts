@@ -1,3 +1,5 @@
+import { SupscriptionState } from './enums/supscriptionState';
+
 export interface UserFilterParams {
     sex?: string;
     ageMin?: number;
@@ -6,4 +8,5 @@ export interface UserFilterParams {
     countryIsoCode?: string;
     languageSpeakingCode?: string;
     languageLearningCode?: string;
+    subscriptionState?: SupscriptionState;
 }

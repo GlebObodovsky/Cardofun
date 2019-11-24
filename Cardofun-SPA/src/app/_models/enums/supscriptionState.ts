@@ -1,4 +1,5 @@
 export enum SupscriptionState {
-    subscribers = 'subscribers',
+    friends = 'friends',
+    followers = 'followers',
     subscriptions = 'subscriptions'
 }

@@ -6,8 +6,7 @@ import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { FriendService } from '../_services/friend/friend.service';
 import { SupscriptionState } from '../_models/enums/supscriptionState';
-import { FriendFilterParams } from '../_models/friendFilterParams';
-import { FriendshipStatus } from '../_models/enums/friendshipStatus';
+import { UserFilterParams } from '../_models/userFilterParams';
 
 @Injectable()
 export class FriendListResolver implements Resolve<User[]> {
@@ -19,16 +18,10 @@ export class FriendListResolver implements Resolve<User[]> {
 
     resolve(route: ActivatedRouteSnapshot): Observable<User[]> {
         const state: SupscriptionState = route.params['state'];
-        let params: FriendFilterParams = null;
+        let params: UserFilterParams = null;
 
         if (state) {
-            params = { friendshipStatus: FriendshipStatus.requested };
-
-            if (state === SupscriptionState.subscriptions) {
-                params.isFriendshipOwned = true;
-            } else if (state === SupscriptionState.subscribers) {
-                params.isFriendshipOwned = false;
-            }
+            params = { subscriptionState: state };
         }
 
         return this.friendService.getFriends(this.pageNumber, this.pageSize, params).pipe(
