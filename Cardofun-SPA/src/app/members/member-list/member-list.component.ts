@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from '../../_models/user';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Pagination, PaginatedResult } from 'src/app/_models/pagination';
 import { UserService } from 'src/app/_services/user/user.service';
 import { AlertifyService } from 'src/app/_services/alertify/alertify.service';
@@ -16,7 +16,6 @@ import { CountryService } from 'src/app/_services/country/country.service';
 import { LocalStorageService } from 'src/app/_services/local-storage/local-storage.service';
 import { FriendService } from 'src/app/_services/friend/friend.service';
 import { FriendshipStatus } from 'src/app/_models/enums/friendshipStatus';
-import { EnumToArrayPipe } from 'src/app/_pipes/enumToArray/enumToArray.pipe';
 import { SupscriptionState } from 'src/app/_models/enums/supscriptionState';
 
 @Component({
@@ -26,7 +25,6 @@ import { SupscriptionState } from 'src/app/_models/enums/supscriptionState';
 })
 export class MemberListComponent implements OnInit {
   currentPath: string;
-  memberPath = 'members';
   friendPath = 'friends';
 
   users: User[];
@@ -78,23 +76,13 @@ export class MemberListComponent implements OnInit {
   }
 
   loadUsers() {
-    if (this.currentPath === this.memberPath) {
-      this.userService.getUsers(this.pagination.currentPage, this.pagination.itemsPerPage, this.userParams)
-      .subscribe((res: PaginatedResult<User[]>) => {
-        this.users = res.result;
-        this.pagination = res.pagination;
-      }, error => {
-        this.alertifyService.error(error);
-      });
-    } else {
-      this.friendService.getFriends(this.pagination.currentPage, this.pagination.itemsPerPage, this.userParams)
-      .subscribe((res: PaginatedResult<User[]>) => {
-        this.users = res.result;
-        this.pagination = res.pagination;
-      }, error => {
-        this.alertifyService.error(error);
-      });
-    }
+    this.userService.getUsers(this.pagination.currentPage, this.pagination.itemsPerPage, this.userParams)
+    .subscribe((res: PaginatedResult<User[]>) => {
+      this.users = res.result;
+      this.pagination = res.pagination;
+    }, error => {
+      this.alertifyService.error(error);
+    });
   }
 
   resetFilters(applyFilters?: boolean) {
@@ -115,12 +103,18 @@ export class MemberListComponent implements OnInit {
     }
   }
 
-  excludedFromFriendlist(friend: User) {
+  excludedFromList(friend: User) {
     if (this.currentPath === this.friendPath) {
       const index = this.users.indexOf(friend, 0);
       if (index > -1) {
         this.users.splice(index, 1);
       }
+    }
+  }
+
+  addedToFriendlist(friend: User) {
+    if (this.userParams.subscriptionState === SupscriptionState.followers) {
+      this.excludedFromList(friend);
     }
   }
 

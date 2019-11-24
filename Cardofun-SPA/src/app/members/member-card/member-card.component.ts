@@ -13,6 +13,8 @@ export class MemberCardComponent implements OnInit {
   @Input() user: User;
   @Output()
   excludedFromFriendlist = new EventEmitter<User>();
+  @Output()
+  addedToFriendlist = new EventEmitter<User>();
 
   constructor(private friendService: FriendService, private alerifyService: AlertifyService) { }
 
@@ -34,6 +36,7 @@ export class MemberCardComponent implements OnInit {
   acceptFriendship(id: number) {
     this.friendService.changeFriendshipStatus(id, FriendshipStatus.accepted).subscribe(next => {
       this.user.friendship.status = FriendshipStatus.accepted;
+      this.addedToFriendlist.emit(this.user);
       this.alerifyService.success('Friendship has been successfully accepted');
     }, error => {
       this.alerifyService.error(error);
