@@ -91,14 +91,14 @@ namespace Cardofun.Interfaces.Repositories
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task<Photo> GetPhotoAsync(Guid id);
+        Task<UserPhoto> GetPhotoAsync(Guid id);
 
         /// <summary>
         /// Gets user's main photo
         /// </summary>
         /// <param name="userId">User of which main photo is needed</param>
         /// <returns></returns>
-        Task<Photo> GetMainPhotoForUserAsync(Int32 userId);
+        Task<UserPhoto> GetMainPhotoForUserAsync(Int32 userId);
 
         /// <summary>
         /// Gets a request for friendship

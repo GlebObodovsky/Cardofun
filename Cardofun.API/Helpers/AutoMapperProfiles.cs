@@ -31,18 +31,31 @@ namespace Cardofun.API.Helpers
             CreateMap<LanguageLevelDto, LanguageSpeakingLevel>()
                 .ForMember(dest => dest.LanguageCode, m => m.MapFrom(src => src.Code));
 
-            CreateMap<Language, LanguageDto>().ReverseMap();
+            CreateMap<Language, LanguageDto>()
+                .ReverseMap();
             #endregion Language
 
             #region Photo
-            CreateMap<Photo, PhotoDto>().ReverseMap();
+            CreateMap<UserPhoto, PhotoForReturnDto>()
+                .ForMember(dest => dest.Url, m => m.MapFrom(src => src.Photo.Url))
+                .ForMember(dest => dest.PublicId, m => m.MapFrom(src => src.Photo.PublicId))
+                .ReverseMap();
 
-            CreateMap<PhotoForCreationDto, Photo>()
-                .ForMember(dest => dest.DateAdded, m => m.MapFrom(src => DateTime.Now));
+            CreateMap<Photo, GlobalPhotoIdentifiersDto>()
+                .ReverseMap();
 
-            CreateMap<Photo, PhotoForReturnDto>().ReverseMap();
+            CreateMap<UserPhoto, UserPhotoDto>()
+                .ForMember(dest => dest.Url, m => m.MapFrom(src => src.Photo.Url))
+                .ReverseMap();
 
-            CreateMap<Photo, GlobalPhotoIdentifiersDto>().ReverseMap();
+            CreateMap<Photo, PhotoForCreationDto>()
+                .ReverseMap();
+
+            CreateMap<PhotoForCreationDto, UserPhoto>()
+                .ForMember(dest => dest.Photo, m => m.MapFrom(src => src))
+                .ForMember(dest => dest.DateAdded, m => m.MapFrom(src => DateTime.Now))
+                .ReverseMap();
+
             #endregion Photo
 
             #region User
@@ -63,7 +76,6 @@ namespace Cardofun.API.Helpers
             CreateMap<UserForUpdateDto, User>()
                 .ForMember(dest => dest.CityId, m => m.MapFrom(src => src.City.Id))
                 .ForMember(dest => dest.City, m => m.Ignore());
-
          
             #endregion User
         }
@@ -72,7 +84,7 @@ namespace Cardofun.API.Helpers
             if(user == null || user.Photos == null)
                 return null;
 
-            return user.Photos.FirstOrDefault(u => u.IsMain)?.Url;
+            return user.Photos.FirstOrDefault(u => u.IsMain)?.Photo?.Url;
         }
     }
 }

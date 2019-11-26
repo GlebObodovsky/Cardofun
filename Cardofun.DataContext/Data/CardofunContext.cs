@@ -17,10 +17,15 @@ namespace Cardofun.DataContext.Data
         /// <value></value>
         public DbSet<User> Users { get; set; }
         /// <summary>
-        /// Represents a set of user photos
+        /// Represents a set of photos
         /// </summary>
         /// <value></value>
         public DbSet<Photo> Photos { get; set; }
+        /// <summary>
+        /// Represents a set of user photos
+        /// </summary>
+        /// <value></value>
+        public DbSet<UserPhoto> UserPhotos { get; set; }
         /// <summary>
         /// Represents a set of stored Continents
         /// </summary>
@@ -56,6 +61,11 @@ namespace Cardofun.DataContext.Data
         /// </summary>
         /// <value></value>
         public DbSet<FriendRequest> FriendRequests { get; set; }
+        /// <summary>
+        /// Represents all messages being sent by users
+        /// </summary>
+        /// <value></value>
+        public DbSet<Message> Messages { get; set; }
         #endregion DbSets
 
 
@@ -122,27 +132,47 @@ namespace Cardofun.DataContext.Data
             modelBuilder.Entity<Photo>()
                 .Property(x => x.Id)
                 .ValueGeneratedOnAdd();
-            
-            modelBuilder.Entity<Photo>()
-                .HasOne(x => x.User)
-                .WithMany(x => x.Photos)
-                .HasForeignKey(x => x.UserId);
 
             modelBuilder.Entity<Photo>()
                 .Property(x => x.Url)
                 .IsRequired();
-                
+
             modelBuilder.Entity<Photo>()
+                .HasOne(x => x.UserPhoto)
+                .WithOne(x => x.Photo)
+                .HasForeignKey<UserPhoto>(x => x.PhotoId);
+                            
+            modelBuilder.Entity<Photo>()
+                .HasOne(x => x.Message)
+                .WithOne(x => x.Photo)
+                .HasForeignKey<Message>(x => x.PhotoId);
+
+            #endregion Photos
+
+            #region UserPhotos
+            modelBuilder.Entity<UserPhoto>()
+                .HasKey(x => x.Id);
+
+            modelBuilder.Entity<UserPhoto>()
+                .Property(x => x.Id)
+                .ValueGeneratedOnAdd();
+            
+            modelBuilder.Entity<UserPhoto>()
+                .HasOne(x => x.User)
+                .WithMany(x => x.Photos)
+                .HasForeignKey(x => x.UserId);
+
+            modelBuilder.Entity<UserPhoto>()
                 .Property(x => x.DateAdded)
                 .IsRequired();
                 
             // DateAdded would be the exact date and time when the picture is created  
-            modelBuilder.Entity<Photo>()
+            modelBuilder.Entity<UserPhoto>()
                 .Property(x => x.DateAdded)
                 .HasDefaultValueSql("getdate()");
 
             // There should be only one main photo for each users
-            modelBuilder.Entity<Photo>()
+            modelBuilder.Entity<UserPhoto>()
                 .HasIndex(e => new { e.UserId, e.IsMain })
                 .IsUnique()
                 .HasFilter("[IsMain] = 1");
@@ -262,6 +292,34 @@ namespace Cardofun.DataContext.Data
                 .Property(x => x.RequestedAt)
                 .HasDefaultValueSql("getdate()");
             #endregion FriendRequests
+
+            #region Messages
+            modelBuilder.Entity<Message>()
+                .HasKey(x => x.Id);
+
+            modelBuilder.Entity<Message>()
+                .Property(x => x.Id)  
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<Message>()
+                .HasOne(x => x.Sender)
+                .WithMany(x => x.OutcomingMessages)
+                .HasForeignKey(x => x.SenderId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Message>()
+                .HasOne(x => x.Recipient)
+                .WithMany(x => x.IncomingMessages)
+                .HasForeignKey(x => x.RecipientId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Message>()
+                .Property(x => x.SentAt)
+                .HasDefaultValueSql("getdate()");
+
+            #endregion Messages
         }     
     }
 }

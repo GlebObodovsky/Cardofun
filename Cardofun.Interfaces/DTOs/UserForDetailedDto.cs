@@ -25,7 +25,7 @@ namespace Cardofun.Interfaces.DTOs
         /// All user's photos
         /// </summary>
         /// <value></value>
-        public IEnumerable<PhotoDto> Photos { get; set; }
+        public IEnumerable<UserPhotoDto> Photos { get; set; }
         /// <summary>
         /// Collection of languages the user speaks and want to help out with
         /// </summary>

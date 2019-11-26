@@ -2,7 +2,7 @@ using System;
 
 namespace Cardofun.Interfaces.DTOs
 {
-    public class PhotoDto
+    public class UserPhotoDto
     {
         public Guid Id { get; set; }
         public String Url { get; set; }

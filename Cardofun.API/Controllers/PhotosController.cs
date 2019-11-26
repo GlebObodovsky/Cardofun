@@ -57,7 +57,7 @@ namespace Cardofun.API.Controllers
             photoForCreation.Url = photoIdentifiers.Url;
             photoForCreation.PublicId = photoIdentifiers.PublicId;
 
-            var photo = _mapper.Map<Photo>(photoForCreation);
+            var photo = _mapper.Map<UserPhoto>(photoForCreation);
             // If there's no main photo in user's profile - set this one as main
             photo.IsMain = !user.Photos.Any(p => p.IsMain);
 
@@ -130,9 +130,9 @@ namespace Cardofun.API.Controllers
 
             // In case if the photo doesn't have PublicId - we are proceeding with
             // removing it just out of the repository
-            var canProceed = String.IsNullOrWhiteSpace(photoToRemove.PublicId)
+            var canProceed = String.IsNullOrWhiteSpace(photoToRemove?.Photo.PublicId)
                 // othervise - we're removing it from the image provider storage
-                || await _imageProvider.DeletePictureAsync(photoToRemove.PublicId);
+                || await _imageProvider.DeletePictureAsync(photoToRemove?.Photo.PublicId);
 
             if(canProceed)
             {

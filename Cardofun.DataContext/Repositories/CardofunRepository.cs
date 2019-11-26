@@ -173,10 +173,11 @@ namespace Cardofun.DataContext.Repositories
                     .Include(u => u.City)
                         .ThenInclude(c => c.Country)
                     .Include(u => u.Photos)
+                        .ThenInclude(p => p.Photo)
                     .Include(u => u.LanguagesTheUserLearns)
-                        .ThenInclude(u => u.Language)
+                        .ThenInclude(l => l.Language)
                     .Include(u => u.LanguagesTheUserSpeaks)
-                        .ThenInclude(u => u.Language));          
+                        .ThenInclude(l => l.Language));          
         
         
         /// <summary>
@@ -193,6 +194,7 @@ namespace Cardofun.DataContext.Repositories
                         .Include(x=>x.City)
                             .ThenInclude(x => x.Country) 
                         .Include(x => x.Photos) 
+                            .ThenInclude(x => x.Photo)
                         .Include(x => x.IncomingFriendRequests)
                         .Include(x => x.OutcomingFriendRequests)
                         // Uncomment next lines if there's a need to include languages users speak and learn
@@ -283,16 +285,16 @@ namespace Cardofun.DataContext.Repositories
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<Photo> GetPhotoAsync(Guid id)
-            => await GetItemAsync<Photo, Guid>(id);
+        public async Task<UserPhoto> GetPhotoAsync(Guid id)
+            => await GetItemAsync<UserPhoto, Guid>(id);
 
         /// <summary>
         /// Gets user's main photo
         /// </summary>
         /// <param name="userId">User of which main photo is needed</param>
         /// <returns></returns>
-        public async Task<Photo> GetMainPhotoForUserAsync(Int32 userId)
-            => await GetItemByPredicatesAsync<Photo>(null,
+        public async Task<UserPhoto> GetMainPhotoForUserAsync(Int32 userId)
+            => await GetItemByPredicatesAsync<UserPhoto>(null,
                 photo => photo.UserId == userId,
                 photo => photo.IsMain);
         #endregion Photos

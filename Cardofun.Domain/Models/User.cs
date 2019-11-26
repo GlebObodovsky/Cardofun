@@ -20,17 +20,22 @@ namespace Cardofun.Domain.Models
         public Byte[] PasswordSalt { get; set; }
         public String Email { get; set; }
         public Boolean IsEmailVerified { get; set; }
-        public virtual ICollection<Photo> Photos { get; set; }
+        public virtual ICollection<UserPhoto> Photos { get; set; }
         public virtual ICollection<LanguageSpeakingLevel> LanguagesTheUserSpeaks { get; set; }
         public virtual ICollection<LanguageLearningLevel> LanguagesTheUserLearns { get; set; }
         public virtual ICollection<FriendRequest> OutcomingFriendRequests { get; set; }
         public virtual ICollection<FriendRequest> IncomingFriendRequests { get; set; }
+        public virtual ICollection<Message> IncomingMessages { get; set; }
+        public virtual ICollection<Message> OutcomingMessages { get; set; }
+
         public User()
         {
             LanguagesTheUserSpeaks = new List<LanguageSpeakingLevel>();
             LanguagesTheUserLearns = new List<LanguageLearningLevel>();
             OutcomingFriendRequests = new List<FriendRequest>();
             IncomingFriendRequests = new List<FriendRequest>();
+            OutcomingMessages = new List<Message>();
+            IncomingMessages = new List<Message>();
         }
     }
 }
