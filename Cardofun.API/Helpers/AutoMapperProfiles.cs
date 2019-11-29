@@ -36,7 +36,8 @@ namespace Cardofun.API.Helpers
             #endregion Language
 
             #region Photo
-            CreateMap<UserPhoto, PhotoForReturnDto>()
+
+            CreateMap<UserPhoto, UserPhotoForReturnDto>()
                 .ForMember(dest => dest.Url, m => m.MapFrom(src => src.Photo.Url))
                 .ForMember(dest => dest.PublicId, m => m.MapFrom(src => src.Photo.PublicId))
                 .ReverseMap();
@@ -48,10 +49,10 @@ namespace Cardofun.API.Helpers
                 .ForMember(dest => dest.Url, m => m.MapFrom(src => src.Photo.Url))
                 .ReverseMap();
 
-            CreateMap<Photo, PhotoForCreationDto>()
+            CreateMap<Photo, UserPhotoForCreationDto>()
                 .ReverseMap();
 
-            CreateMap<PhotoForCreationDto, UserPhoto>()
+            CreateMap<UserPhotoForCreationDto, UserPhoto>()
                 .ForMember(dest => dest.Photo, m => m.MapFrom(src => src))
                 .ForMember(dest => dest.DateAdded, m => m.MapFrom(src => DateTime.Now))
                 .ReverseMap();
@@ -78,7 +79,17 @@ namespace Cardofun.API.Helpers
                 .ForMember(dest => dest.City, m => m.Ignore());
          
             #endregion User
+
+            #region Messages
+
+            CreateMap<Message, MessageForReturnDto>()
+                .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => src.Photo.Url));
+            
+            CreateMap<MessageForCreationDto, Message>();
+                
+            #endregion Messages
         }
+        
         private String GetUserMaintPhotoUrl(User user)
         {
             if(user == null || user.Photos == null)

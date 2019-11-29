@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Cardofun.API.Controllers
 {
     [Authorize]
-    [Route("api/users/{userId}/photos")]
+    [Route("api/users/{userId}/[controller]")]
     [ApiController]
     public class PhotosController : ControllerBase
     {
@@ -33,20 +33,20 @@ namespace Cardofun.API.Controllers
         #endregion Constructor
 
         #region Controller methods
-        [HttpGet("{id}", Name = "GetPhoto")]
+        [HttpGet("{id}", Name = nameof(GetPhoto))]
         public async Task<IActionResult> GetPhoto(Guid id)
         {
-            var photo = await _cardofunRepository.GetPhotoAsync(id);
+            var photo = await _cardofunRepository.GetUserPhotoAsync(id);
 
             if(photo == null)
-                return BadRequest("The requested photo hasn't been found");
+                return NotFound();
 
-            return Ok(_mapper.Map<PhotoForReturnDto>(photo));
+            return Ok(_mapper.Map<UserPhotoForReturnDto>(photo));
         }
 
         [HttpPost]
         public async Task<IActionResult> AddPhotoForUser(Int32 userId, 
-            [FromForm]PhotoForCreationDto photoForCreation)
+            [FromForm]UserPhotoForCreationDto photoForCreation)
         {
             if(userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
                 return Unauthorized();
@@ -63,13 +63,11 @@ namespace Cardofun.API.Controllers
 
             user.Photos.Add(photo);
 
-            if(await _cardofunRepository.SaveChangesAsync())
-            {
-                var photoToReturn = _mapper.Map<PhotoForReturnDto>(photo);
-                return CreatedAtRoute(nameof(GetPhoto), new { id = photo.Id }, photoToReturn);
-            }
+            if(!await _cardofunRepository.SaveChangesAsync())
+                return BadRequest("Could not add the photo");
 
-            return BadRequest("Could not add the photo");
+            var photoToReturn = _mapper.Map<UserPhotoForReturnDto>(photo);
+            return CreatedAtRoute(nameof(GetPhoto), new { userId = userId, id = photo.Id }, photoToReturn);
         }
 
         [HttpPost("{id}/setMain")]
@@ -79,7 +77,7 @@ namespace Cardofun.API.Controllers
                 return Unauthorized();
 
             var mainPhoto = await _cardofunRepository.GetMainPhotoForUserAsync(userId);
-            var newMainPhoto = await _cardofunRepository.GetPhotoAsync(id);
+            var newMainPhoto = await _cardofunRepository.GetUserPhotoAsync(id);
 
             if(newMainPhoto == null)
                 return BadRequest("Could not find the photo");
@@ -117,7 +115,7 @@ namespace Cardofun.API.Controllers
             if(userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
                 return Unauthorized();
             
-            var photoToRemove = await _cardofunRepository.GetPhotoAsync(id);
+            var photoToRemove = await _cardofunRepository.GetUserPhotoAsync(id);
                         
             if(photoToRemove == null)
                 return BadRequest("The photo does not exist");

@@ -285,7 +285,7 @@ namespace Cardofun.DataContext.Repositories
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<UserPhoto> GetPhotoAsync(Guid id)
+        public async Task<UserPhoto> GetUserPhotoAsync(Guid id)
             => await GetItemAsync<UserPhoto, Guid>(id);
 
         /// <summary>
@@ -309,6 +309,38 @@ namespace Cardofun.DataContext.Repositories
         public async Task<FriendRequest> GetFriendRequestAsync(Int32 fromUserId, Int32 toUserId)
             => await _context.FriendRequests.FindAsync(fromUserId, toUserId);
         #endregion FriendshipRequests
+    
+        #region Messages
+        /// <summary>
+        /// Gets a message by it's Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<Message> GetMessageAsync(Guid id)
+            => await GetItemAsync<Message, Guid>(id, message => message.Include(m => m.Photo));
+
+        /// <summary>
+        /// Gets a page of messages for a user
+        /// </summary>
+        /// <returns></returns>
+        public async Task<PagedList<Message>> GetMessagesForUser()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Gets a message thread between two users
+        /// </summary>
+        /// <param name="senderId"></param>
+        /// <param name="recepientId"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<Message>> GetMessageThread(Int32 senderId, Int32 recepientId)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion Messages
+
     }
     #endregion ICardofunRepository
 }

@@ -2,7 +2,7 @@ using System;
 
 namespace Cardofun.Interfaces.DTOs
 {
-    public class PhotoForReturnDto: UserPhotoDto
+    public class UserPhotoForReturnDto: UserPhotoDto
     {
         /// <summary>
         /// Id that is ised for third party services

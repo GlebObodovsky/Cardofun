@@ -91,7 +91,7 @@ namespace Cardofun.Interfaces.Repositories
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task<UserPhoto> GetPhotoAsync(Guid id);
+        Task<UserPhoto> GetUserPhotoAsync(Guid id);
 
         /// <summary>
         /// Gets user's main photo
@@ -107,5 +107,26 @@ namespace Cardofun.Interfaces.Repositories
         /// <param name="toUserId">Id of a user that received the request</param>
         /// <returns></returns>
         Task<FriendRequest> GetFriendRequestAsync(Int32 fromUserId, Int32 toUserId);
+ 
+        /// <summary>
+        /// Get's a message by it's Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<Message> GetMessageAsync(Guid id);
+
+        /// <summary>
+        /// Gets a page of messages for a user
+        /// </summary>
+        /// <returns></returns>
+        Task<PagedList<Message>> GetMessagesForUser();
+
+        /// <summary>
+        /// Gets a message thread between two users
+        /// </summary>
+        /// <param name="senderId"></param>
+        /// <param name="recepientId"></param>
+        /// <returns></returns>
+        Task<IEnumerable<Message>> GetMessageThread(Int32 senderId, Int32 recepientId);
     }
 }

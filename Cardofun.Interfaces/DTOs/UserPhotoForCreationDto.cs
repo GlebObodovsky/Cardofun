@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Cardofun.Interfaces.DTOs
 {
-    public class PhotoForCreationDto
+    public class UserPhotoForCreationDto
     {
         /// <summary>
         /// Id that is ised for third party services
