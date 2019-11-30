@@ -8,12 +8,18 @@ namespace Cardofun.Core.ApiParameters
     public class PaginationParams
     {
         private const Int32 maxPageSize = 50;
+        private Int32 pageSize = 10;
+
+        /// <summary>
+        /// Current user
+        /// </summary>
+        /// <value></value>
+        public Int32 UserId { get; set; }
         /// <summary>
         /// Requested page number
         /// </summary>
         /// <value></value>
         public Int32 PageNumber { get; set; } = 1;
-        private Int32 pageSize = 10;
         /// <summary>
         /// Requested page size
         /// </summary>

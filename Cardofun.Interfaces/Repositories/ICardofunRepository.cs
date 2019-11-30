@@ -119,14 +119,12 @@ namespace Cardofun.Interfaces.Repositories
         /// Gets a page of messages for a user
         /// </summary>
         /// <returns></returns>
-        Task<PagedList<Message>> GetMessagesForUser();
+        Task<PagedList<Message>> GetLastMessagesForUser(MessagePrams messagePrams);
 
         /// <summary>
-        /// Gets a message thread between two users
+        /// Gets a paginated message thread between two users
         /// </summary>
-        /// <param name="senderId"></param>
-        /// <param name="recepientId"></param>
         /// <returns></returns>
-        Task<IEnumerable<Message>> GetMessageThread(Int32 senderId, Int32 recepientId);
+        Task<PagedList<Message>> GetPaginatedMessageThread(MessageThreadPrams messageParams);
     }
 }

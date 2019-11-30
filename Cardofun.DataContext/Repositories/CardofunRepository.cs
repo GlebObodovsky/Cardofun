@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Cardofun.Core.ApiParameters;
 using Cardofun.Core.Enumerables;
+using Cardofun.Core.Enums;
 using Cardofun.Core.Helpers;
 using Cardofun.DataContext.Data;
 using Cardofun.DataContext.Helpers;
@@ -280,7 +281,7 @@ namespace Cardofun.DataContext.Repositories
         #endregion Cities
     
         #region Photos
-        /// <summary>
+        /// <summary> 
         /// Gets photo by given id
         /// </summary>
         /// <param name="id"></param>
@@ -320,25 +321,65 @@ namespace Cardofun.DataContext.Repositories
             => await GetItemAsync<Message, Guid>(id, message => message.Include(m => m.Photo));
 
         /// <summary>
-        /// Gets a page of messages for a user
+        /// Gets a page of lastly sent messages to/from a user 
         /// </summary>
         /// <returns></returns>
-        public async Task<PagedList<Message>> GetMessagesForUser()
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<PagedList<Message>> GetLastMessagesForUser(MessagePrams messagePrams)
+            => await GetPageOfItemsAsync<Message>(messagePrams,
+                // Options
+                message => message
+                    .Include(m => m.Photo)
+                    .Include(m => m.Sender)
+                        .ThenInclude(s => s.Photos)
+                            .ThenInclude(p => p.Photo)
+                    .Include(m => m.Recipient)
+                        .ThenInclude(s => s.Photos)
+                            .ThenInclude(p => p.Photo)
+                    // Getting tops message sent by different users
+                    .GroupBy(m => messagePrams.MessageContainer == MessageContainer.Outbox ? m.RecipientId : m.SenderId)
+                    .Select(mm => mm.OrderByDescending(m => m.SentAt).FirstOrDefault())
+                    .AsQueryable(),
+                // Predicates
+                message =>
+                    // Get messages sent to user and only the unread ones
+                    messagePrams.MessageContainer != MessageContainer.Unread 
+                    ||
+                    message.RecipientId == messagePrams.UserId && !message.IsRead,
+                    // Get all messages sent to user
+                message => 
+                    messagePrams.MessageContainer != MessageContainer.Inbox 
+                    ||
+                    message.RecipientId == messagePrams.UserId,
+                message => 
+                    // Get all messages sent by user
+                    messagePrams.MessageContainer != MessageContainer.Outbox 
+                    ||
+                    message.SenderId == messagePrams.UserId
+                );
 
         /// <summary>
-        /// Gets a message thread between two users
+        /// Gets a paginated message thread between two users
         /// </summary>
-        /// <param name="senderId"></param>
-        /// <param name="recepientId"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<Message>> GetMessageThread(Int32 senderId, Int32 recepientId)
-        {
-            throw new NotImplementedException();
-        }
-
+        public async Task<PagedList<Message>> GetPaginatedMessageThread(MessageThreadPrams messageParams)
+            => await GetPageOfItemsAsync<Message>(messageParams, 
+                message => message
+                    .Include(m => m.Sender)
+                        .ThenInclude(r => r.Photos)
+                            .ThenInclude(p => p.Photo)
+                    .Include(m => m.Recipient)
+                        .ThenInclude(r => r.Photos)
+                            .ThenInclude(p => p.Photo)
+                    .OrderByDescending(m => m.SentAt),
+                message => 
+                        (message.SenderId == messageParams.UserId
+                        &&
+                        message.RecipientId == messageParams.SecondUserId)
+                    ||
+                        (message.RecipientId == messageParams.UserId
+                        &&
+                        message.SenderId == messageParams.SecondUserId)
+            );
         #endregion Messages
 
     }

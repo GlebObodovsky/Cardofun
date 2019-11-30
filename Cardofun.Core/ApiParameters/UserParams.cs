@@ -9,11 +9,6 @@ namespace Cardofun.Core.ApiParameters
     public class UserParams: PaginationParams
     {
         /// <summary>
-        /// User that should be excluded from the result collection
-        /// </summary>
-        /// <value></value>
-        public Int32 UserId { get; set; }
-        /// <summary>
         /// Gender of users by which to search. Both if null
         /// </summary>
         /// <value></value>
