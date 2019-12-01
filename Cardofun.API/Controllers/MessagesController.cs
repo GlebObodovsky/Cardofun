@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
+using Cardofun.API.Helpers.Extensions;
+using Cardofun.Core.ApiParameters;
 using Cardofun.Domain.Models;
 using Cardofun.Interfaces.DTOs;
 using Cardofun.Interfaces.Repositories;
@@ -32,6 +35,26 @@ namespace Cardofun.API.Controllers
         #endregion Constructor
 
         #region MessagesController methods
+        /// <summary>
+        /// Gets a page of lastly sent messages to/from a user 
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="messagePrams"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> GetLastMessagesForUser(Int32 userId, [FromQuery]MessagePrams messagePrams)
+        {
+            if (userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            messagePrams.UserId = userId;
+
+            var messagesFromRepo = await _cardofunRepository.GetLastMessagesForUser(messagePrams);
+            var mappedCollection = _mapper.Map<IEnumerable<MessageForReturnDto>>(messagesFromRepo);
+
+            Response.AddPagination(messagesFromRepo.PageNumber, messagesFromRepo.PageSize, messagesFromRepo.TotalCount, messagesFromRepo.TotalPages);
+            return Ok(mappedCollection);
+        }
 
         /// <summary>
         /// Gets a message by it's Id

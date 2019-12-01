@@ -116,7 +116,7 @@ namespace Cardofun.Interfaces.Repositories
         Task<Message> GetMessageAsync(Guid id);
 
         /// <summary>
-        /// Gets a page of messages for a user
+        /// Gets a page of lastly sent messages to/from a user 
         /// </summary>
         /// <returns></returns>
         Task<PagedList<Message>> GetLastMessagesForUser(MessagePrams messagePrams);

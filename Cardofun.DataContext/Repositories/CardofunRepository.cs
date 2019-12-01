@@ -325,37 +325,51 @@ namespace Cardofun.DataContext.Repositories
         /// </summary>
         /// <returns></returns>
         public async Task<PagedList<Message>> GetLastMessagesForUser(MessagePrams messagePrams)
-            => await GetPageOfItemsAsync<Message>(messagePrams,
-                // Options
-                message => message
-                    .Include(m => m.Photo)
-                    .Include(m => m.Sender)
-                        .ThenInclude(s => s.Photos)
-                            .ThenInclude(p => p.Photo)
-                    .Include(m => m.Recipient)
-                        .ThenInclude(s => s.Photos)
-                            .ThenInclude(p => p.Photo)
-                    // Getting tops message sent by different users
-                    .GroupBy(m => messagePrams.MessageContainer == MessageContainer.Outbox ? m.RecipientId : m.SenderId)
-                    .Select(mm => mm.OrderByDescending(m => m.SentAt).FirstOrDefault())
-                    .AsQueryable(),
+        {
+            var request = SetUpRequest<Message>(message => message
+                .Include(m => m.Photo)
+                .Include(m => m.Sender)
+                    .ThenInclude(s => s.Photos)
+                        .ThenInclude(p => p.Photo)
+                .Include(m => m.Recipient)
+                    .ThenInclude(s => s.Photos)
+                        .ThenInclude(p => p.Photo));
+
+            // Getting top messages sent by different users
+            if (messagePrams.Container == MessageContainer.Thread)
+            {
+                request = request
+                    .GroupBy(m => new { m.SenderId, m.RecipientId })
+                    .Select(gm => gm.OrderByDescending(m => m.SentAt).FirstOrDefault())
+                    .AsQueryable();
+            }
+            // Getting top messages sent by other users (not by the one who's requesting)
+            // and only those that hasn't been read by the user yet
+            if (messagePrams.Container == MessageContainer.Unread)
+            {
+                request = request
+                    .GroupBy(m => m.SenderId)
+                    .Select(gm => gm.OrderByDescending(m => m.SentAt).FirstOrDefault(m => !m.IsRead))
+                    .AsQueryable();           
+            }
+            
+            return await GetPageOfItemsAsync<Message>(messagePrams, message => request.OrderByDescending(m => m.SentAt),
                 // Predicates
                 message =>
                     // Get messages sent to user and only the unread ones
-                    messagePrams.MessageContainer != MessageContainer.Unread 
+                    messagePrams.Container != MessageContainer.Unread 
                     ||
                     message.RecipientId == messagePrams.UserId && !message.IsRead,
-                    // Get all messages sent to user
+                    // Get all messages sent related to user
                 message => 
-                    messagePrams.MessageContainer != MessageContainer.Inbox 
+                    messagePrams.Container != MessageContainer.Thread 
                     ||
-                    message.RecipientId == messagePrams.UserId,
-                message => 
-                    // Get all messages sent by user
-                    messagePrams.MessageContainer != MessageContainer.Outbox 
-                    ||
-                    message.SenderId == messagePrams.UserId
-                );
+                    (
+                        message.RecipientId == messagePrams.UserId
+                        ||
+                        message.SenderId == messagePrams.UserId
+                    ));
+        }
 
         /// <summary>
         /// Gets a paginated message thread between two users

@@ -4,6 +4,6 @@ namespace Cardofun.Core.ApiParameters
 {
     public class MessagePrams: PaginationParams
     {
-        public MessageContainer MessageContainer { get; set; }
+        public MessageContainer Container { get; set; }
     }
 }
