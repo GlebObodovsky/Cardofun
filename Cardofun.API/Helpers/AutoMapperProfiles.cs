@@ -4,6 +4,8 @@ using Cardofun.Domain.Models;
 using Cardofun.Interfaces.DTOs;
 using Cardofun.Core.Helpers;
 using System;
+using Cardofun.Core.Enumerables;
+using System.Collections.Generic;
 
 namespace Cardofun.API.Helpers
 {
@@ -77,6 +79,9 @@ namespace Cardofun.API.Helpers
             CreateMap<UserForUpdateDto, User>()
                 .ForMember(dest => dest.CityId, m => m.MapFrom(src => src.City.Id))
                 .ForMember(dest => dest.City, m => m.Ignore());
+
+            CreateMap<User, UserForMessageListDto>()
+                .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => GetUserMaintPhotoUrl(src)));
          
             #endregion User
 
@@ -84,12 +89,22 @@ namespace Cardofun.API.Helpers
 
             CreateMap<Message, MessageForReturnDto>()
                 .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => src.Photo.Url));
-            
+
+            CreateMap<Message, MessageForContainerDto>()
+                .ForMember(dest => dest.SenderName, m => m.MapFrom(src => src.Sender.Name))
+                .ForMember(dest => dest.RecipientName, m => m.MapFrom(src => src.Recipient.Name))
+                .ForMember(dest => dest.SenderPhotoUrl, m => m.MapFrom(src => GetUserMaintPhotoUrl(src.Sender)))
+                .ForMember(dest => dest.RecipientPhotoUrl, m => m.MapFrom(src => GetUserMaintPhotoUrl(src.Recipient)));
+
             CreateMap<MessageForCreationDto, Message>();
-                
+
+            CreateMap<PagedList<Message>, MessageListDto>()
+                .ForMember(dest => dest.Messages, m => m.MapFrom(src => src))
+                .ForMember(dest => dest.Users, m => m.MapFrom(src => GetUsersFromMessages(src)));
+
             #endregion Messages
         }
-        
+
         private String GetUserMaintPhotoUrl(User user)
         {
             if(user == null || user.Photos == null)
@@ -97,5 +112,8 @@ namespace Cardofun.API.Helpers
 
             return user.Photos.FirstOrDefault(u => u.IsMain)?.Photo?.Url;
         }
+
+        private IEnumerable<User> GetUsersFromMessages(PagedList<Message> src)
+            => src.Select(m => m.Sender).Union(src.Select(m => m.Recipient));
     }
 }

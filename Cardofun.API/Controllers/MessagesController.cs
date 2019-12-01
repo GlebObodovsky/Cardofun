@@ -50,7 +50,23 @@ namespace Cardofun.API.Controllers
             messagePrams.UserId = userId;
 
             var messagesFromRepo = await _cardofunRepository.GetLastMessagesForUser(messagePrams);
-            var mappedCollection = _mapper.Map<IEnumerable<MessageForReturnDto>>(messagesFromRepo);
+            var mappedCollection = _mapper.Map<IEnumerable<MessageForContainerDto>>(messagesFromRepo);
+
+            Response.AddPagination(messagesFromRepo.PageNumber, messagesFromRepo.PageSize, messagesFromRepo.TotalCount, messagesFromRepo.TotalPages);
+            return Ok(mappedCollection);
+        }
+
+        [HttpGet("thread/{secondUserId}")]
+        public async Task<IActionResult> GetMessageThreadForUsers(Int32 userId, Int32 secondUserId, [FromQuery]MessageThreadPrams messagePrams)
+        {
+            if (userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            messagePrams.UserId = userId;
+            messagePrams.SecondUserId = secondUserId;
+
+            var messagesFromRepo = await _cardofunRepository.GetPaginatedMessageThread(messagePrams);
+            var mappedCollection = _mapper.Map<MessageListDto>(messagesFromRepo);
 
             Response.AddPagination(messagesFromRepo.PageNumber, messagesFromRepo.PageSize, messagesFromRepo.TotalCount, messagesFromRepo.TotalPages);
             return Ok(mappedCollection);

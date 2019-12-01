@@ -350,25 +350,26 @@ namespace Cardofun.DataContext.Repositories
                 request = request
                     .GroupBy(m => m.SenderId)
                     .Select(gm => gm.OrderByDescending(m => m.SentAt).FirstOrDefault(m => !m.IsRead))
+                    .Where(m => m != null)
                     .AsQueryable();           
             }
             
-            return await GetPageOfItemsAsync<Message>(messagePrams, message => request.OrderByDescending(m => m.SentAt),
-                // Predicates
-                message =>
+            return await request.OrderByDescending(m => m.SentAt)
+                .Where(message =>
                     // Get messages sent to user and only the unread ones
                     messagePrams.Container != MessageContainer.Unread 
                     ||
-                    message.RecipientId == messagePrams.UserId && !message.IsRead,
+                    message.RecipientId == messagePrams.UserId && !message.IsRead)
                     // Get all messages sent related to user
-                message => 
+                .Where(message => 
                     messagePrams.Container != MessageContainer.Thread 
                     ||
                     (
                         message.RecipientId == messagePrams.UserId
                         ||
                         message.SenderId == messagePrams.UserId
-                    ));
+                    ))
+                .ToPagedListAsync(messagePrams.PageNumber, messagePrams.PageSize);
         }
 
         /// <summary>
