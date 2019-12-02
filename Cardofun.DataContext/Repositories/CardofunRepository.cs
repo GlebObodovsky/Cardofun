@@ -318,7 +318,15 @@ namespace Cardofun.DataContext.Repositories
         /// <param name="id"></param>
         /// <returns></returns>
         public async Task<Message> GetMessageAsync(Guid id)
-            => await GetItemAsync<Message, Guid>(id, message => message.Include(m => m.Photo));
+            => await GetItemAsync<Message, Guid>(id, message => message
+                .Include(m => m.Photo)
+                .Include(m => m.Recipient)
+                    .ThenInclude(m => m.Photos)
+                        .ThenInclude(m => m.Photo)
+                .Include(m => m.Sender)
+                    .ThenInclude(m => m.Photos)
+                        .ThenInclude(m => m.Photo));
+
 
         /// <summary>
         /// Gets a page of lastly sent messages to/from a user 
@@ -344,8 +352,7 @@ namespace Cardofun.DataContext.Repositories
                         MinId = m.SenderId <= m.RecipientId ? m.SenderId : m.RecipientId,
                         MaxId = m.SenderId > m.RecipientId ? m.SenderId : m.RecipientId
                     })
-                    .Select(gm => gm.OrderByDescending(m => m.SentAt).FirstOrDefault())
-                    .AsQueryable();
+                    .Select(gm => gm.OrderByDescending(m => m.SentAt).FirstOrDefault());
             }
             // Getting top messages sent by other users (not by the one who's requesting)
             // and only those that hasn't been read by the user yet
@@ -353,9 +360,8 @@ namespace Cardofun.DataContext.Repositories
             {
                 request = request
                     .GroupBy(m => m.SenderId)
-                    .Select(gm => gm.OrderByDescending(m => m.SentAt).FirstOrDefault(m => !m.IsRead))
-                    .Where(m => m != null)
-                    .AsQueryable();           
+                    .Select(gm => gm.OrderByDescending(m => m.SentAt).FirstOrDefault(m => !m.ReadAt.HasValue))
+                    .Where(m => m != null);           
             }
             
             return await request.OrderByDescending(m => m.SentAt)
@@ -363,7 +369,7 @@ namespace Cardofun.DataContext.Repositories
                     // Get messages sent to user and only the unread ones
                     messagePrams.Container != MessageContainer.Unread 
                     ||
-                    message.RecipientId == messagePrams.UserId && !message.IsRead)
+                    message.RecipientId == messagePrams.UserId && !message.ReadAt.HasValue)
                     // Get all messages sent related to user
                 .Where(message => 
                     messagePrams.Container != MessageContainer.Thread 

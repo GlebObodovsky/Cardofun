@@ -90,7 +90,7 @@ namespace Cardofun.API.Helpers
             CreateMap<Message, MessageForReturnDto>()
                 .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => src.Photo.Url));
 
-            CreateMap<Message, MessageForContainerDto>()
+            CreateMap<Message, MessageExtendedDto>()
                 .ForMember(dest => dest.SenderName, m => m.MapFrom(src => src.Sender.Name))
                 .ForMember(dest => dest.RecipientName, m => m.MapFrom(src => src.Recipient.Name))
                 .ForMember(dest => dest.SenderPhotoUrl, m => m.MapFrom(src => GetUserMaintPhotoUrl(src.Sender)))

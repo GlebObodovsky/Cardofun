@@ -12,7 +12,6 @@ namespace Cardofun.Domain.Models
         public String Text { get; set; }
         public Guid? PhotoId { get; set; }
         public virtual Photo Photo { get; set; }
-        public Boolean IsRead { get; set; }
         public DateTime? ReadAt { get; set; }
         public DateTime SentAt { get; set; }
         public Boolean SenderDeleted { get; set; }

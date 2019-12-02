@@ -41,7 +41,7 @@ namespace Cardofun.API.Controllers
         /// <param name="userId"></param>
         /// <param name="messagePrams"></param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet("dialogues")]
         public async Task<IActionResult> GetLastMessagesForUser(Int32 userId, [FromQuery]MessagePrams messagePrams)
         {
             if (userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
@@ -50,7 +50,7 @@ namespace Cardofun.API.Controllers
             messagePrams.UserId = userId;
 
             var messagesFromRepo = await _cardofunRepository.GetLastMessagesForUser(messagePrams);
-            var mappedCollection = _mapper.Map<IEnumerable<MessageForContainerDto>>(messagesFromRepo);
+            var mappedCollection = _mapper.Map<IEnumerable<MessageExtendedDto>>(messagesFromRepo);
 
             Response.AddPagination(messagesFromRepo.PageNumber, messagesFromRepo.PageSize, messagesFromRepo.TotalCount, messagesFromRepo.TotalPages);
             return Ok(mappedCollection);
@@ -67,7 +67,7 @@ namespace Cardofun.API.Controllers
 
             var messagesFromRepo = await _cardofunRepository.GetPaginatedMessageThread(messagePrams);
             var mappedCollection = _mapper.Map<MessageListDto>(messagesFromRepo);
-
+            
             Response.AddPagination(messagesFromRepo.PageNumber, messagesFromRepo.PageSize, messagesFromRepo.TotalCount, messagesFromRepo.TotalPages);
             return Ok(mappedCollection);
         }
@@ -90,7 +90,7 @@ namespace Cardofun.API.Controllers
                 return NotFound();
            
             if (messageFromRepo.SenderId == userId || messageFromRepo.RecipientId == userId)
-                return Ok(_mapper.Map<MessageForReturnDto>(messageFromRepo));
+                return Ok(_mapper.Map<MessageExtendedDto>(messageFromRepo));
             else
                 return Unauthorized();
         }
