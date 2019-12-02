@@ -339,7 +339,11 @@ namespace Cardofun.DataContext.Repositories
             if (messagePrams.Container == MessageContainer.Thread)
             {
                 request = request
-                    .GroupBy(m => new { m.SenderId, m.RecipientId })
+                    .GroupBy(m => new
+                    {
+                        MinId = m.SenderId <= m.RecipientId ? m.SenderId : m.RecipientId,
+                        MaxId = m.SenderId > m.RecipientId ? m.SenderId : m.RecipientId
+                    })
                     .Select(gm => gm.OrderByDescending(m => m.SentAt).FirstOrDefault())
                     .AsQueryable();
             }
