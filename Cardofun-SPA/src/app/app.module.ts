@@ -19,6 +19,7 @@ import { ErrorInterceptorProvider } from './_services/error.interceptor';
 import { AuthService } from './_services/auth/auth.service';
 import { UserService } from './_services/user/user.service';
 import { FriendService } from './_services/friend/friend.service';
+import { MessageService } from './_services/message/message.service';
 import { CityService } from './_services/city/city.service';
 import { CountryService } from './_services/country/country.service';
 import { LanguageService } from './_services/language/language.service';
@@ -35,6 +36,7 @@ import { MemberDetailResolver } from './_resolvers/member-detail-resolver';
 import { MemberListResolver } from './_resolvers/member-list-resolver';
 import { MemberEditResolver } from './_resolvers/member-edit-resolver';
 import { FriendListResolver } from './_resolvers/friend-list-resolver';
+import { MessageDialoguesResolver } from './_resolvers/message-gialogues-resolver';
 import { MemberEditComponent } from './members/member-edit/member-edit.component';
 import { PhotoEditorComponent } from './members/photo-editor/photo-editor.component';
 import { environment } from 'src/environments/environment';
@@ -94,6 +96,7 @@ export class CustomHammerConfig extends HammerGestureConfig  {
       AuthService,
       UserService,
       FriendService,
+      MessageService,
       CityService,
       CountryService,
       LanguageService,
@@ -106,6 +109,7 @@ export class CustomHammerConfig extends HammerGestureConfig  {
       MemberListResolver,
       MemberEditResolver,
       FriendListResolver,
+      MessageDialoguesResolver,
       { provide: HAMMER_GESTURE_CONFIG, useClass: CustomHammerConfig }
    ],
    bootstrap: [

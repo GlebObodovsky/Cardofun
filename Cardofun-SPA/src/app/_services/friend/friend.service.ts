@@ -6,8 +6,6 @@ import { FriendshipStatus } from 'src/app/_models/enums/friendshipStatus';
 import { PaginatedResult } from 'src/app/_models/pagination';
 import { User } from 'src/app/_models/user';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { SupscriptionState } from 'src/app/_models/enums/supscriptionState';
 import { UserFilterParams } from 'src/app/_models/userFilterParams';
 import { UserService } from '../user/user.service';
 

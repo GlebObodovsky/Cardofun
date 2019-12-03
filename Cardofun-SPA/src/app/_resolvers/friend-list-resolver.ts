@@ -7,11 +7,12 @@ import { catchError } from 'rxjs/operators';
 import { FriendService } from '../_services/friend/friend.service';
 import { SupscriptionState } from '../_models/enums/supscriptionState';
 import { UserFilterParams } from '../_models/userFilterParams';
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class FriendListResolver implements Resolve<User[]> {
     pageNumber = 1;
-    pageSize = 5;
+    pageSize = environment.memberListPageSize;
 
     constructor(private friendService: FriendService, private alertifyService: AlertifyService,
         private router: Router) {}
