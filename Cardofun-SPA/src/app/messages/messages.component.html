@@ -1,3 +1,56 @@
-<p>
-  messages works!
-</p>
+<div class="container mt-5">
+  <div class="row">
+    <div class="btn-group">
+      <button class="btn btn-primary" [(ngModel)]="messageContainer" btnRadio="thread" (click)="loadDialogues()">
+        <i class="fa fa-envelope"></i> Thread
+      </button>
+      <button class="btn btn-primary" [(ngModel)]="messageContainer" btnRadio="unread" (click)="loadDialogues()">
+        <i class="fa fa-envelope-open"></i> Unread
+      </button>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="messages.length == 0">
+    <h3>No messages</h3>
+  </div>
+
+  <div class="row" *ngIf="messages.length > 0">
+    <table class="table table-hover" style="cursor: pointer">
+      <tr *ngFor="let message of messages" [routerLink]="['/members', 
+        currentUserId === message.senderId ? message.recipientId : message.senderId]">
+        <td style="width: 50px; padding: 0; margin: 0;">
+          <img *ngIf="currentUserId === message.recipientId" src="{{message?.senderPhotoUrl || '../../../../assets/user.png'}}" class="img-circle main rounded-circle">
+          <img *ngIf="currentUserId === message.senderId" src="{{message?.recipientPhotoUrl || '../../../../assets/user.png'}}" class="img-circle main rounded-circle">
+        </td>
+        <td>
+          <div class="container">
+            <div class="row">
+              <div class="col nopadding">
+                <strong *ngIf="currentUserId === message.recipientId">{{message.senderName}}</strong>
+                <strong *ngIf="currentUserId === message.senderId">{{message.recipientName}}</strong>
+              </div>
+              <div class="col">
+                {{message.sentAt | timeAgo}}
+              </div>
+            </div>
+            <div class="row">
+              <div class="col nopadding" [ngClass]="{ unread: !message.isRead }">
+                <img *ngIf="currentUserId === message.senderId" src="{{message?.senderPhotoUrl || '../../../../assets/user.png'}}" class="img-circle secondary rounded-circle">
+                {{message.text}}
+              </div>
+            </div>
+          </div>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<div class="d-flex justify-content-center">
+    <pagination [boundaryLinks]="true" 
+                [totalItems]="pagination.totalItems"
+                [itemsPerPage]="pagination.itemsPerPage"
+                [(ngModel)]="pagination.currentPage"
+                (pageChanged)="pageChanged($event)"
+              previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
+  </pagination>
+  </div>

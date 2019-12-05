@@ -24,11 +24,13 @@ export class MessageService {
       params = params.append('pageSize', itemsPerPage);
     }
 
+    console.log(container);
+
     if (container) {
       params = params.append('container', container);
     }
 
-    return this.http.get<Message[]>(this.baseUrl + this.authService.currentUser.id + '/messages/dialogues', { observe: 'response' })
+    return this.http.get<Message[]>(this.baseUrl + this.authService.currentUser.id + '/messages/dialogues', { observe: 'response', params })
       .pipe(
         map(response => {
           paginatedResult.result = response.body;

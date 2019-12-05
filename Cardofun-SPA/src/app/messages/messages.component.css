@@ -1,0 +1,27 @@
+.nopadding {
+    padding: 0 !important;
+    margin: 0 !important;
+ }
+
+.table {
+    margin-top: 15px;
+}
+
+.img-circle.main {
+    max-height: 50px;
+}
+
+.img-circle.secondary {
+    max-height: 20px;
+}
+
+td {
+    vertical-align: middle;
+}
+
+.unread {
+    padding-left: 2px;
+    padding-right: 2px;
+    box-sizing: border-box;
+    background-color: lightblue;
+}

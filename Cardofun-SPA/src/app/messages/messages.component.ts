@@ -5,6 +5,7 @@ import { Pagination, PaginatedResult } from '../_models/pagination';
 import { MessageContainer } from '../_models/enums/messageContainer';
 import { MessageService } from '../_services/message/message.service';
 import { AlertifyService } from '../_services/alertify/alertify.service';
+import { AuthService } from '../_services/auth/auth.service';
 
 @Component({
   selector: 'app-messages',
@@ -14,12 +15,15 @@ import { AlertifyService } from '../_services/alertify/alertify.service';
 export class MessagesComponent implements OnInit {
   messages: Message[];
   pagination: Pagination;
-  container: MessageContainer = MessageContainer.thread;
+  messageContainer = MessageContainer.thread;
+  currentUserId: number;
 
   constructor(private route: ActivatedRoute, private messagesService: MessageService,
-    private alertifyService: AlertifyService) { }
+    private alertifyService: AlertifyService, private authService: AuthService) { }
 
   ngOnInit() {
+    this.currentUserId = this.authService.currentUser.id;
+
     this.route.data.subscribe(data => {
       this.messages = data['messages'].result;
       this.pagination = data['messages'].pagination;
@@ -27,7 +31,7 @@ export class MessagesComponent implements OnInit {
   }
 
   loadDialogues() {
-    this.messagesService.getDialogues(this.pagination.currentPage, this.pagination.itemsPerPage, this.container)
+    this.messagesService.getDialogues(this.pagination.currentPage, this.pagination.itemsPerPage, this.messageContainer)
       .subscribe((res: PaginatedResult<Message[]>) => {
         this.messages = res.result;
         this.pagination = res.pagination;
