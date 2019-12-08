@@ -8,6 +8,7 @@ import { catchError } from 'rxjs/operators';
 import { Message } from '@angular/compiler/src/i18n/i18n_ast';
 import { MessageService } from '../_services/message/message.service';
 import { environment } from 'src/environments/environment';
+import { MessageContainer } from '../_models/enums/messageContainer';
 
 @Injectable()
 export class MessageDialoguesResolver implements Resolve<Message[]> {
@@ -18,7 +19,9 @@ export class MessageDialoguesResolver implements Resolve<Message[]> {
         private router: Router) {}
 
     resolve(route: ActivatedRouteSnapshot): Observable<Message[]> {
-        return this.messageService.getDialogues(this.pageNumber, this.pageSize).pipe(
+        const messageContainer: MessageContainer = route.params['container'];
+
+        return this.messageService.getDialogues(this.pageNumber, this.pageSize, messageContainer).pipe(
             catchError(error => {
                 this.alertifyService.error('Problem retreiving data');
                 this.router.navigate(['/home']);

@@ -329,10 +329,10 @@ namespace Cardofun.DataContext.Repositories
 
 
         /// <summary>
-        /// Gets a page of lastly sent messages to/from a user 
+        /// Gets a page of dialogues of a user 
         /// </summary>
         /// <returns></returns>
-        public async Task<PagedList<Message>> GetLastMessagesForUser(MessagePrams messagePrams)
+        public async Task<PagedList<Message>> GetDialoguesForUser(MessagePrams messagePrams)
         {
             var request = SetUpRequest<Message>(message => message
                 .Include(m => m.Photo)

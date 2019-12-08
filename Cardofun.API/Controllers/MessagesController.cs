@@ -42,14 +42,14 @@ namespace Cardofun.API.Controllers
         /// <param name="messagePrams"></param>
         /// <returns></returns>
         [HttpGet("dialogues")]
-        public async Task<IActionResult> GetLastMessagesForUser(Int32 userId, [FromQuery]MessagePrams messagePrams)
+        public async Task<IActionResult> GetDialoguesForUser(Int32 userId, [FromQuery]MessagePrams messagePrams)
         {
             if (userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
                 return Unauthorized();
 
             messagePrams.UserId = userId;
 
-            var messagesFromRepo = await _cardofunRepository.GetLastMessagesForUser(messagePrams);
+            var messagesFromRepo = await _cardofunRepository.GetDialoguesForUser(messagePrams);
             var mappedCollection = _mapper.Map<IEnumerable<MessageExtendedDto>>(messagesFromRepo);
 
             Response.AddPagination(messagesFromRepo.PageNumber, messagesFromRepo.PageSize, messagesFromRepo.TotalCount, messagesFromRepo.TotalPages);

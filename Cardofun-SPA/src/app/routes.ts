@@ -24,6 +24,7 @@ export const appRoutes: Routes = [
             { path: 'member/edit', component: MemberEditComponent, resolve: {user: MemberEditResolver},
                 canDeactivate: [PreventUnsavedChangesGuard] },
             { path: 'messages', component: MessagesComponent, resolve: { messages: MessageDialoguesResolver } },
+            { path: 'messages/:container', component: MessagesComponent, resolve: { messages: MessageDialoguesResolver } },
             { path: 'friends', component: MemberListComponent, resolve: { users: FriendListResolver }  },
             { path: 'friends/:state', component: MemberListComponent, resolve: { users: FriendListResolver }  }
         ]

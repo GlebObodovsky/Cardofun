@@ -1,14 +1,4 @@
 <div class="container mt-5">
-  <div class="row">
-    <div class="btn-group">
-      <button class="btn btn-primary" [(ngModel)]="messageContainer" btnRadio="thread" (click)="loadDialogues()">
-        <i class="fa fa-envelope"></i> Thread
-      </button>
-      <button class="btn btn-primary" [(ngModel)]="messageContainer" btnRadio="unread" (click)="loadDialogues()">
-        <i class="fa fa-envelope-open"></i> Unread
-      </button>
-    </div>
-  </div>
 
   <div class="row" *ngIf="messages.length == 0">
     <h3>No messages</h3>
@@ -17,8 +7,8 @@
   <div class="row" *ngIf="messages.length > 0">
     <table class="table table-hover" style="cursor: pointer">
       <tr *ngFor="let message of messages" [routerLink]="['/members', 
-        currentUserId === message.senderId ? message.recipientId : message.senderId]">
-        <td style="width: 50px; padding: 0; margin: 0;">
+        currentUserId === message.senderId ? message.recipientId : message.senderId]" [ngClass]="{ unread: !message.isRead && currentUserId === message.recipientId }">
+        <td style="width: 50px; padding-left: 20; padding-right: 0;">
           <img *ngIf="currentUserId === message.recipientId" src="{{message?.senderPhotoUrl || '../../../../assets/user.png'}}" class="img-circle main rounded-circle">
           <img *ngIf="currentUserId === message.senderId" src="{{message?.recipientPhotoUrl || '../../../../assets/user.png'}}" class="img-circle main rounded-circle">
         </td>
@@ -29,17 +19,18 @@
                 <strong *ngIf="currentUserId === message.recipientId">{{message.senderName}}</strong>
                 <strong *ngIf="currentUserId === message.senderId">{{message.recipientName}}</strong>
               </div>
-              <div class="col">
-                {{message.sentAt | timeAgo}}
+              <div class="col text-right">
+                {{message.sentAt | date:'medium'}} - {{message.sentAt | timeAgo}}
               </div>
             </div>
             <div class="row">
-              <div class="col nopadding" [ngClass]="{ unread: !message.isRead }">
-                <img *ngIf="currentUserId === message.senderId" src="{{message?.senderPhotoUrl || '../../../../assets/user.png'}}" class="img-circle secondary rounded-circle">
+              <div class="col nopadding" [ngClass]="{ unread: !message.isRead && currentUserId === message.senderId }">
+                <img *ngIf="currentUserId === message.senderId" src="{{message?.senderPhotoUrl || '../../../../assets/user.png'}}" class="img-circle secondary rounded-circle" style="margin-bottom: 2px; margin-left: 2px">
                 {{message.text}}
               </div>
             </div>
           </div>
+        </td>
       </tr>
     </table>
   </div>

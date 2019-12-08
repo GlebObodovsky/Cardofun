@@ -19,9 +19,11 @@ td {
     vertical-align: middle;
 }
 
+tr:hover {
+    background: lightgray;
+}
+
 .unread {
-    padding-left: 2px;
-    padding-right: 2px;
     box-sizing: border-box;
-    background-color: lightblue;
+    background-color: rgba(173, 216, 230, 0.507);
 }

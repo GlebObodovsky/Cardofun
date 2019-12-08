@@ -116,10 +116,10 @@ namespace Cardofun.Interfaces.Repositories
         Task<Message> GetMessageAsync(Guid id);
 
         /// <summary>
-        /// Gets a page of lastly sent messages to/from a user 
+        /// Gets a page of dialogues of a user 
         /// </summary>
         /// <returns></returns>
-        Task<PagedList<Message>> GetLastMessagesForUser(MessagePrams messagePrams);
+        Task<PagedList<Message>> GetDialoguesForUser(MessagePrams messagePrams);
 
         /// <summary>
         /// Gets a paginated message thread between two users

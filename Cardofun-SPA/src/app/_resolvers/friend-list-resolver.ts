@@ -18,12 +18,11 @@ export class FriendListResolver implements Resolve<User[]> {
         private router: Router) {}
 
     resolve(route: ActivatedRouteSnapshot): Observable<User[]> {
-        const state: SupscriptionState = route.params['state'];
+        let state: SupscriptionState = route.params['state'];
         let params: UserFilterParams = null;
 
-        if (state) {
-            params = { subscriptionState: state };
-        }
+        state = state != null ? state : SupscriptionState.friends;
+        params = { subscriptionState: state };
 
         return this.friendService.getFriends(this.pageNumber, this.pageSize, params).pipe(
             catchError(error => {
