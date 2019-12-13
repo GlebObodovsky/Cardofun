@@ -5,7 +5,7 @@ import { EnumToArrayPipe } from './enumToArray.pipe';
 
 describe('Pipe: EnumToArraye', () => {
   it('create an instance', () => {
-    let pipe = new EnumToArrayPipe();
+    const pipe = new EnumToArrayPipe();
     expect(pipe).toBeTruthy();
   });
 });

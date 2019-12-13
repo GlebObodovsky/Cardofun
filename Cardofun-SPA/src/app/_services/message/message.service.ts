@@ -6,6 +6,7 @@ import { Message } from 'src/app/_models/message';
 import { AuthService } from '../auth/auth.service';
 import { map } from 'rxjs/operators';
 import { MessageContainer } from 'src/app/_models/enums/messageContainer';
+import { MessageThread } from 'src/app/_models/messageThread';
 
 @Injectable({
   providedIn: 'root'
@@ -24,13 +25,32 @@ export class MessageService {
       params = params.append('pageSize', itemsPerPage);
     }
 
-    console.log(container);
-
     if (container) {
       params = params.append('container', container);
     }
 
     return this.http.get<Message[]>(this.baseUrl + this.authService.currentUser.id + '/messages/dialogues', { observe: 'response', params })
+      .pipe(
+        map(response => {
+          paginatedResult.result = response.body;
+          if (response.headers.get('Pagination') != null) {
+            paginatedResult.pagination = JSON.parse(response.headers.get('Pagination'));
+          }
+          return paginatedResult;
+        })
+      );
+  }
+
+  getMessageThread(secondUserId: number, page?, itemsPerPage?) {
+    const paginatedResult: PaginatedResult<MessageThread> = new PaginatedResult<MessageThread>();
+    let params = new HttpParams();
+
+    if (page != null && itemsPerPage != null) {
+      params = params.append('pageNumber', page);
+      params = params.append('pageSize', itemsPerPage);
+    }
+
+    return this.http.get<MessageThread>(this.baseUrl + this.authService.currentUser.id + '/messages/thread/' + secondUserId, { observe: 'response', params })
       .pipe(
         map(response => {
           paginatedResult.result = response.body;

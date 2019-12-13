@@ -10,7 +10,7 @@ import { MemberEditComponent } from './members/member-edit/member-edit.component
 import { MemberEditResolver } from './_resolvers/member-edit-resolver';
 import { PreventUnsavedChangesGuard } from './_guards/prevent-unsaved-changes.guard';
 import { FriendListResolver } from './_resolvers/friend-list-resolver';
-import { MessageDialoguesResolver } from './_resolvers/message-gialogues-resolver';
+import { MessageDialoguesResolver } from './_resolvers/message-dialogues-resolver';
 
 export const appRoutes: Routes = [
     { path: '', component: HomeComponent },

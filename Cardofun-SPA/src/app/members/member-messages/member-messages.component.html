@@ -1,0 +1,57 @@
+<div class="card">
+  <div class="container chat" #scrollMe [scrollTop]="scrollMe.scrollHeight" (scroll)="onScroll($event)">
+    <div *ngIf="messages?.length === 0">
+      <p>No messages yet... Say hi by using the message box below</p>
+    </div>
+
+    <!-- <ul class="chat"> -->
+      <div class="message" *ngFor="let message of messages">
+        <!-- to them -->
+        <div *ngIf="message.senderId == theirUserId">
+          <span class="chat-img float-left">
+            <img src="{{theirUser.photoUrl}}" alt="{{theirUser.name}}" class="rounded-circle">
+          </span>
+          <div class="chat-body">
+            <div class="header">
+              <strong class="primary-font">{{theirUser.name}}</strong>
+              <small class="text-muted float-right">
+                <span class="fa fa-clock-o"> {{message.sentAt | date:'medium'}} - {{message.sentAt | timeAgo}}</span>
+              </small>
+            </div>
+            <p>{{message.text}}</p>
+          </div>
+        </div>
+
+        <!-- to me -->
+        <div *ngIf="message.recipientId == theirUserId">
+          <span class="chat-img float-right">
+            <img src="{{myUser.photoUrl}}" alt="{{myUser.name}}" class="rounded-circle">
+          </span>
+          <div class="chat-body">
+            <div class="header">
+              <small class="text-muted">
+                <span class="fa fa-clock-o"> {{message.sentAt | date:'medium'}} - {{message.sentAt | timeAgo}}</span>
+                <span *ngIf="!message.isRead" class="text-danger"> (unread)</span>
+                <span *ngIf="message.isRead" class="text-success"> (read {{message.sentAt | date:'medium'}} - {{message.sentAt | timeAgo}})</span>
+              </small>
+              <strong class="primary-font float-right">{{myUser.name}}</strong>
+            </div>
+            <p>{{message.text}}</p>
+          </div>
+        </div>
+      </div>
+    <!-- </ul> -->
+  </div>
+
+  <div class="card-footer">
+    <form action="">
+      <div class="input-group">
+        <input type="text" class="form-control input-sm" placeholder="send a private message">
+        <div class="input-group-append">
+          <button class="btn btn-primary">Send</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+</div>
