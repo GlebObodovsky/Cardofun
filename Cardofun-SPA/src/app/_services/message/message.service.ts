@@ -61,4 +61,10 @@ export class MessageService {
         })
       );
   }
+
+  createMessage(message: any) {
+    message.senderId = this.authService.currentUser.id;
+    return this.http.post(this.baseUrl + this.authService.currentUser.id + '/messages', message);
+  }
+
 }

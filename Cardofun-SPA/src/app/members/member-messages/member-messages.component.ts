@@ -16,6 +16,7 @@ import { Observable } from 'rxjs';
 export class MemberMessagesComponent implements OnInit {
   @Input() theirUserId: number;
   messages: Message[];
+  newMessage: any = {};
   myUser: UserForMessage;
   theirUser: UserForMessage;
   pagination = {
@@ -75,5 +76,16 @@ export class MemberMessagesComponent implements OnInit {
         });
       }
     }
+  }
+
+  sendMessage(text: string) {
+    this.newMessage.recipientId = this.theirUser.id;
+    console.log(this.theirUser.id);
+    this.messageService.createMessage(this.newMessage).subscribe((message: Message) => {
+      this.messages.unshift(message);
+      this.newMessage.text = '';
+    }, error => {
+      this.alertifyService.error(error);
+    });
   }
 }

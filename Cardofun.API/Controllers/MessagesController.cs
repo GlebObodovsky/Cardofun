@@ -97,7 +97,7 @@ namespace Cardofun.API.Controllers
 
         [HttpPost]
         public async Task<IActionResult> CreateMessage(Int32 userId, 
-            [FromForm]MessageForCreationDto messageForCreation)
+            [FromBody]MessageForCreationDto messageForCreation)
         {
             if (userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
                 return Unauthorized();
