@@ -29,8 +29,9 @@ export class MemberMessagesComponent implements OnInit {
   constructor(private messageService: MessageService, private alertifyService: AlertifyService) { }
 
   ngOnInit() {
-    this.loadMessages(this.pagination.currentPage, this.pagination.itemsPerPage).subscribe(res =>
-      this.handleResponse(res)
+    this.loadMessages(this.pagination.currentPage, this.pagination.itemsPerPage).subscribe(
+      res => this.handleResponse(res),
+      error => this.alertifyService.error(error)
     );
   }
 
@@ -40,28 +41,6 @@ export class MemberMessagesComponent implements OnInit {
     return this.messageService.getMessageThread(this.theirUserId,
       page || ++this.pagination.currentPage, itemsPerPage || this.pagination.itemsPerPage);
   }
-  // .subscribe((res: PaginatedResult<MessageThread>) => {
-  //   if (this.messages == null) {
-  //     this.messages = res.result.messages;
-  //   } else {
-  //     this.messages = this.messages.concat(res.result.messages);
-  //   }
-  //   this.theirUser = res.result.users.find(x => x.id === this.theirUserId);
-  //   this.myUser = res.result.users.find(x => x.id !== this.theirUserId);
-
-  //   this.pagination = res.pagination;
-  // }, error => {
-  //   this.alertifyService.error(error);
-  // });
-  // onScroll(event) {
-  //   if (event.target.scrollTop < 100) {
-  //     if (this.pagination.currentPage >= this.pagination.totalPages) {
-  //       return;
-  //     }
-
-  //     this.loadMessages(++this.pagination.currentPage);
-  //   }
-  // }
 
   handleResponse(res: PaginatedResult<MessageThread>) {
     this.loading = false;

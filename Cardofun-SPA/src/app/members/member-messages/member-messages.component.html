@@ -1,6 +1,6 @@
 <div class="card">
   <div class="container chat" #scrollMe [scrollTop]="scrollMe.scrollHeight" (scroll)="onScroll($event)">
-    <div *ngIf="messages?.length === 0">
+    <div *ngIf="messages?.length === 0" style="flex-direction: column-reverse;">
       <p>No messages yet... Say hi by using the message box below</p>
     </div>
 
