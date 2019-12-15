@@ -67,7 +67,7 @@ namespace Cardofun.API.Controllers
                 return BadRequest("Could not add the photo");
 
             var photoToReturn = _mapper.Map<UserPhotoForReturnDto>(photo);
-            return CreatedAtRoute(nameof(GetPhoto), new { userId = userId, id = photo.Id }, photoToReturn);
+            return CreatedAtRoute(nameof(GetPhoto), new { userId, id = photo.Id }, photoToReturn);
         }
 
         [HttpPost("{id}/setMain")]

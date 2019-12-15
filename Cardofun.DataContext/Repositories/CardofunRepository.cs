@@ -287,7 +287,7 @@ namespace Cardofun.DataContext.Repositories
         /// <param name="id"></param>
         /// <returns></returns>
         public async Task<UserPhoto> GetUserPhotoAsync(Guid id)
-            => await GetItemAsync<UserPhoto, Guid>(id);
+            => await GetItemAsync<UserPhoto, Guid>(id, photoParams => photoParams.Include(p => p.Photo));
 
         /// <summary>
         /// Gets user's main photo
