@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -66,6 +67,14 @@ namespace Cardofun.API.Controllers
             messagePrams.SecondUserId = secondUserId;
 
             var messagesFromRepo = await _cardofunRepository.GetPaginatedMessageThread(messagePrams);
+
+            // Mark unread messages as read            
+            var currentDate = DateTime.Now;
+            foreach (var m in messagesFromRepo.Where(m => m.RecipientId == userId).Where(m => !m.ReadAt.HasValue))
+                m.ReadAt = currentDate;
+
+            await _cardofunRepository.SaveChangesAsync();
+
             var mappedCollection = _mapper.Map<MessageListDto>(messagesFromRepo);
             
             Response.AddPagination(messagesFromRepo.PageNumber, messagesFromRepo.PageSize, messagesFromRepo.TotalCount, messagesFromRepo.TotalPages);
@@ -88,6 +97,10 @@ namespace Cardofun.API.Controllers
 
             if (messageFromRepo == null)
                 return NotFound();
+                
+            // Mark this message as read if it's for the user to read
+            if (messageFromRepo.RecipientId == userId && !messageFromRepo.ReadAt.HasValue)
+                messageFromRepo.ReadAt = DateTime.Now;
            
             if (messageFromRepo.SenderId == userId || messageFromRepo.RecipientId == userId)
                 return Ok(_mapper.Map<MessageExtendedDto>(messageFromRepo));

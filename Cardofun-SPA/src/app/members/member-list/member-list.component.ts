@@ -48,14 +48,17 @@ export class MemberListComponent implements OnInit {
   friendshipStatuses = FriendshipStatus;
 
   constructor(private route: ActivatedRoute, private userService: UserService,
-    private friendService: FriendService, private alertifyService: AlertifyService,
-    private languageService: LanguageService, private countryService: CountryService,
-    private cityService: CityService, private localStorageService: LocalStorageService) { }
+    private alertifyService: AlertifyService, private languageService: LanguageService,
+    private countryService: CountryService, private cityService: CityService,
+    private localStorageService: LocalStorageService) { }
 
   ngOnInit() {
     this.route.url.subscribe(params => {
       this.currentPath = params[0].path;
-      if (params[1]) {
+
+      if (this.currentPath === SupscriptionState.friends) {
+        this.userParams.subscriptionState = SupscriptionState.friends;
+      } else if (params[1]) {
         this.userParams.subscriptionState = SupscriptionState[params[1].path];
       }
     });

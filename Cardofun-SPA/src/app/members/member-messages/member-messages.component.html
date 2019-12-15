@@ -1,13 +1,13 @@
 <div class="card">
-  <div class="container chat" #scrollMe [scrollTop]="scrollMe.scrollHeight" (scroll)="onScroll($event)">
-    <div *ngIf="messages?.length === 0" style="flex-direction: column-reverse;">
+  <div class="chat" #scrollMe [scrollTop]="scrollMe.scrollHeight" (scroll)="onScroll($event)">
+    <div *ngIf="messages?.length === 0">
       <p>No messages yet... Say hi by using the message box below</p>
     </div>
 
     <!-- <ul class="chat"> -->
-      <div class="message" *ngFor="let message of messages">
+      <div class="message" *ngFor="let message of messages?.reverse()">
         <!-- to them -->
-        <div *ngIf="message.senderId == theirUserId">
+        <div *ngIf="message.senderId == theirUser.id">
           <span class="chat-img float-left">
             <img src="{{theirUser.photoUrl}}" alt="{{theirUser.name}}" class="rounded-circle">
           </span>
@@ -23,7 +23,7 @@
         </div>
 
         <!-- to me -->
-        <div *ngIf="message.recipientId == theirUserId">
+        <div *ngIf="message.recipientId == theirUser.id">
           <span class="chat-img float-right">
             <img src="{{myUser.photoUrl}}" alt="{{myUser.name}}" class="rounded-circle">
           </span>
@@ -32,7 +32,7 @@
               <small class="text-muted">
                 <span class="fa fa-clock-o"> {{message.sentAt | date:'medium'}} - {{message.sentAt | timeAgo}}</span>
                 <span *ngIf="!message.isRead" class="text-danger"> (unread)</span>
-                <span *ngIf="message.isRead" class="text-success"> (read {{message.sentAt | date:'medium'}} - {{message.sentAt | timeAgo}})</span>
+                <span *ngIf="message.isRead" class="text-success"> (read {{message.readAt | date:'medium'}} - {{message.readAt | timeAgo}})</span>
               </small>
               <strong class="primary-font float-right">{{myUser.name}}</strong>
             </div>
