@@ -11,11 +11,32 @@ using System.Collections.Generic;
 using Cardofun.Domain.Models;
 using System.Security.Cryptography;
 using System.Text;
+using System.Reflection;
 
 namespace Cardofun.DataContext.Seeding
 {
     public class Seed
     {
+        /// <summary>
+        /// Applying all the needed functions and stored procedures
+        /// </summary>
+        /// <param name="context"></param>
+        public static void PropagateSql(CardofunContext context)
+        {
+            var location = Path.GetDirectoryName(Assembly.GetAssembly(typeof(Seed)).Location);
+
+            var sqlFiles = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(Seed)).Location), "sql"), "*.sql")
+                .OrderBy(fileName => fileName);
+
+            foreach(var fileName in sqlFiles)
+            {
+                var sqlQuery = File.ReadAllText(fileName);
+                   context.Database.ExecuteSqlRaw(sqlQuery);
+            }
+
+            context.SaveChanges();
+        }
+
         public static void SeedCitiesAndLanguages(CardofunContext context)
         {
             if(context.Continents.Any() || context.Countries.Any() || context.Cities.Any() || context.Languages.Any())
@@ -36,9 +57,9 @@ namespace Cardofun.DataContext.Seeding
             {
                 var sqlQuery = File.ReadAllText(fileName);
                 if(sqlQuery.StartsWith("EXEC"))
-                    context.Database.ExecuteSqlCommand(sqlQuery, new SqlParameter("@FolderPath", Path.GetFullPath(rootPath)));
+                    context.Database.ExecuteSqlRaw(sqlQuery, new SqlParameter("@FolderPath", Path.GetFullPath(rootPath)));
                 else
-                   context.Database.ExecuteSqlCommand(sqlQuery);
+                   context.Database.ExecuteSqlRaw(sqlQuery);
             }
 
             context.SaveChanges();

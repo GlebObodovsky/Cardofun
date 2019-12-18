@@ -11,6 +11,7 @@ using Cardofun.DataContext.Data;
 using Cardofun.DataContext.Helpers;
 using Cardofun.Domain.Models;
 using Cardofun.Interfaces.Repositories;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 
@@ -327,22 +328,28 @@ namespace Cardofun.DataContext.Repositories
                     .ThenInclude(m => m.Photos)
                         .ThenInclude(m => m.Photo));
 
-
         /// <summary>
         /// Gets a page of dialogues of a user 
         /// </summary>
         /// <returns></returns>
         public async Task<PagedList<Message>> GetDialoguesForUser(MessagePrams messagePrams)
-        {
-            var request = SetUpRequest<Message>(message => message
+            => await _context.Messages
+                .FromSqlRaw("SELECT * FROM fn_GetDialogues ({0}, {1})", messagePrams.Container == MessageContainer.Unread, messagePrams.UserId)
                 .Include(m => m.Photo)
                 .Include(m => m.Sender)
                     .ThenInclude(s => s.Photos)
                         .ThenInclude(p => p.Photo)
                 .Include(m => m.Recipient)
                     .ThenInclude(s => s.Photos)
-                        .ThenInclude(p => p.Photo));
+                        .ThenInclude(p => p.Photo)
+                .ToPagedListAsync(messagePrams.PageNumber, messagePrams.PageSize);
 
+        // Next code is commented out because when I did the migration from 
+        // Core 2.1 to 3.1 it has broken. It stays here untill they fix it
+        // https://stackoverflow.com/questions/59346353/problem-with-ef-orderby-after-migration-to-net-core-3-1
+
+        /*public async Task<PagedList<Message>> GetDialoguesForUser(MessagePrams messagePrams)
+        {
             // Getting top messages sent by different users
             if (messagePrams.Container == MessageContainer.Thread)
             {
@@ -361,18 +368,18 @@ namespace Cardofun.DataContext.Repositories
                 request = request
                     .GroupBy(m => m.SenderId)
                     .Select(gm => gm.OrderByDescending(m => m.SentAt).FirstOrDefault(m => !m.ReadAt.HasValue))
-                    .Where(m => m != null);           
+                    .Where(m => m != null);
             }
-            
-            return await request.OrderByDescending(m => m.SentAt)
+
+            return await query.OrderByDescending(m => m.SentAt)
                 .Where(message =>
                     // Get messages sent to user and only the unread ones
-                    messagePrams.Container != MessageContainer.Unread 
+                    messagePrams.Container != MessageContainer.Unread
                     ||
                     message.RecipientId == messagePrams.UserId && !message.ReadAt.HasValue)
-                    // Get all messages sent related to user
-                .Where(message => 
-                    messagePrams.Container != MessageContainer.Thread 
+                // Get all messages sent related to user
+                .Where(message =>
+                    messagePrams.Container != MessageContainer.Thread
                     ||
                     (
                         message.RecipientId == messagePrams.UserId
@@ -380,7 +387,7 @@ namespace Cardofun.DataContext.Repositories
                         message.SenderId == messagePrams.UserId
                     ))
                 .ToPagedListAsync(messagePrams.PageNumber, messagePrams.PageSize);
-        }
+        }*/
 
         /// <summary>
         /// Gets a paginated message thread between two users
@@ -403,8 +410,7 @@ namespace Cardofun.DataContext.Repositories
                     ||
                         (message.RecipientId == messageParams.UserId
                         &&
-                        message.SenderId == messageParams.SecondUserId)
-            );
+                        message.SenderId == messageParams.SecondUserId));
         #endregion Messages
 
     }
