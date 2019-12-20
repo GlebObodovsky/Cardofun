@@ -1,21 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Cardofun.Domain.Models;
 using System;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace Cardofun.DataContext.Data
 {
-    public class CardofunContext: DbContext
+    public class CardofunContext: IdentityDbContext<User, Role, Int32, IdentityUserClaim<Int32>,
+        UserRole, IdentityUserLogin<Int32>, IdentityRoleClaim<Int32>, IdentityUserToken<Int32>>
     {
         public CardofunContext(DbContextOptions<CardofunContext> options) :base(options) {}
 
-
         #region DbSets
 
-        /// <summary>
-        /// Represents a set of stored Users and their base information
-        /// </summary>
-        /// <value></value>
-        public DbSet<User> Users { get; set; }
         /// <summary>
         /// Represents a set of photos
         /// </summary>
@@ -75,6 +72,8 @@ namespace Cardofun.DataContext.Data
         /// <param name="modelBuilder"></param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             #region User
             modelBuilder.Entity<User>()
                 .HasKey(x => x.Id);
@@ -84,11 +83,11 @@ namespace Cardofun.DataContext.Data
                 .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<User>()
-                .HasIndex(x => x.Login)
+                .HasIndex(x => x.UserName)
                 .IsUnique();
             
             modelBuilder.Entity<User>()
-                .Property(x => x.Login)
+                .Property(x => x.UserName)
                 .IsRequired();
 
             modelBuilder.Entity<User>()
@@ -96,7 +95,7 @@ namespace Cardofun.DataContext.Data
                 .IsRequired();
 
             modelBuilder.Entity<User>()
-                .Property(x => x.IsEmailVerified)
+                .Property(x => x.EmailConfirmed)
                 .IsRequired();
             
             // Created time would be the exact time when the User is created  
@@ -114,16 +113,29 @@ namespace Cardofun.DataContext.Data
                 .IsRequired();
 
             modelBuilder.Entity<User>()
-                .Property(x => x.PasswordSalt)
-                .IsRequired();
-
-            modelBuilder.Entity<User>()
                 .HasOne(x => x.City)
                 .WithMany(x => x.Users)
                 .HasForeignKey(x => x.CityId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
             #endregion User
+
+            #region IdentityUser (security)
+            modelBuilder.Entity<UserRole>()
+                .HasKey(x => new { x.UserId, x.RoleId });
+
+            modelBuilder.Entity<UserRole>()
+                .HasOne(x => x.Role)
+                .WithMany(x => x.UserRoles)
+                .HasForeignKey(x => x.RoleId)
+                .IsRequired();
+
+            modelBuilder.Entity<UserRole>()
+                .HasOne(x => x.User)
+                .WithMany(x => x.UserRoles)
+                .HasForeignKey(x => x.UserId)
+                .IsRequired();
+            #endregion IdentityUser (security)
 
             #region Photos
             modelBuilder.Entity<Photo>()

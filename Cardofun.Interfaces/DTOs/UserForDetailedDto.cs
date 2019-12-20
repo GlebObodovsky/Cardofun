@@ -7,7 +7,7 @@ namespace Cardofun.Interfaces.DTOs
     public class UserForDetailedDto
     {
         public Int32 Id { get; set; }
-        public String Login { get; set; }
+        public String UserName { get; set; }
         public String Name { get; set; }
         public Int32 Age { get; set; }
         public DateTime BirthDate { get; set; }

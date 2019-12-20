@@ -162,7 +162,7 @@ namespace Cardofun.DataContext.Repositories
         /// <param name="login">login by which to make a search</param>
         /// <returns></returns>
         public async Task<Boolean> CheckIfUserExists(String login)
-            => await _context.Users.AnyAsync(u => u.Login.Equals(login, StringComparison.OrdinalIgnoreCase));
+            => await _context.Users.AnyAsync(u => u.UserName.Equals(login, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
         /// Gets a user out of the repository

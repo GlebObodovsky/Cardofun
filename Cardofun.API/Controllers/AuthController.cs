@@ -11,11 +11,13 @@ using Cardofun.Core.NameConstants;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cardofun.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class AuthController : ControllerBase
     {
         #region Fields
@@ -41,7 +43,7 @@ namespace Cardofun.API.Controllers
         [HttpPost(nameof(Register))]
         public async Task<IActionResult> Register(UserForRegisterDto userForRegister)
         {
-            if (await _authRepository.IsExistAsync(userForRegister.Login))
+            if (await _authRepository.IsExistAsync(userForRegister.UserName))
                 return BadRequest("Login already exists");
 
             var newUser = _mapper.Map<User>(userForRegister);
@@ -59,7 +61,7 @@ namespace Cardofun.API.Controllers
         [HttpPost(nameof(Login))]
         public async Task<IActionResult> Login(UserForLoginDto userForLogin)
         {
-            var userFromRepo = await _authRepository.LoginAsync(userForLogin.Login, userForLogin.Password);
+            var userFromRepo = await _authRepository.LoginAsync(userForLogin.UserName, userForLogin.Password);
 
             if (userFromRepo == null)
                 return Unauthorized();
@@ -67,7 +69,7 @@ namespace Cardofun.API.Controllers
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, userFromRepo.Id.ToString()),
-                new Claim(ClaimTypes.Name, userFromRepo.Login)
+                new Claim(ClaimTypes.Name, userFromRepo.UserName)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8

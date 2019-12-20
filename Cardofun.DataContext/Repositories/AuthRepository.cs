@@ -37,14 +37,15 @@ namespace Cardofun.DataContext.Repositories
         /// <returns>Registered User</returns>
         public async Task<User> RegisterAsync(User user, string password)
         {
-            if(await IsExistAsync(user.Login))
+            if(await IsExistAsync(user.UserName))
                 return null;
 
             byte [] passwordHash, passwordSalt;
             CreatePasswordHash(password, out passwordHash, out passwordSalt);
 
-            user.PasswordHash = passwordHash;
-            user.PasswordSalt = passwordSalt;
+            // removed after migrating to IdentityUser as it is not needed anymore
+            // user.PasswordHash = passwordHash;
+            // user.PasswordSalt = passwordSalt;
 
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
@@ -63,13 +64,14 @@ namespace Cardofun.DataContext.Repositories
                 .Include(u => u.Photos)
                     .ThenInclude(u => u.Photo)
                 .Include(u => u.LanguagesTheUserLearns).ThenInclude(l => l.Language)
-                .FirstOrDefaultAsync(u => u.Login.ToUpper() == login.ToUpper());
+                .FirstOrDefaultAsync(u => u.UserName.ToUpper() == login.ToUpper());
 
             if(user == null)
                 return null;
 
-            if(!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
-                return null;
+            // removed after migrating to IdentityUser as it is not needed anymore
+            // if(!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+            //     return null;
 
             else
                 return user;
@@ -81,7 +83,7 @@ namespace Cardofun.DataContext.Repositories
         /// <returns>True - the useralready exists</returns>
         public async Task<bool> IsExistAsync(string login)
         {
-            return await _context.Users.AnyAsync(u => u.Login.ToUpper() == login.ToUpper());
+            return await _context.Users.AnyAsync(u => u.UserName.ToUpper() == login.ToUpper());
         }
         #endregion IAuthRepository
         
@@ -100,6 +102,8 @@ namespace Cardofun.DataContext.Repositories
                 passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
             }
         }
+
+        // removed after migrating to IdentityUser as it is not needed anymore
         /// <summary>
         /// Verifies if a given password is correct
         /// </summary>
@@ -107,24 +111,24 @@ namespace Cardofun.DataContext.Repositories
         /// <param name="passwordHash"></param>
         /// <param name="passwordSalt"></param>
         /// <returns></returns>
-        private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
-        {
-            using(var hmac = new HMACSHA512(passwordSalt))
-            {
-                var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+        // private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+        // {
+        //     using(var hmac = new HMACSHA512(passwordSalt))
+        //     {
+        //         var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
                 
-                if(computedHash.Length != passwordHash.Length)
-                    return false;
+        //         if(computedHash.Length != passwordHash.Length)
+        //             return false;
 
-                for (int i = 0; i < computedHash.Length; i++)
-                {
-                    if(computedHash[i] != passwordHash[i])
-                        return false;
-                }
+        //         for (int i = 0; i < computedHash.Length; i++)
+        //         {
+        //             if(computedHash[i] != passwordHash[i])
+        //                 return false;
+        //         }
 
-                return true;
-            }
-        }
+        //         return true;
+        //     }
+        // }
         #endregion Functions
     }
 }

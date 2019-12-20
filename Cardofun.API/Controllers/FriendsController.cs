@@ -10,7 +10,6 @@ using Cardofun.Core.Enums;
 using Cardofun.Domain.Models;
 using Cardofun.Interfaces.DTOs;
 using Cardofun.Interfaces.Repositories;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cardofun.API.Controllers

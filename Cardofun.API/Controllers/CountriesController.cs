@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cardofun.API.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CountriesController: ControllerBase

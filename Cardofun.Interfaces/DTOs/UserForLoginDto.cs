@@ -13,8 +13,8 @@ namespace Cardofun.Interfaces.DTOs
         /// </summary>
         /// <value></value>
         [Required]
-        [StringLength(12, MinimumLength = 4, ErrorMessage = "You must specify login between 4 and 12")]
-        public String Login { get; set; }
+        [StringLength(12, MinimumLength = 4, ErrorMessage = "You must specify user name between 4 and 12")]
+        public String UserName { get; set; }
         /// <summary>
         /// User password
         /// </summary>

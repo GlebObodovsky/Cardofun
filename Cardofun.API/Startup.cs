@@ -19,6 +19,10 @@ using Cardofun.Interfaces.ServiceProviders;
 using Cardofun.Modules.Cloudinary;
 using Cardofun.API.Helpers;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Cardofun.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 namespace Cardofun.API
 {
@@ -49,11 +53,43 @@ namespace Cardofun.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            IdentityBuilder builder = services.AddIdentityCore<User>(options => 
+            {
+                // ATTENTION! NEXT LINES SHOULD BE REMOVED BEFORE PUBLISHING
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 4;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+            });
+
+            builder = new IdentityBuilder(builder.UserType, typeof(Role), builder.Services);
+            builder.AddEntityFrameworkStores<CardofunContext>();
+            builder.AddRoleValidator<RoleValidator<Role>>();
+            builder.AddRoleManager<RoleManager<Role>>();
+            builder.AddSignInManager<SignInManager<User>>();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options => 
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetSection(AppSettingsConstants.Token).Value)),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    }
+                );
+
             services.AddDbContext<CardofunContext>(x => x.UseSqlServer(Configuration.GetConnectionString(ConnectionStringConstants.CardofunSqlServerConnection)));
             // Uncomment next line if you want to use SqlLite
             // services.AddDbContext<CardofunContext>(x => x.UseSqlite(Configuration.GetConnectionString(ConnectionStringConstants.CardofunSqlLiteConnection)));
 
-            services.AddControllers()
+            services.AddControllers(options => 
+            {
+                var policy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+
+                options.Filters.Add(new AuthorizeFilter(policy));
+            })
                 .AddNewtonsoftJson(options => 
                     {
                         options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
@@ -66,16 +102,6 @@ namespace Cardofun.API
             services.AddAutoMapper(typeof(Startup).Assembly);
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<ICardofunRepository, CardofunRepository>();
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options => 
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetSection(AppSettingsConstants.Token).Value)),
-                        ValidateIssuer = false,
-                        ValidateAudience = false
-                    }
-                );
             services.AddOptions();
             #region ImageProvider config
             // Next section configures cloudinary image provider. Change the configs
