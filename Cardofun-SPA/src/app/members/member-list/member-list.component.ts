@@ -17,6 +17,7 @@ import { LocalStorageService } from 'src/app/_services/local-storage/local-stora
 import { FriendService } from 'src/app/_services/friend/friend.service';
 import { FriendshipStatus } from 'src/app/_models/enums/friendshipStatus';
 import { SupscriptionState } from 'src/app/_models/enums/supscriptionState';
+import { ControlContainer } from '@angular/forms';
 
 @Component({
   selector: 'app-member-list',
@@ -56,7 +57,7 @@ export class MemberListComponent implements OnInit {
     this.route.url.subscribe(params => {
       this.currentPath = params[0].path;
 
-      if (this.currentPath === SupscriptionState.friends) {
+      if (this.currentPath === SupscriptionState.friends && !params[1]) {
         this.userParams.subscriptionState = SupscriptionState.friends;
       } else if (params[1]) {
         this.userParams.subscriptionState = SupscriptionState[params[1].path];
@@ -116,7 +117,10 @@ export class MemberListComponent implements OnInit {
   }
 
   addedToFriendlist(friend: User) {
+    console.log(this.userParams.subscriptionState);
+
     if (this.userParams.subscriptionState === SupscriptionState.followers) {
+      console.log('done!');
       this.excludedFromList(friend);
     }
   }
