@@ -1,6 +1,6 @@
 [
   {
-    "login": "Diana",
+    "userName": "Diana",
     "name": "Diana",
     "birthDate": "1985-11-14",
     "sex": 1,
@@ -31,7 +31,7 @@
     ]
   },
   {
-    "login": "Carolina",
+    "userName": "Carolina",
     "name": "Carolina",
     "birthDate": "1955-03-22",
     "sex": 1,
@@ -62,7 +62,7 @@
     ]
   },
   {
-    "login": "Lolita",
+    "userName": "Lolita",
     "name": "Lolita",
     "birthDate": "1953-04-30",
     "sex": 1,
@@ -93,7 +93,7 @@
     ]
   },
   {
-    "login": "Pam",
+    "userName": "Pam",
     "name": "Pam",
     "birthDate": "1981-10-25",
     "sex": 1,
@@ -124,7 +124,7 @@
     ]
   },
   {
-    "login": "Eva",
+    "userName": "Eva",
     "name": "Eva",
     "birthDate": "1996-06-26",
     "sex": 1,
@@ -155,7 +155,7 @@
     ]
   },
   {
-    "login": "Bowman",
+    "userName": "Bowman",
     "name": "Bowman",
     "birthDate": "1999-10-25",
     "sex": 0,
@@ -186,7 +186,7 @@
     ]
   },
   {
-    "login": "Russell",
+    "userName": "Russell",
     "name": "Russell",
     "birthDate": "1966-06-06",
     "sex": 0,
@@ -217,7 +217,7 @@
     ]
   },
   {
-    "login": "Zamora",
+    "userName": "Zamora",
     "name": "Zamora",
     "birthDate": "1977-07-17",
     "sex": 0,
@@ -248,7 +248,7 @@
     ]
   },
   {
-    "login": "Norris",
+    "userName": "Norris",
     "name": "Norris",
     "birthDate": "1962-11-09",
     "sex": 0,
@@ -279,7 +279,7 @@
     ]
   },
   {
-    "login": "Burnett",
+    "userName": "Burnett",
     "name": "Burnett",
     "birthDate": "1977-09-15",
     "sex": 0,

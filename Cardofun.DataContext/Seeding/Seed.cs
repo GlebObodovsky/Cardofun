@@ -1,5 +1,4 @@
 using System;
-using System.Data.SqlClient;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -9,9 +8,8 @@ using Cardofun.DataContext.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using Cardofun.Domain.Models;
-using System.Security.Cryptography;
-using System.Text;
 using System.Reflection;
+using Microsoft.Data.SqlClient;
 
 namespace Cardofun.DataContext.Seeding
 {
@@ -53,13 +51,13 @@ namespace Cardofun.DataContext.Seeding
 
             Parallel.ForEach(zipArchives, z => ZipFile.ExtractToDirectory(z, rootPath));
 
-            foreach(var fileName in sqlFiles)
+            foreach (var fileName in sqlFiles)
             {
                 var sqlQuery = File.ReadAllText(fileName);
-                if(sqlQuery.StartsWith("EXEC"))
-                    context.Database.ExecuteSqlRaw(sqlQuery, new SqlParameter("@FolderPath", Path.GetFullPath(rootPath)));
+                if (sqlQuery.StartsWith("EXEC"))
+                    context.Database.ExecuteSqlCommand(sqlQuery, new SqlParameter("@FolderPath", Path.GetFullPath(rootPath)));
                 else
-                   context.Database.ExecuteSqlRaw(sqlQuery);
+                    context.Database.ExecuteSqlCommand(sqlQuery);
             }
 
             context.SaveChanges();

@@ -74,6 +74,16 @@ namespace Cardofun.DataContext.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            #region Changing table names
+            modelBuilder.Entity<User>(x => x.ToTable(nameof(Users)));
+            modelBuilder.Entity<Role>(x => x.ToTable(nameof(Roles)));
+            modelBuilder.Entity<UserRole>(x => x.ToTable(nameof(UserRoles)));
+            modelBuilder.Entity<IdentityRoleClaim<Int32>>(x => x.ToTable(nameof(RoleClaims)));
+            modelBuilder.Entity<IdentityUserClaim<Int32>>(x => x.ToTable(nameof(UserClaims)));
+            modelBuilder.Entity<IdentityUserLogin<Int32>>(x => x.ToTable(nameof(UserLogins)));
+            modelBuilder.Entity<IdentityUserToken<Int32>>(x => x.ToTable(nameof(UserTokens)));
+            #endregion Changing table names
+
             #region User
             modelBuilder.Entity<User>()
                 .HasKey(x => x.Id);
