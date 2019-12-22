@@ -6,6 +6,7 @@ using Cardofun.Interfaces.Repositories;
 using System.Security.Cryptography;
 using System;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
 
 namespace Cardofun.DataContext.Repositories
 {
@@ -15,15 +16,14 @@ namespace Cardofun.DataContext.Repositories
     public class AuthRepository : IAuthRepository
     {
         #region Fields
-        /// <summary>
-        /// Database context
-        /// </summary>
+        private readonly SignInManager<User> _signInManager;
         private readonly CardofunContext _context;
         #endregion Fields
 
         #region Constructor
-        public AuthRepository(CardofunContext context)
+        public AuthRepository(CardofunContext context, SignInManager<User> signInManager)
         {
+            _signInManager = signInManager;
             _context = context;
         }
         #endregion Constructor
@@ -37,10 +37,10 @@ namespace Cardofun.DataContext.Repositories
         /// <returns>Registered User</returns>
         public async Task<User> RegisterAsync(User user, string password)
         {
-            if(await IsExistAsync(user.UserName))
+            if (await IsExistAsync(user.UserName))
                 return null;
 
-            byte [] passwordHash, passwordSalt;
+            byte[] passwordHash, passwordSalt;
             CreatePasswordHash(password, out passwordHash, out passwordSalt);
 
             // removed after migrating to IdentityUser as it is not needed anymore
@@ -66,15 +66,15 @@ namespace Cardofun.DataContext.Repositories
                 .Include(u => u.LanguagesTheUserLearns).ThenInclude(l => l.Language)
                 .FirstOrDefaultAsync(u => u.UserName.ToUpper() == login.ToUpper());
 
-            if(user == null)
+            if (user == null)
                 return null;
 
-            // removed after migrating to IdentityUser as it is not needed anymore
-            // if(!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
-            //     return null;
+            var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
 
-            else
+            if (result.Succeeded)
                 return user;
+
+            return null;
         }
         /// <summary>
         /// Allows to determine if a user with certain login exists in the database
@@ -86,7 +86,7 @@ namespace Cardofun.DataContext.Repositories
             return await _context.Users.AnyAsync(u => u.UserName.ToUpper() == login.ToUpper());
         }
         #endregion IAuthRepository
-        
+
         #region Functions
         /// <summary>
         /// Creating password hash and password salt out of given password
@@ -96,7 +96,7 @@ namespace Cardofun.DataContext.Repositories
         /// <param name="passwordSalt"></param>
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
-            using(var hmac = new HMACSHA512())
+            using (var hmac = new HMACSHA512())
             {
                 passwordSalt = hmac.Key;
                 passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
@@ -116,7 +116,7 @@ namespace Cardofun.DataContext.Repositories
         //     using(var hmac = new HMACSHA512(passwordSalt))
         //     {
         //         var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-                
+
         //         if(computedHash.Length != passwordHash.Length)
         //             return false;
 

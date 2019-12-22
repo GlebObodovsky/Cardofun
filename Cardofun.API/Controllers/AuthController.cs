@@ -12,6 +12,7 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace Cardofun.API.Controllers
 {
@@ -21,14 +22,19 @@ namespace Cardofun.API.Controllers
     public class AuthController : ControllerBase
     {
         #region Fields
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly IAuthRepository _authRepository;
         private readonly IConfiguration _config;
         private readonly IMapper _mapper;
         #endregion Fields
 
         #region  Constructor
-        public AuthController(IAuthRepository authRepoitory, IConfiguration config, IMapper mapper)
+        public AuthController(IAuthRepository authRepoitory, IConfiguration config, IMapper mapper,
+            UserManager<User> userManager, SignInManager<User> signInManager)
         {
+            _signInManager = signInManager;
+            _userManager = userManager;
             _mapper = mapper;
             _authRepository = authRepoitory;
             _config = config;
@@ -54,6 +60,7 @@ namespace Cardofun.API.Controllers
 
             return CreatedAtRoute("GetUser", new { Controller = "Users", Id = newUser.Id }, userForReturn);
         }
+        
         /// <summary>
         /// Allows a user to login to the service
         /// </summary>
@@ -61,15 +68,26 @@ namespace Cardofun.API.Controllers
         [HttpPost(nameof(Login))]
         public async Task<IActionResult> Login(UserForLoginDto userForLogin)
         {
-            var userFromRepo = await _authRepository.LoginAsync(userForLogin.UserName, userForLogin.Password);
-
-            if (userFromRepo == null)
+            var user = await _authRepository.LoginAsync(userForLogin.UserName, userForLogin.Password);
+            
+            if (user == null)
                 return Unauthorized();
 
+            return Ok(new
+            {
+                token = GenerateJwtToken(user),
+                user = _mapper.Map<UserShortInfoDto>(user)
+            });
+        }
+        #endregion Controller methods
+
+        #region Functions
+        private string GenerateJwtToken(User user)
+        {
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, userFromRepo.Id.ToString()),
-                new Claim(ClaimTypes.Name, userFromRepo.UserName)
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8
@@ -91,14 +109,9 @@ namespace Cardofun.API.Controllers
 
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return Ok(new
-            {
-                token = tokenHandler.WriteToken(token),
-                user = _mapper.Map<UserShortInfoDto>(userFromRepo)
-            });
+            return tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
         }
-        #endregion Controller methods
+
+        #endregion Functions
     }
 }
