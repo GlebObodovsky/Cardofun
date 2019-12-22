@@ -1,7 +1,7 @@
 ﻿using System;
 using Cardofun.DataContext.Data;
 using Cardofun.DataContext.Seeding;
-using Microsoft.AspNetCore;
+using Cardofun.Domain.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -23,15 +23,17 @@ namespace Cardofun.API
                 try
                 {
                     var context = services.GetRequiredService<CardofunContext>();
+                    var userService = services.GetRequiredService<UserManager<User>>();
+
                     context.Database.Migrate();
                     Seed.PropagateSql(context);
                     Seed.SeedCitiesAndLanguages(context);
-                    Seed.SeedUsers(context);
+                    Seed.SeedUsers(userService);
                 }
                 catch (Exception ex)
                 {
                     var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occured during migration");
+                    logger.LogError(ex, "An error occured during migration / seeding");
                 }
             }
 

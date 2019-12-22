@@ -10,10 +10,11 @@ using System.Collections.Generic;
 using Cardofun.Domain.Models;
 using System.Reflection;
 using Microsoft.Data.SqlClient;
+using Microsoft.AspNetCore.Identity;
 
 namespace Cardofun.DataContext.Seeding
 {
-    public class Seed
+    public static class Seed
     {
         /// <summary>
         /// Applying all the needed functions and stored procedures
@@ -66,41 +67,16 @@ namespace Cardofun.DataContext.Seeding
             Parallel.ForEach(txtFiles, t => File.Delete(t));
         }
 
-        public static void SeedUsers(CardofunContext context)
+        public static void SeedUsers(UserManager<User> userManager)
         {
-            if(context.Users.Any())
+            if(userManager.Users.Any())
                 return;
 
             var userData = File.ReadAllText("../Cardofun.DataContext/Seeding/Resources/Users.json");
             var users = JsonConvert.DeserializeObject<List<User>>(userData);
-            
-            // removed after migrating to IdentityUser as it is not needed anymore
-            // Parallel.ForEach(users, user => 
-            //     {
-            //         byte[] passwordHash, passwordSalt; 
-            //         CreatePasswordHash("password", out passwordHash, out passwordSalt);
-            //         user.PasswordHash = passwordHash;
-            //         user.PasswordSalt = passwordSalt;
-            //     });
 
-            context.Users.AddRange(users);
-            context.SaveChanges();
+            foreach (var user in users)
+                userManager.CreateAsync(user, "password").Wait();
         }
-
-        // removed after migrating to IdentityUser as it is not needed anymore
-        /// <summary>
-        /// Creating password hash and password salt out of given password
-        /// </summary>
-        /// <param name="password"></param>
-        /// <param name="passwordHash"></param>
-        /// <param name="passwordSalt"></param>
-        // private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
-        // {
-        //     using(var hmac = new HMACSHA512())
-        //     {
-        //         passwordSalt = hmac.Key;
-        //         passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-        //     }
-        // }
     }
 }
