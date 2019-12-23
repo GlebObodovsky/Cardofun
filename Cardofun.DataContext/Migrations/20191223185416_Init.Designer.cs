@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cardofun.DataContext.Migrations
 {
     [DbContext(typeof(CardofunContext))]
-    [Migration("20191221221237_Init")]
+    [Migration("20191223185416_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

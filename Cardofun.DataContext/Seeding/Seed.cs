@@ -11,6 +11,7 @@ using Cardofun.Domain.Models;
 using System.Reflection;
 using Microsoft.Data.SqlClient;
 using Microsoft.AspNetCore.Identity;
+using Cardofun.Core.NameConstants;
 
 namespace Cardofun.DataContext.Seeding
 {
@@ -67,16 +68,37 @@ namespace Cardofun.DataContext.Seeding
             Parallel.ForEach(txtFiles, t => File.Delete(t));
         }
 
-        public static void SeedUsers(UserManager<User> userManager)
+        public async static Task SeedUsers(UserManager<User> userManager, RoleManager<Role> roleManager)
         {
             if(userManager.Users.Any())
                 return;
+
+            await roleManager.CreateAsync(new Role { Name = RoleConstants.Admin });
+            await roleManager.CreateAsync(new Role { Name = RoleConstants.Moderator });
+            await roleManager.CreateAsync(new Role { Name = RoleConstants.Member });
 
             var userData = File.ReadAllText("../Cardofun.DataContext/Seeding/Resources/Users.json");
             var users = JsonConvert.DeserializeObject<List<User>>(userData);
 
             foreach (var user in users)
-                userManager.CreateAsync(user, "password").Wait();
+            {
+                await userManager.CreateAsync(user, "password");
+                await userManager.AddToRoleAsync(user, RoleConstants.Member);
+            }
+
+            // creating Admin user
+            var admin = new User 
+            { 
+                UserName = RoleConstants.Admin,
+                Email = RoleConstants.Admin,
+                CityId = 1
+            };
+
+            var result = await userManager.CreateAsync(admin, "password");
+            if (!result.Succeeded)
+                throw new Exception("The admin user hasn't been created");
+
+            await userManager.AddToRolesAsync(admin, new[] { RoleConstants.Admin, RoleConstants.Moderator });
         }
     }
 }

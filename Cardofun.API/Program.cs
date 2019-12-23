@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Cardofun.DataContext.Data;
 using Cardofun.DataContext.Seeding;
 using Cardofun.Domain.Models;
@@ -23,12 +24,13 @@ namespace Cardofun.API
                 try
                 {
                     var context = services.GetRequiredService<CardofunContext>();
-                    var userService = services.GetRequiredService<UserManager<User>>();
+                    var userManager = services.GetRequiredService<UserManager<User>>();
+                    var roleManager = services.GetRequiredService<RoleManager<Role>>();
 
                     context.Database.Migrate();
                     Seed.PropagateSql(context);
                     Seed.SeedCitiesAndLanguages(context);
-                    Seed.SeedUsers(userService);
+                    Seed.SeedUsers(userManager, roleManager).Wait();
                 }
                 catch (Exception ex)
                 {

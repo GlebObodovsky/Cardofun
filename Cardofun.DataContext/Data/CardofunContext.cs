@@ -3,6 +3,7 @@ using Cardofun.Domain.Models;
 using System;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Cardofun.Core.NameConstants;
 
 namespace Cardofun.DataContext.Data
 {
