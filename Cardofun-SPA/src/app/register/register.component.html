@@ -14,30 +14,30 @@
 
   <div class="form-group">
     <input type="text"
-      [ngClass]="{'is-invalid': registerForm.get('login').errors
-        && registerForm.get('login').touched}"
+      [ngClass]="{'is-invalid': registerForm.get('userName').errors
+        && registerForm.get('userName').touched}"
       class="form-control" 
-      formControlName="login" 
-      placeholder="Login">
+      formControlName="userName" 
+      placeholder="User name">
     <div class="invalid-feedback"
-      *ngIf="registerForm.get('login').hasError('required')
-      && registerForm.get('login').touched">
-      Please choose a login
+      *ngIf="registerForm.get('userName').hasError('required')
+      && registerForm.get('userName').touched">
+      Please choose a user name
     </div>
     <div class="invalid-feedback"
-      *ngIf="registerForm.get('login').hasError('minlength')
-      && registerForm.get('login').touched">
-      Login must be at least 4 characters
+      *ngIf="registerForm.get('userName').hasError('minlength')
+      && registerForm.get('userName').touched">
+      User name must be at least 4 characters
     </div>
     <div class="invalid-feedback"
-      *ngIf="registerForm.get('login').hasError('maxlength')
-      && registerForm.get('login').touched">
-      Login cannot exceed 12 characters
+      *ngIf="registerForm.get('userName').hasError('maxlength')
+      && registerForm.get('userName').touched">
+      User name cannot exceed 12 characters
     </div>
     <div class="invalid-feedback"
-      *ngIf="registerForm.get('login').hasError('loginistaken')
-      && registerForm.get('login').touched">
-      The login is already taken
+      *ngIf="registerForm.get('userName').hasError('usernameistaken')
+      && registerForm.get('userName').touched">
+      The User name is already taken
     </div>
   </div>
 

@@ -99,7 +99,6 @@ namespace Cardofun.API
             
             services.AddCors();
             services.AddAutoMapper(typeof(Startup).Assembly);
-            services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<ICardofunRepository, CardofunRepository>();
             services.AddOptions();
             #region ImageProvider config

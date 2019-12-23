@@ -11,7 +11,6 @@ using Cardofun.DataContext.Data;
 using Cardofun.DataContext.Helpers;
 using Cardofun.Domain.Models;
 using Cardofun.Interfaces.Repositories;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 
@@ -162,14 +161,14 @@ namespace Cardofun.DataContext.Repositories
         /// <param name="login">login by which to make a search</param>
         /// <returns></returns>
         public async Task<Boolean> CheckIfUserExists(String login)
-            => await _context.Users.AnyAsync(u => u.UserName.Equals(login, StringComparison.OrdinalIgnoreCase));
+            => await _context.Users.AnyAsync(u => u.UserName.ToUpper() == login.ToUpper());
 
         /// <summary>
         /// Gets a user out of the repository
         /// </summary>
         /// <param name="id">id of the user that ought to be returned</param>
         /// <returns></returns>
-        public async Task<User> GetUserAsync(int id)
+        public async Task<User> GetUserAsync(Int32 id)
             => await GetItemAsync<User, Int32>(id, 
                 user => user
                     .Include(u => u.City)
@@ -181,6 +180,23 @@ namespace Cardofun.DataContext.Repositories
                     .Include(u => u.LanguagesTheUserSpeaks)
                         .ThenInclude(l => l.Language));          
         
+        /// <summary>
+        /// Gets a user out of the repository by his/her name
+        /// </summary>
+        /// <param name="userName">user name of the user that ought to be returned</param>
+        /// <returns></returns>
+        public async Task<User> GetUserByNameAsync(String userName)
+            => await GetItemByPredicatesAsync<User>( 
+                user => user
+                    .Include(u => u.City)
+                        .ThenInclude(c => c.Country)
+                    .Include(u => u.Photos)
+                        .ThenInclude(p => p.Photo)
+                    .Include(u => u.LanguagesTheUserLearns)
+                        .ThenInclude(l => l.Language)
+                    .Include(u => u.LanguagesTheUserSpeaks)
+                        .ThenInclude(l => l.Language),
+                user => user.UserName.ToUpper() == userName.ToUpper());          
         
         /// <summary>
         /// Sets up includes, predicates and orderings
