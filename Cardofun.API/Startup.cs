@@ -22,6 +22,8 @@ using Microsoft.AspNetCore.Identity;
 using Cardofun.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Cardofun.API.Helpers.Constants;
+using Cardofun.Core.Helpers.Security;
 
 namespace Cardofun.API
 {
@@ -43,7 +45,7 @@ namespace Cardofun.API
         {
             await Task.Run(() => 
             {
-                // ToDo: Uncomment next line before production
+                // ToDo: ATTENTION! NEXT LINES SHOULD BE REMOVED BEFORE PUBLISHING
                 // Configuration.GetSection(AppSettingsConstants.Token).Value = TokenGenerator.Generate();
                 Configuration.GetSection(AppSettingsConstants.Token).Value = "super strong key";
             });
@@ -54,7 +56,7 @@ namespace Cardofun.API
         {
             IdentityBuilder builder = services.AddIdentityCore<User>(options => 
             {
-                // ATTENTION! NEXT LINES SHOULD BE REMOVED BEFORE PUBLISHING
+                // ToDo: ATTENTION! NEXT LINES SHOULD BE REMOVED BEFORE PUBLISHING
                 options.Password.RequireDigit = false;
                 options.Password.RequiredLength = 4;
                 options.Password.RequireNonAlphanumeric = false;
@@ -76,24 +78,23 @@ namespace Cardofun.API
                         ValidateAudience = false
                     }
                 );
-
+            services.AddAuthorization(ConfigurePolicies);
             services.AddDbContext<CardofunContext>(x => x.UseSqlServer(Configuration.GetConnectionString(ConnectionStringConstants.CardofunSqlServerConnection)));
             // Uncomment next line if you want to use SqlLite
             // services.AddDbContext<CardofunContext>(x => x.UseSqlite(Configuration.GetConnectionString(ConnectionStringConstants.CardofunSqlLiteConnection)));
-
             services.AddControllers(options => 
-            {
-                var policy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
+                {
+                    var policy = new AuthorizationPolicyBuilder()
+                        .RequireAuthenticatedUser()
+                        .Build();
 
-                options.Filters.Add(new AuthorizeFilter(policy));
-            })
+                    options.Filters.Add(new AuthorizeFilter(policy));
+                })
                 .AddNewtonsoftJson(options => 
-                    {
-                        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-                        options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter() { NamingStrategy = new CamelCaseNamingStrategy() });
-                    })
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                    options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter() { NamingStrategy = new CamelCaseNamingStrategy() });
+                })
                 // Updates "LastActive" property of a User that executed an action
                 .AddMvcOptions(options => options.Filters.Add(typeof(LogUserActivity)));
             
@@ -104,7 +105,7 @@ namespace Cardofun.API
             #region ImageProvider config
             // Next section configures cloudinary image provider. Change the configs
             // in case if you decided to use another one (own file system, for instance)
-            services.Configure<CloudinaryProviderSettings>(Configuration.GetSection("ImageProviderProviderSettings"));
+            services.Configure<CloudinaryProviderSettings>(Configuration.GetSection(AppSettingsConstants.ImageProviderSettings));
             services.AddTransient<IImageProvider, CloudinaryImageProvider>();
             #endregion ImageProvider config
             services.AddScoped<LogUserActivity>();
@@ -124,6 +125,7 @@ namespace Cardofun.API
                 // app.UseHsts();
             }
 
+            // ToDo: Uncomment next line before production
             // app.UseHttpsRedirection();
 
             app.UseRouting();
@@ -140,6 +142,22 @@ namespace Cardofun.API
             {
                 endpoints.MapControllers();
             });
+        }
+
+        /// <summary>
+        /// Configures all the policies that are used by the application
+        /// </summary>
+        /// <param name="options"></param>
+        private void ConfigurePolicies(AuthorizationOptions options)
+        {
+            // For each of the policies below Admin will be added as a role that is allowed 
+            // to proceed in any circumstances
+            
+            options.AddPolicy(PolicyConstants.AdminRoleRequired, 
+                policy => policy.RequireRole(RoleConstants.Admin));
+
+            options.AddPolicy(PolicyConstants.ModeratorRoleRequired, 
+                policy => policy.RequireRole(RoleConstants.Admin, RoleConstants.Moderator));
         }
     }
 }

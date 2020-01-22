@@ -30,7 +30,8 @@ namespace Cardofun.API
                     context.Database.Migrate();
                     Seed.PropagateSql(context);
                     Seed.SeedCitiesAndLanguages(context);
-                    Seed.SeedUsers(userManager, roleManager).Wait();
+                    Seed.SeedRolesAndClaimsAsync(roleManager).Wait();
+                    Seed.SeedUsersAsync(userManager).Wait();
                 }
                 catch (Exception ex)
                 {

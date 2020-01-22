@@ -7,12 +7,14 @@ using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Cardofun.Core.NameConstants;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using System.Collections.Generic;
+using System.Linq;
+using Cardofun.API.Helpers.Constants;
 
 namespace Cardofun.API.Controllers
 {
@@ -73,7 +75,7 @@ namespace Cardofun.API.Controllers
 
             return Ok(new
             {
-                token = GenerateJwtToken(user),
+                token = await GenerateJwtToken(user),
                 user = _mapper.Map<UserShortInfoDto>(user)
             });
         }
@@ -95,19 +97,23 @@ namespace Cardofun.API.Controllers
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
 
-            if (result.Succeeded)
-                return user;
+            if (!result.Succeeded)
+                return null;
 
-            return null;
+            return user;
         }
 
-        private string GenerateJwtToken(User user)
+        private async Task<String> GenerateJwtToken(User user)
         {
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName)
+                new Claim(ClaimTypes.Name, user.UserName),
             };
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+    
+            claims.AddRange(userRoles.Select(ur => new Claim(ClaimTypes.Role, ur)));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8
                 .GetBytes(_config.GetSection(AppSettingsConstants.Token).Value));

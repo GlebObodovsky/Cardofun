@@ -62,6 +62,13 @@ namespace Cardofun.Interfaces.Repositories
         /// <param name="userName">user name of the user that ought to be returned</param>
         /// <returns></returns>
         Task<User> GetUserByNameAsync(String userName);
+
+        /// <summary>
+        /// Gets a user with basic details but including the roles out of the repository by his/her user name
+        /// </summary>
+        /// <param name="userName">user name of the user that ought to be returned</param>
+        /// <returns></returns>
+        Task<User> GetUserWithRolesByNameAsync(String userName);
          
         /// <summary>
         /// Gets page of users out of the repository

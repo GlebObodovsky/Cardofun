@@ -8,6 +8,7 @@ namespace Cardofun.Core.ApiParameters
     /// </summary>
     public class UserParams: PaginationParams
     {
+        public String UserName { get; set; }
         /// <summary>
         /// Gender of users by which to search. Both if null
         /// </summary>

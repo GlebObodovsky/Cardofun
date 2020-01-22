@@ -196,7 +196,19 @@ namespace Cardofun.DataContext.Repositories
                         .ThenInclude(l => l.Language)
                     .Include(u => u.LanguagesTheUserSpeaks)
                         .ThenInclude(l => l.Language),
-                user => user.UserName.ToUpper() == userName.ToUpper());          
+                user => user.UserName.ToUpper() == userName.ToUpper());
+
+        /// <summary>
+        /// Gets a user with basic details but including the roles out of the repository by his/her user name
+        /// </summary>
+        /// <param name="userName">user name of the user that ought to be returned</param>
+        /// <returns></returns>
+        public async Task<User> GetUserWithRolesByNameAsync(String userName)
+            => await GetItemByPredicatesAsync<User>( 
+                user => user
+                    .Include(u => u.UserRoles)
+                        .ThenInclude(l => l.Role),
+                user => user.UserName.ToUpper() == userName.ToUpper());
         
         /// <summary>
         /// Sets up includes, predicates and orderings

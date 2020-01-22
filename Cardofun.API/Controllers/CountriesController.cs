@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Cardofun.Interfaces.DTOs;
 using Cardofun.Interfaces.Repositories;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cardofun.API.Controllers

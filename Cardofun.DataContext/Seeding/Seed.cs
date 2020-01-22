@@ -68,23 +68,28 @@ namespace Cardofun.DataContext.Seeding
             Parallel.ForEach(txtFiles, t => File.Delete(t));
         }
 
-        public async static Task SeedUsers(UserManager<User> userManager, RoleManager<Role> roleManager)
+        public async static Task SeedRolesAndClaimsAsync(RoleManager<Role> roleManager)
+        {
+            if (roleManager.Roles.Any())
+                return;
+
+            var adminRole = new Role { Name = RoleConstants.Admin };
+            var moderatorRole = new Role { Name = RoleConstants.Moderator };
+
+            await roleManager.CreateAsync(adminRole);
+            await roleManager.CreateAsync(moderatorRole);
+        }
+
+        public async static Task SeedUsersAsync(UserManager<User> userManager)
         {
             if(userManager.Users.Any())
                 return;
-
-            await roleManager.CreateAsync(new Role { Name = RoleConstants.Admin });
-            await roleManager.CreateAsync(new Role { Name = RoleConstants.Moderator });
-            await roleManager.CreateAsync(new Role { Name = RoleConstants.Member });
 
             var userData = File.ReadAllText("../Cardofun.DataContext/Seeding/Resources/Users.json");
             var users = JsonConvert.DeserializeObject<List<User>>(userData);
 
             foreach (var user in users)
-            {
                 await userManager.CreateAsync(user, "password");
-                await userManager.AddToRoleAsync(user, RoleConstants.Member);
-            }
 
             // creating Admin user
             var admin = new User 
@@ -98,7 +103,7 @@ namespace Cardofun.DataContext.Seeding
             if (!result.Succeeded)
                 throw new Exception("The admin user hasn't been created");
 
-            await userManager.AddToRolesAsync(admin, new[] { RoleConstants.Admin, RoleConstants.Moderator });
+            await userManager.AddToRolesAsync(admin, new[] { RoleConstants.Admin });
         }
     }
 }

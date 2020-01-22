@@ -21,6 +21,9 @@
           <li><a class="dropdown-item" [routerLink]="['/messages/', 'unread']">Unread messages</a></li>
         </ul>
       </li>
+      <li class="nav-item" routerLinkActive="active" >
+        <a class="nav-link" [routerLink]="['/admin']">Admin</a>
+      </li>
     </ul>
     <form *ngIf=(!isLoggedIn()) #loginForm='ngForm' class="form-inline my-2 my-lg-0" (ngSubmit)="login()">
       <input class="form-control mr-sm-2" type="text" name="userName" 
