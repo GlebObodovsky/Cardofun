@@ -21,4 +21,5 @@ export interface User {
     email?: string;
     friendship?: FriendshipRequest;
     photos?: Photo[];
+    roles?: string[];
 }

@@ -43,6 +43,7 @@ import { MemberMessagesComponent } from './members/member-messages/member-messag
 import { PhotoEditorComponent } from './members/photo-editor/photo-editor.component';
 import { environment } from 'src/environments/environment';
 import { EnumToArrayPipe } from './_pipes/enumToArray/enumToArray.pipe';
+import { HasRoleDirective } from './_directives/has-role.directive';
 
 export const jwtOptionsFactory = (localStorageSvc: LocalStorageService) => ({
    tokenGetter: () => localStorageSvc.getToken(),
@@ -72,7 +73,8 @@ export class CustomHammerConfig extends HammerGestureConfig  {
       MemberMessagesComponent,
       PhotoEditorComponent,
       TimeAgoPipe,
-      EnumToArrayPipe
+      EnumToArrayPipe,
+      HasRoleDirective
    ],
    imports: [
       BrowserModule,
