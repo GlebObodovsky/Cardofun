@@ -82,7 +82,7 @@ namespace Cardofun.API.Helpers
                 .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => GetUserMaintPhotoUrl(src)));
                             
             CreateMap<User, UserForAdminPanelDto>()
-                .ForMember(dest => dest.Roles, m => m.MapFrom(src => src.UserRoles.Select(ur => ur.Role)));
+                .ForMember(dest => dest.Roles, m => m.MapFrom(src => src.UserRoles.Select(ur => ur.Role.Name)));
             #endregion User
 
             #region Roles

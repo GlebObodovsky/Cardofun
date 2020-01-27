@@ -7,6 +7,6 @@ namespace Cardofun.Interfaces.DTOs
     {
         public Int32 Id { get; set; }
         public String UserName { get; set; }
-        public IEnumerable<RoleForList> Roles { get; set; }
+        public IEnumerable<String> Roles { get; set; }
     }
 }

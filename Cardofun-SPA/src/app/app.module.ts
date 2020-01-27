@@ -18,6 +18,7 @@ import { RegisterComponent } from './register/register.component';
 import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
 import { ErrorInterceptorProvider } from './_services/error.interceptor';
 import { AuthService } from './_services/auth/auth.service';
+import { AdminService } from './_services/admin/admin.service';
 import { UserService } from './_services/user/user.service';
 import { FriendService } from './_services/friend/friend.service';
 import { MessageService } from './_services/message/message.service';
@@ -44,6 +45,8 @@ import { PhotoEditorComponent } from './members/photo-editor/photo-editor.compon
 import { environment } from 'src/environments/environment';
 import { EnumToArrayPipe } from './_pipes/enumToArray/enumToArray.pipe';
 import { HasRoleDirective } from './_directives/has-role.directive';
+import { UserManagerComponent } from './admin/user-manager/user-manager.component';
+import { PhotoManagerComponent } from './admin/photo-manager/photo-manager.component';
 
 export const jwtOptionsFactory = (localStorageSvc: LocalStorageService) => ({
    tokenGetter: () => localStorageSvc.getToken(),
@@ -65,6 +68,8 @@ export class CustomHammerConfig extends HammerGestureConfig  {
       HomeComponent,
       RegisterComponent,
       AdminPanelComponent,
+      UserManagerComponent,
+      PhotoManagerComponent,
       MessagesComponent,
       MemberListComponent,
       MemberCardComponent,
@@ -101,6 +106,7 @@ export class CustomHammerConfig extends HammerGestureConfig  {
    ],
    providers: [
       AuthService,
+      AdminService,
       UserService,
       FriendService,
       MessageService,
