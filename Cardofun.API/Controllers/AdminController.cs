@@ -32,6 +32,10 @@ namespace Cardofun.API.Controllers
         }
         #endregion Constructor
 
+        [HttpGet("roles")]
+        public async Task<IActionResult> GetRoles()
+            => Ok((await _cardofunRepository.GetRolesAsync()).Select(r => r.Name));
+            
         [HttpGet("usersWithRoles/{userName}")]
         public async Task<IActionResult> GetUsersWithRoles(String userName)
         {

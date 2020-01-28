@@ -16,4 +16,8 @@ export class AdminService {
   getUserWithRoles(userName: string): Observable<UserForModeration> {
     return this.http.get<UserForModeration>(this.baseUrl + 'usersWithRoles/' + userName);
   }
+
+  getRoles(): Observable<string[]> {
+    return this.http.get<string[]>(this.baseUrl + 'roles');
+  }
 }

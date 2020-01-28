@@ -36,7 +36,7 @@ namespace Cardofun.Interfaces.Repositories
         /// Starts transaction for the repository
         /// </summary>
         void StartTransaction();
-        
+
         /// <summary>
         /// Commits transaction for the repository
         /// </summary>
@@ -140,5 +140,11 @@ namespace Cardofun.Interfaces.Repositories
         /// </summary>
         /// <returns></returns>
         Task<PagedList<Message>> GetPaginatedMessageThread(MessageThreadPrams messageParams);
+
+        /// <summary>
+        /// Get's all the roles available on the server
+        /// </summary>
+        /// <returns></returns>
+        Task<IEnumerable<Role>> GetRolesAsync();
     }
 }

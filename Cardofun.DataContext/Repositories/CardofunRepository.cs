@@ -441,6 +441,15 @@ namespace Cardofun.DataContext.Repositories
                         message.SenderId == messageParams.SecondUserId));
         #endregion Messages
 
+        #region Roles
+        /// <summary>
+        /// Get's all the roles available on the server
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<Role>> GetRolesAsync()
+            => await GetAllItemsAsync<Role>();
+        #endregion Roles
+
     }
     #endregion ICardofunRepository
 }
