@@ -2,10 +2,10 @@
   <h2>Admin panel</h2>
   <div class="tab-panel">
     <tabset class="member-tabset">
-      <tab heading="User Management">
+      <tab heading="User Management" *appHasRole="['Admin']">
         <app-user-manager></app-user-manager>
       </tab>
-      <tab heading="Photo Management">
+      <tab heading="Photo Management" *appHasRole="['Admin', 'Moderator']">
         <app-photo-manager></app-photo-manager>
       </tab>
     </tabset>

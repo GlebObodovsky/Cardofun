@@ -17,6 +17,10 @@ export class AdminService {
     return this.http.get<UserForModeration>(this.baseUrl + 'usersWithRoles/' + userName);
   }
 
+  updateUserRoles(userName: string, roles: {}) {
+    return this.http.post(this.baseUrl + 'editRoles/' + userName, roles);
+  }
+
   getRoles(): Observable<string[]> {
     return this.http.get<string[]>(this.baseUrl + 'roles');
   }

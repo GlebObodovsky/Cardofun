@@ -43,6 +43,16 @@ export class UserManagerComponent implements OnInit {
       roles: this.getRolesForModal()
     };
     this.bsModalRef = this.modalService.show(RolesModalComponent, {initialState});
+    this.bsModalRef.content.updateSelectedRoles.subscribe((values) => {
+      const rolesToUpdate = {
+        roleNames: [...values.filter(el => el.checked === true).map(el => el.name)]
+      };
+      this.adminService.updateUserRoles(this.user.userName, rolesToUpdate).subscribe(() => {
+        this.user.roles = [...rolesToUpdate.roleNames];
+      }, error => {
+        this.alertifyService.error(error);
+      });
+    });
   }
 
   private getExistingRoles() {
