@@ -10,12 +10,10 @@ using Cardofun.Domain.Models;
 using Cardofun.Interfaces.DTOs;
 using Cardofun.Interfaces.Repositories;
 using Cardofun.Interfaces.ServiceProviders;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cardofun.API.Controllers
 {
-    [Authorize]
     [Route("api/users/{userId}/[controller]")]
     [ApiController]
     public class MessagesController : ControllerBase

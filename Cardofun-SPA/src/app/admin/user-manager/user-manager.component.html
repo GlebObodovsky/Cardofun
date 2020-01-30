@@ -1,0 +1,24 @@
+<form class="form-inline" #form="ngForm" (ngSubmit)="loadUser()" novalidate>
+  <input placeholder="UserName" type="text" [(ngModel)]="userName" class="form-control mt-1" id="minAge" name="userName">
+  
+  <button type="submit" class="btn btn-primary ml-1 mt-1" title="Apply Filters">
+    <i class="fa fa-search"></i>
+  </button>
+</form>
+
+<div class="mt-5 row" *ngIf="user">
+  <table class="table">
+    <tr>
+      <th style="width: 10%">Id</th>
+      <th style="width: 30%">UserName</th>
+      <th style="width: 40%">Roles</th>
+      <th style="width: 20%">User Id</th>
+    </tr>
+    <tr>
+      <td>{{user.id}}</td>
+      <td>{{user.userName}}</td>
+      <td>{{user.roles}}</td>
+      <td><button class="btn btn-info" (click)="editRolesModal()">Edit Roles</button></td>
+    </tr>
+  </table>
+</div>

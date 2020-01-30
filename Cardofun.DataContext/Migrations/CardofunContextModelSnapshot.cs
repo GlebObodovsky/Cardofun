@@ -15,7 +15,7 @@ namespace Cardofun.DataContext.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
+                .HasAnnotation("ProductVersion", "3.1.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -23,12 +23,15 @@ namespace Cardofun.DataContext.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("CountryIsoCode")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("nvarchar(2)");
 
                     b.Property<string>("Name")
+                        .HasColumnType("nvarchar(150)")
                         .HasMaxLength(150);
 
                     b.HasKey("Id");
@@ -43,7 +46,7 @@ namespace Cardofun.DataContext.Migrations
             modelBuilder.Entity("Cardofun.Domain.Models.Continent", b =>
                 {
                     b.Property<string>("Name")
-                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(30)")
                         .HasMaxLength(30);
 
                     b.HasKey("Name");
@@ -54,12 +57,14 @@ namespace Cardofun.DataContext.Migrations
             modelBuilder.Entity("Cardofun.Domain.Models.Country", b =>
                 {
                     b.Property<string>("IsoCode")
-                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(2)")
                         .HasMaxLength(2);
 
-                    b.Property<string>("ContinentName");
+                    b.Property<string>("ContinentName")
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("Name")
+                        .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
 
                     b.HasKey("IsoCode");
@@ -71,17 +76,22 @@ namespace Cardofun.DataContext.Migrations
 
             modelBuilder.Entity("Cardofun.Domain.Models.FriendRequest", b =>
                 {
-                    b.Property<int>("FromUserId");
+                    b.Property<int>("FromUserId")
+                        .HasColumnType("int");
 
-                    b.Property<int>("ToUserId");
+                    b.Property<int>("ToUserId")
+                        .HasColumnType("int");
 
-                    b.Property<DateTime?>("RepliedAt");
+                    b.Property<DateTime?>("RepliedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("RequestedAt")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<int>("Status");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("FromUserId", "ToUserId");
 
@@ -93,10 +103,11 @@ namespace Cardofun.DataContext.Migrations
             modelBuilder.Entity("Cardofun.Domain.Models.Language", b =>
                 {
                     b.Property<string>("Code")
-                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(2)")
                         .HasMaxLength(2);
 
                     b.Property<string>("Name")
+                        .HasColumnType("nvarchar(60)")
                         .HasMaxLength(60);
 
                     b.HasKey("Code");
@@ -106,14 +117,18 @@ namespace Cardofun.DataContext.Migrations
 
             modelBuilder.Entity("Cardofun.Domain.Models.LanguageLevel", b =>
                 {
-                    b.Property<string>("LanguageCode");
+                    b.Property<string>("LanguageCode")
+                        .HasColumnType("nvarchar(2)");
 
-                    b.Property<int>("UserId");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Discriminator")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("LevelOfSpeaking");
+                    b.Property<int>("LevelOfSpeaking")
+                        .HasColumnType("int");
 
                     b.HasKey("LanguageCode", "UserId");
 
@@ -125,25 +140,34 @@ namespace Cardofun.DataContext.Migrations
             modelBuilder.Entity("Cardofun.Domain.Models.Message", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("PhotoId");
+                    b.Property<Guid?>("PhotoId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("ReadAt");
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime2");
 
-                    b.Property<bool>("RecipientDeleted");
+                    b.Property<bool>("RecipientDeleted")
+                        .HasColumnType("bit");
 
-                    b.Property<int>("RecipientId");
+                    b.Property<int>("RecipientId")
+                        .HasColumnType("int");
 
-                    b.Property<bool>("SenderDeleted");
+                    b.Property<bool>("SenderDeleted")
+                        .HasColumnType("bit");
 
-                    b.Property<int>("SenderId");
+                    b.Property<int>("SenderId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("SentAt")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("Text");
+                    b.Property<string>("Text")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -161,61 +185,145 @@ namespace Cardofun.DataContext.Migrations
             modelBuilder.Entity("Cardofun.Domain.Models.Photo", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("PublicId");
+                    b.Property<string>("PublicId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Url")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Photos");
                 });
 
+            modelBuilder.Entity("Cardofun.Domain.Models.Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
+
+                    b.Property<string>("NormalizedName")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("Roles");
+                });
+
             modelBuilder.Entity("Cardofun.Domain.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("BirthDate");
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
 
-                    b.Property<int>("CityId");
+                    b.Property<DateTime>("BirthDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Created")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
                     b.Property<string>("Email")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
 
-                    b.Property<string>("Introduction");
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
 
-                    b.Property<bool>("IsEmailVerified");
+                    b.Property<string>("Introduction")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("LastActive")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("Login")
-                        .IsRequired();
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("Name");
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
 
-                    b.Property<byte[]>("PasswordHash")
-                        .IsRequired();
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<byte[]>("PasswordSalt")
-                        .IsRequired();
+                    b.Property<string>("NormalizedEmail")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
 
-                    b.Property<int>("Sex");
+                    b.Property<string>("NormalizedUserName")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Sex")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
 
                     b.HasKey("Id");
 
                     b.HasIndex("CityId");
 
-                    b.HasIndex("Login")
+                    b.HasIndex("NormalizedEmail")
+                        .HasName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("UserName")
                         .IsUnique();
 
                     b.ToTable("Users");
@@ -224,19 +332,25 @@ namespace Cardofun.DataContext.Migrations
             modelBuilder.Entity("Cardofun.Domain.Models.UserPhoto", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("DateAdded")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<string>("Description");
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsMain");
+                    b.Property<bool>("IsMain")
+                        .HasColumnType("bit");
 
-                    b.Property<Guid>("PhotoId");
+                    b.Property<Guid>("PhotoId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("UserId");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -248,6 +362,107 @@ namespace Cardofun.DataContext.Migrations
                         .HasFilter("[IsMain] = 1");
 
                     b.ToTable("UserPhotos");
+                });
+
+            modelBuilder.Entity("Cardofun.Domain.Models.UserRole", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("UserRoles");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RoleClaims");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserClaims");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserLogins");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("UserTokens");
                 });
 
             modelBuilder.Entity("Cardofun.Domain.Models.LanguageLearningLevel", b =>
@@ -274,7 +489,8 @@ namespace Cardofun.DataContext.Migrations
                     b.HasOne("Cardofun.Domain.Models.Country", "Country")
                         .WithMany("Cities")
                         .HasForeignKey("CountryIsoCode")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Cardofun.Domain.Models.Country", b =>
@@ -290,12 +506,14 @@ namespace Cardofun.DataContext.Migrations
                     b.HasOne("Cardofun.Domain.Models.User", "FromUser")
                         .WithMany("OutcomingFriendRequests")
                         .HasForeignKey("FromUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Cardofun.Domain.Models.User", "ToUser")
                         .WithMany("IncomingFriendRequests")
                         .HasForeignKey("ToUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Cardofun.Domain.Models.Message", b =>
@@ -307,12 +525,14 @@ namespace Cardofun.DataContext.Migrations
                     b.HasOne("Cardofun.Domain.Models.User", "Recipient")
                         .WithMany("IncomingMessages")
                         .HasForeignKey("RecipientId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Cardofun.Domain.Models.User", "Sender")
                         .WithMany("OutcomingMessages")
                         .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Cardofun.Domain.Models.User", b =>
@@ -320,7 +540,8 @@ namespace Cardofun.DataContext.Migrations
                     b.HasOne("Cardofun.Domain.Models.City", "City")
                         .WithMany("Users")
                         .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Cardofun.Domain.Models.UserPhoto", b =>
@@ -328,12 +549,65 @@ namespace Cardofun.DataContext.Migrations
                     b.HasOne("Cardofun.Domain.Models.Photo", "Photo")
                         .WithOne("UserPhoto")
                         .HasForeignKey("Cardofun.Domain.Models.UserPhoto", "PhotoId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Cardofun.Domain.Models.User", "User")
                         .WithMany("Photos")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Cardofun.Domain.Models.UserRole", b =>
+                {
+                    b.HasOne("Cardofun.Domain.Models.Role", "Role")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Cardofun.Domain.Models.User", "User")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+                {
+                    b.HasOne("Cardofun.Domain.Models.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
+                {
+                    b.HasOne("Cardofun.Domain.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
+                {
+                    b.HasOne("Cardofun.Domain.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
+                {
+                    b.HasOne("Cardofun.Domain.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Cardofun.Domain.Models.LanguageLearningLevel", b =>
@@ -341,12 +615,14 @@ namespace Cardofun.DataContext.Migrations
                     b.HasOne("Cardofun.Domain.Models.Language", "Language")
                         .WithMany("LanguageLearningLevels")
                         .HasForeignKey("LanguageCode")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Cardofun.Domain.Models.User", "User")
                         .WithMany("LanguagesTheUserLearns")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Cardofun.Domain.Models.LanguageSpeakingLevel", b =>
@@ -355,13 +631,15 @@ namespace Cardofun.DataContext.Migrations
                         .WithMany("LanguageSpeakingLevels")
                         .HasForeignKey("LanguageCode")
                         .HasConstraintName("FK_LanguageLevel_Languages_LanguageCode1")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Cardofun.Domain.Models.User", "User")
                         .WithMany("LanguagesTheUserSpeaks")
                         .HasForeignKey("UserId")
                         .HasConstraintName("FK_LanguageLevel_Users_UserId1")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

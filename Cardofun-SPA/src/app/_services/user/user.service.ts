@@ -19,8 +19,8 @@ export class UserService {
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
-  checkIfUserExists(login: string) {
-    return this.http.head(this.baseUrl + '/' + login);
+  checkIfUserExists(userName: string) {
+    return this.http.head(this.baseUrl + '/' + userName);
   }
 
   getUsers(page?, itemsPerPage?, userParams?: UserFilterParams): Observable<PaginatedResult<User[]>> {

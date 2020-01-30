@@ -5,7 +5,7 @@ import { FriendshipRequest } from './friendshipRequest';
 
 export interface User {
     id: number;
-    login: string;
+    userName: string;
     name: string;
     age: number;
     sex: string;
@@ -21,4 +21,5 @@ export interface User {
     email?: string;
     friendship?: FriendshipRequest;
     photos?: Photo[];
+    roles?: string[];
 }

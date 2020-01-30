@@ -1,13 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <ItemGroup>
-    <ProjectReference Include="..\Cardofun.Core\Cardofun.Core.csproj" />
+    <ProjectReference Include="..\Cardofun.Core\Cardofun.Core.csproj"/>
   </ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0"/>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.0"/>
+  </ItemGroup>
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>Cardofun.Domain</AssemblyName>
     <RootNamespace>Cardofun.Domain</RootNamespace>
   </PropertyGroup>
-
 </Project>

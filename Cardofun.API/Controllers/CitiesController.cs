@@ -4,12 +4,14 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Cardofun.Interfaces.DTOs;
 using Cardofun.Interfaces.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cardofun.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class CitiesController: ControllerBase
     {
         #region Fields

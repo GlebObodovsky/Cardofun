@@ -31,6 +31,7 @@ export class AuthService {
           this.decodedToken = this.jwtHelper.decodeToken(user.token);
           this.currentUser = user.user;
           this.changeMemberPhoto(user.user.photoUrl);
+          this.currentUser.roles = this.decodedToken.role as Array<string>;
         }
       })
     );
@@ -65,6 +66,21 @@ export class AuthService {
     if (user) {
       this.currentUser = user;
       this.changeMemberPhoto(user.photoUrl);
+      this.currentUser.roles = this.decodedToken.role as Array<string>;
     }
+  }
+
+  roleMatch(allowedRoles: string[]): boolean {
+    let isMatch = false;
+    const userRoles = this.currentUser.roles;
+    if (userRoles) {
+      allowedRoles.forEach(role => {
+        if (userRoles.includes(role)) {
+          isMatch = true;
+          return;
+        }
+      });
+    }
+    return isMatch;
   }
 }

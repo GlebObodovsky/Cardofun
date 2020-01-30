@@ -6,11 +6,9 @@ using AutoMapper;
 using Cardofun.Domain.Models;
 using Cardofun.Interfaces.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Cardofun.API.Controllers
 {
-    [Authorize]
     [ApiController]
     public abstract class UsersControllerBase: ControllerBase
     {

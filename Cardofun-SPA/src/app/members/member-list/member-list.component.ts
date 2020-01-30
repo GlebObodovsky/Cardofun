@@ -14,10 +14,8 @@ import { CityService } from 'src/app/_services/city/city.service';
 import { Country } from 'src/app/_models/country';
 import { CountryService } from 'src/app/_services/country/country.service';
 import { LocalStorageService } from 'src/app/_services/local-storage/local-storage.service';
-import { FriendService } from 'src/app/_services/friend/friend.service';
 import { FriendshipStatus } from 'src/app/_models/enums/friendshipStatus';
 import { SupscriptionState } from 'src/app/_models/enums/supscriptionState';
-import { ControlContainer } from '@angular/forms';
 
 @Component({
   selector: 'app-member-list',

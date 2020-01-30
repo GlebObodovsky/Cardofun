@@ -3,7 +3,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BsDropdownModule, TabsModule, BsDatepickerModule, PaginationModule, ButtonsModule } from 'ngx-bootstrap';
+import { BsDropdownModule, TabsModule, BsDatepickerModule, PaginationModule, ButtonsModule, ModalModule } from 'ngx-bootstrap';
 import { RouterModule } from '@angular/router';
 import { JwtModule, JWT_OPTIONS } from '@auth0/angular-jwt';
 import { NgxGalleryModule } from 'ngx-gallery';
@@ -15,8 +15,10 @@ import { AppComponent } from './app.component';
 import { NavComponent } from './nav/nav.component';
 import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './register/register.component';
+import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
 import { ErrorInterceptorProvider } from './_services/error.interceptor';
 import { AuthService } from './_services/auth/auth.service';
+import { AdminService } from './_services/admin/admin.service';
 import { UserService } from './_services/user/user.service';
 import { FriendService } from './_services/friend/friend.service';
 import { MessageService } from './_services/message/message.service';
@@ -42,6 +44,10 @@ import { MemberMessagesComponent } from './members/member-messages/member-messag
 import { PhotoEditorComponent } from './members/photo-editor/photo-editor.component';
 import { environment } from 'src/environments/environment';
 import { EnumToArrayPipe } from './_pipes/enumToArray/enumToArray.pipe';
+import { HasRoleDirective } from './_directives/has-role.directive';
+import { UserManagerComponent } from './admin/user-manager/user-manager.component';
+import { PhotoManagerComponent } from './admin/photo-manager/photo-manager.component';
+import { RolesModalComponent } from './admin/roles-modal/roles-modal.component';
 
 export const jwtOptionsFactory = (localStorageSvc: LocalStorageService) => ({
    tokenGetter: () => localStorageSvc.getToken(),
@@ -62,6 +68,9 @@ export class CustomHammerConfig extends HammerGestureConfig  {
       NavComponent,
       HomeComponent,
       RegisterComponent,
+      AdminPanelComponent,
+      UserManagerComponent,
+      PhotoManagerComponent,
       MessagesComponent,
       MemberListComponent,
       MemberCardComponent,
@@ -69,8 +78,10 @@ export class CustomHammerConfig extends HammerGestureConfig  {
       MemberEditComponent,
       MemberMessagesComponent,
       PhotoEditorComponent,
+      RolesModalComponent,
       TimeAgoPipe,
-      EnumToArrayPipe
+      EnumToArrayPipe,
+      HasRoleDirective
    ],
    imports: [
       BrowserModule,
@@ -84,6 +95,7 @@ export class CustomHammerConfig extends HammerGestureConfig  {
       PaginationModule.forRoot(),
       RouterModule.forRoot(appRoutes),
       ButtonsModule.forRoot(),
+      ModalModule.forRoot(),
       NgxGalleryModule,
       NgSelectModule,
       FileUploadModule,
@@ -97,6 +109,7 @@ export class CustomHammerConfig extends HammerGestureConfig  {
    ],
    providers: [
       AuthService,
+      AdminService,
       UserService,
       FriendService,
       MessageService,
@@ -115,8 +128,11 @@ export class CustomHammerConfig extends HammerGestureConfig  {
       MessageDialoguesResolver,
       { provide: HAMMER_GESTURE_CONFIG, useClass: CustomHammerConfig }
    ],
+   entryComponents: [
+      RolesModalComponent
+   ],
    bootstrap: [
       AppComponent
-   ]
+   ],
 })
 export class AppModule { }

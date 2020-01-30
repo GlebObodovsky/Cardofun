@@ -7,28 +7,38 @@ using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Cardofun.Core.NameConstants;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using System.Collections.Generic;
+using System.Linq;
+using Cardofun.API.Helpers.Constants;
 
 namespace Cardofun.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class AuthController : ControllerBase
     {
         #region Fields
-        private readonly IAuthRepository _authRepository;
+        private readonly ICardofunRepository _cardofunRepoitory;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _config;
         private readonly IMapper _mapper;
         #endregion Fields
 
         #region  Constructor
-        public AuthController(IAuthRepository authRepoitory, IConfiguration config, IMapper mapper)
+        public AuthController(ICardofunRepository cardofunRepoitory, UserManager<User> userManager,
+            SignInManager<User> signInManager, IConfiguration config, IMapper mapper)
         {
+            _signInManager = signInManager;
+            _userManager = userManager;
             _mapper = mapper;
-            _authRepository = authRepoitory;
+            _cardofunRepoitory = cardofunRepoitory;
             _config = config;
         }
         #endregion  Constructor
@@ -41,17 +51,16 @@ namespace Cardofun.API.Controllers
         [HttpPost(nameof(Register))]
         public async Task<IActionResult> Register(UserForRegisterDto userForRegister)
         {
-            if (await _authRepository.IsExistAsync(userForRegister.Login))
-                return BadRequest("Login already exists");
-
             var newUser = _mapper.Map<User>(userForRegister);
 
-            var registeredUser = await _authRepository.RegisterAsync(newUser, userForRegister.Password);
+            var result = await _userManager.CreateAsync(newUser, userForRegister.Password);
 
-            var userForReturn = _mapper.Map<UserShortInfoDto>(newUser);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
 
-            return CreatedAtRoute("GetUser", new { Controller = "Users", Id = newUser.Id }, userForReturn);
+            return CreatedAtRoute("GetUser", new { Controller = "Users", Id = newUser.Id }, _mapper.Map<UserShortInfoDto>(newUser));
         }
+
         /// <summary>
         /// Allows a user to login to the service
         /// </summary>
@@ -59,16 +68,52 @@ namespace Cardofun.API.Controllers
         [HttpPost(nameof(Login))]
         public async Task<IActionResult> Login(UserForLoginDto userForLogin)
         {
-            var userFromRepo = await _authRepository.LoginAsync(userForLogin.Login, userForLogin.Password);
+            var user = await LoginAsync(userForLogin.UserName, userForLogin.Password);
 
-            if (userFromRepo == null)
+            if (user == null)
                 return Unauthorized();
 
-            var claims = new[]
+            return Ok(new
             {
-                new Claim(ClaimTypes.NameIdentifier, userFromRepo.Id.ToString()),
-                new Claim(ClaimTypes.Name, userFromRepo.Login)
+                token = await GenerateJwtToken(user),
+                user = _mapper.Map<UserShortInfoDto>(user)
+            });
+        }
+        #endregion Controller methods
+
+        #region Functions
+        /// <summary>
+        /// Allows user to login with his/her credentials
+        /// </summary>
+        /// <param name="userName">User's login</param>
+        /// <param name="password">User's password</param>
+        /// <returns>Authenticated user</returns>        
+        private async Task<User> LoginAsync(string userName, string password)
+        {
+            var user = await _cardofunRepoitory.GetUserByNameAsync(userName);
+
+            if (user == null)
+                return null;
+
+            var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
+
+            if (!result.Succeeded)
+                return null;
+
+            return user;
+        }
+
+        private async Task<String> GenerateJwtToken(User user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName),
             };
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+    
+            claims.AddRange(userRoles.Select(ur => new Claim(ClaimTypes.Role, ur)));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8
                 .GetBytes(_config.GetSection(AppSettingsConstants.Token).Value));
@@ -89,14 +134,8 @@ namespace Cardofun.API.Controllers
 
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return Ok(new
-            {
-                token = tokenHandler.WriteToken(token),
-                user = _mapper.Map<UserShortInfoDto>(userFromRepo)
-            });
+            return tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
         }
-        #endregion Controller methods
+        #endregion Functions
     }
 }

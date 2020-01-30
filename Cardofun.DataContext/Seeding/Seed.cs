@@ -1,5 +1,4 @@
 using System;
-using System.Data.SqlClient;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -9,13 +8,14 @@ using Cardofun.DataContext.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using Cardofun.Domain.Models;
-using System.Security.Cryptography;
-using System.Text;
 using System.Reflection;
+using Microsoft.Data.SqlClient;
+using Microsoft.AspNetCore.Identity;
+using Cardofun.Core.NameConstants;
 
 namespace Cardofun.DataContext.Seeding
 {
-    public class Seed
+    public static class Seed
     {
         /// <summary>
         /// Applying all the needed functions and stored procedures
@@ -53,13 +53,13 @@ namespace Cardofun.DataContext.Seeding
 
             Parallel.ForEach(zipArchives, z => ZipFile.ExtractToDirectory(z, rootPath));
 
-            foreach(var fileName in sqlFiles)
+            foreach (var fileName in sqlFiles)
             {
                 var sqlQuery = File.ReadAllText(fileName);
-                if(sqlQuery.StartsWith("EXEC"))
-                    context.Database.ExecuteSqlRaw(sqlQuery, new SqlParameter("@FolderPath", Path.GetFullPath(rootPath)));
+                if (sqlQuery.StartsWith("EXEC"))
+                    context.Database.ExecuteSqlCommand(sqlQuery, new SqlParameter("@FolderPath", Path.GetFullPath(rootPath)));
                 else
-                   context.Database.ExecuteSqlRaw(sqlQuery);
+                    context.Database.ExecuteSqlCommand(sqlQuery);
             }
 
             context.SaveChanges();
@@ -68,39 +68,42 @@ namespace Cardofun.DataContext.Seeding
             Parallel.ForEach(txtFiles, t => File.Delete(t));
         }
 
-        public static void SeedUsers(CardofunContext context)
+        public async static Task SeedRolesAndClaimsAsync(RoleManager<Role> roleManager)
         {
-            if(context.Users.Any())
+            if (roleManager.Roles.Any())
+                return;
+
+            var adminRole = new Role { Name = RoleConstants.Admin };
+            var moderatorRole = new Role { Name = RoleConstants.Moderator };
+
+            await roleManager.CreateAsync(adminRole);
+            await roleManager.CreateAsync(moderatorRole);
+        }
+
+        public async static Task SeedUsersAsync(UserManager<User> userManager)
+        {
+            if(userManager.Users.Any())
                 return;
 
             var userData = File.ReadAllText("../Cardofun.DataContext/Seeding/Resources/Users.json");
             var users = JsonConvert.DeserializeObject<List<User>>(userData);
 
-            Parallel.ForEach(users, user => 
-                {
-                    byte[] passwordHash, passwordSalt; 
-                    CreatePasswordHash("password", out passwordHash, out passwordSalt);
-                    user.PasswordHash = passwordHash;
-                    user.PasswordSalt = passwordSalt;
-                });
+            foreach (var user in users)
+                await userManager.CreateAsync(user, "password");
 
-            context.Users.AddRange(users);
-            context.SaveChanges();
-        }
+            // creating Admin user
+            var admin = new User 
+            { 
+                UserName = RoleConstants.Admin,
+                Email = RoleConstants.Admin,
+                CityId = 1
+            };
 
-        /// <summary>
-        /// Creating password hash and password salt out of given password
-        /// </summary>
-        /// <param name="password"></param>
-        /// <param name="passwordHash"></param>
-        /// <param name="passwordSalt"></param>
-        private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
-        {
-            using(var hmac = new HMACSHA512())
-            {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-            }
+            var result = await userManager.CreateAsync(admin, "password");
+            if (!result.Succeeded)
+                throw new Exception("The admin user hasn't been created");
+
+            await userManager.AddToRolesAsync(admin, new[] { RoleConstants.Admin });
         }
     }
 }

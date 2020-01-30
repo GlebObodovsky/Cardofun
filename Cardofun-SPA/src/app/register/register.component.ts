@@ -42,7 +42,7 @@ export class RegisterComponent implements OnInit {
   createRegisterForm() {
     this.registerForm = this.fb.group({
       sex: ['male'],
-      login: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(12)], this.loginIsTaken.bind(this)],
+      userName: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(12)], this.userNameIsTaken.bind(this)],
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       birthDate: [null, Validators.required],
@@ -76,11 +76,11 @@ export class RegisterComponent implements OnInit {
     return g.get('password').value === g.get('confirmPassword').value ? null : {'mismatch': true};
   }
 
-  loginIsTaken(c: FormControl) {
+  userNameIsTaken(c: FormControl) {
     const q = new Promise((resolve, reject) => {
       setTimeout(() => {
         this.userService.checkIfUserExists(c.value).subscribe(() => {
-          resolve({ 'loginistaken': true });
+          resolve({ 'usernameistaken': true });
         }, () => { resolve(null); });
       }, 1000);
     });

@@ -36,7 +36,7 @@ namespace Cardofun.Interfaces.Repositories
         /// Starts transaction for the repository
         /// </summary>
         void StartTransaction();
-        
+
         /// <summary>
         /// Commits transaction for the repository
         /// </summary>
@@ -55,6 +55,20 @@ namespace Cardofun.Interfaces.Repositories
         /// <param name="id">id of the user that ought to be returned</param>
         /// <returns></returns>
         Task<User> GetUserAsync(Int32 id);
+
+        /// <summary>
+        /// Gets a user out of the repository by his/her name
+        /// </summary>
+        /// <param name="userName">user name of the user that ought to be returned</param>
+        /// <returns></returns>
+        Task<User> GetUserByNameAsync(String userName);
+
+        /// <summary>
+        /// Gets a user with basic details but including the roles out of the repository by his/her user name
+        /// </summary>
+        /// <param name="userName">user name of the user that ought to be returned</param>
+        /// <returns></returns>
+        Task<User> GetUserWithRolesByNameAsync(String userName);
          
         /// <summary>
         /// Gets page of users out of the repository
@@ -126,5 +140,11 @@ namespace Cardofun.Interfaces.Repositories
         /// </summary>
         /// <returns></returns>
         Task<PagedList<Message>> GetPaginatedMessageThread(MessageThreadPrams messageParams);
+
+        /// <summary>
+        /// Get's all the roles available on the server
+        /// </summary>
+        /// <returns></returns>
+        Task<IEnumerable<Role>> GetRolesAsync();
     }
 }

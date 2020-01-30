@@ -67,7 +67,14 @@ namespace Cardofun.API.Controllers
         /// <returns></returns>
         [HttpGet("{id}", Name = nameof(GetUser))]
         public async Task<IActionResult> GetUser(Int32 id)
-            => Ok(_mapper.Map<UserForDetailedDto>(await _cardofunRepository.GetUserAsync(id)));
+        {
+            var user = await _cardofunRepository.GetUserAsync(id);
+            
+            if (user != null)
+                return Ok(_mapper.Map<UserForDetailedDto>(user));
+
+            return NotFound();
+        }
 
         /// <summary>
         /// Updates a user by the given id

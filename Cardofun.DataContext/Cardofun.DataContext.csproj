@@ -1,22 +1,25 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>Cardofun.DataContext</AssemblyName>
     <RootNamespace>Cardofun.DataContext</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.0"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.0"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.0"/>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2"/>
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.0"/>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.0"/>
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cardofun.Domain\Cardofun.Domain.csproj" />
-    <ProjectReference Include="..\Cardofun.Interfaces\Cardofun.Interfaces.csproj" />
+    <ProjectReference Include="..\Cardofun.Domain\Cardofun.Domain.csproj"/>
+    <ProjectReference Include="..\Cardofun.Interfaces\Cardofun.Interfaces.csproj"/>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="&#xA;xcopy &quot;$(ProjectDir)sql\*.sql&quot; &quot;$(ProjectDir)..\Cardofun.API\bin\$(ConfigurationName)\netcoreapp3.1\sql\&quot; /Y" />
+    <Exec Command="
+xcopy &quot;$(ProjectDir)sql\*.sql&quot; &quot;$(ProjectDir)..\Cardofun.API\bin\$(ConfigurationName)\netcoreapp3.1\sql\&quot; /Y"/>
   </Target>
 </Project>

@@ -38,7 +38,6 @@ namespace Cardofun.API.Helpers
             #endregion Language
 
             #region Photo
-
             CreateMap<UserPhoto, UserPhotoForReturnDto>()
                 .ForMember(dest => dest.Url, m => m.MapFrom(src => src.Photo.Url))
                 .ForMember(dest => dest.PublicId, m => m.MapFrom(src => src.Photo.PublicId))
@@ -58,7 +57,6 @@ namespace Cardofun.API.Helpers
                 .ForMember(dest => dest.Photo, m => m.MapFrom(src => src))
                 .ForMember(dest => dest.DateAdded, m => m.MapFrom(src => DateTime.Now))
                 .ReverseMap();
-
             #endregion Photo
 
             #region User
@@ -82,11 +80,16 @@ namespace Cardofun.API.Helpers
 
             CreateMap<User, UserForMessageListDto>()
                 .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => GetUserMaintPhotoUrl(src)));
-         
+                            
+            CreateMap<User, UserForAdminPanelDto>()
+                .ForMember(dest => dest.Roles, m => m.MapFrom(src => src.UserRoles.Select(ur => ur.Role.Name)));
             #endregion User
 
-            #region Messages
+            #region Roles
+            CreateMap<Role, RoleForList>();
+            #endregion Roles
 
+            #region Messages
             CreateMap<Message, MessageForReturnDto>()
                 .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => src.Photo.Url));
 
@@ -101,7 +104,6 @@ namespace Cardofun.API.Helpers
             CreateMap<PagedList<Message>, MessageListDto>()
                 .ForMember(dest => dest.Messages, m => m.MapFrom(src => src))
                 .ForMember(dest => dest.Users, m => m.MapFrom(src => GetUsersFromMessages(src)));
-
             #endregion Messages
         }
 
