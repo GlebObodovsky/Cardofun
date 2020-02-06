@@ -15,5 +15,10 @@ namespace Cardofun.API.Helpers.Constants
         /// </summary>
         /// <returns></returns>
         public const string ImageProviderSettings = nameof(ImageProviderSettings);
+        /// <summary>
+        /// Set of origins that are allowed to get the data from the server (CORS)
+        /// </summary>
+        /// <returns></returns>
+        public const string CorsOrigins = nameof(CorsOrigins);
     }
 }

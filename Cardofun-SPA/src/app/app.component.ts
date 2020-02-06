@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from './_services/auth/auth.service';
+import { SignalrMessageService } from './_services/signalr/signalr-message/signalr-message.service';
 
 @Component({
   selector: 'app-root',
@@ -9,9 +10,11 @@ import { AuthService } from './_services/auth/auth.service';
 export class AppComponent implements OnInit {
   title = 'Cardofun';
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private signalrMessage: SignalrMessageService) {}
 
   ngOnInit() {
     this.authService.refreshUserInformation();
+    this.signalrMessage.startConnection();
+    this.signalrMessage.addNotifyingOnMessageRecieved();
   }
 }

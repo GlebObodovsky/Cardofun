@@ -5,6 +5,7 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:5000/api/',
+  baseServerUrl: 'http://localhost:5000/',
   messageContainerPageSize: 5,
   memberListPageSize: 5,
   sendTokenToPaths: ['localhost:5000'],

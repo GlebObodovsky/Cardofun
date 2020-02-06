@@ -5,12 +5,14 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using Cardofun.API.Helpers.Extensions;
+using Cardofun.API.Hubs;
 using Cardofun.Core.ApiParameters;
 using Cardofun.Domain.Models;
 using Cardofun.Interfaces.DTOs;
 using Cardofun.Interfaces.Repositories;
 using Cardofun.Interfaces.ServiceProviders;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Cardofun.API.Controllers
 {
@@ -22,14 +24,17 @@ namespace Cardofun.API.Controllers
         private readonly ICardofunRepository _cardofunRepository;
         private readonly IMapper _mapper;
         private readonly IImageProvider _imageProvider;
+        private readonly IHubContext<ChatHub, IChatHubClient> _messageHub;
         #endregion Fields
         
         #region Constructor
-        public MessagesController(ICardofunRepository cardofunRepository, IMapper mapper, IImageProvider imageProvider)
+        public MessagesController(ICardofunRepository cardofunRepository, IMapper mapper, 
+            IImageProvider imageProvider, IHubContext<ChatHub, IChatHubClient> messageHub)
         {
             _mapper = mapper;
             _cardofunRepository = cardofunRepository;
             _imageProvider = imageProvider;
+            _messageHub = messageHub;
         }
         #endregion Constructor
 
@@ -128,6 +133,9 @@ namespace Cardofun.API.Controllers
 
             if (!await _cardofunRepository.SaveChangesAsync())
                 return BadRequest("Could not send the message");
+
+            await _messageHub.Clients.User(message.RecipientId.ToString()).ReceiveMessage(message.Text);
+            // _messageHub.Clients.All.ReceiveMessage(message.Text).ReceiveMessage(message.Text);
             
             var messageToReturn = _mapper.Map<MessageForReturnDto>(message);
             return CreatedAtRoute(nameof(GetMessage), new { userId, id = messageToReturn.Id }, messageToReturn);

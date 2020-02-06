@@ -24,6 +24,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Cardofun.API.Helpers.Constants;
 using Cardofun.Core.Helpers.Security;
+using Cardofun.API.Hubs;
+using System.Collections.Generic;
 
 namespace Cardofun.API
 {
@@ -54,6 +56,8 @@ namespace Cardofun.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var corsOrigins = Configuration.GetSection(AppSettingsConstants.CorsOrigins).Get<string[]>();
+
             IdentityBuilder builder = services.AddIdentityCore<User>(options => 
             {
                 // ToDo: ATTENTION! NEXT LINES SHOULD BE REMOVED BEFORE PUBLISHING
@@ -69,19 +73,45 @@ namespace Cardofun.API
             builder.AddRoleManager<RoleManager<Role>>();
             builder.AddSignInManager<SignInManager<User>>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options => 
+                .AddJwtBearer(options => {
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetSection(AppSettingsConstants.Token).Value)),
                         ValidateIssuer = false,
                         ValidateAudience = false
-                    }
-                );
+                    };
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+
+                            // If the request is for our hub...
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) &&
+                                (path.StartsWithSegments("/message")))
+                            {
+                                // Read the token out of the query string
+                                context.Token = accessToken;
+                            }
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
             services.AddAuthorization(ConfigurePolicies);
             services.AddDbContext<CardofunContext>(x => x.UseSqlServer(Configuration.GetConnectionString(ConnectionStringConstants.CardofunSqlServerConnection)));
             // Uncomment next line if you want to use SqlLite
             // services.AddDbContext<CardofunContext>(x => x.UseSqlite(Configuration.GetConnectionString(ConnectionStringConstants.CardofunSqlLiteConnection)));
+            services.AddSignalR();
+            services.AddCors(options => 
+                { 
+                    options.AddPolicy("CorsPolicy", policyBuilder => policyBuilder
+                    .WithOrigins(corsOrigins)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials()); 
+                });
             services.AddControllers(options => 
                 {
                     var policy = new AuthorizationPolicyBuilder()
@@ -133,7 +163,7 @@ namespace Cardofun.API
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            app.UseCors("CorsPolicy");
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
@@ -141,6 +171,7 @@ namespace Cardofun.API
             app.UseEndpoints(endpoints => 
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<ChatHub>("/message");
             });
         }
 
