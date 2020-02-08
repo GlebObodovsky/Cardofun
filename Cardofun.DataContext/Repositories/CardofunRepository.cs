@@ -370,6 +370,7 @@ namespace Cardofun.DataContext.Repositories
                 .Include(m => m.Recipient)
                     .ThenInclude(s => s.Photos)
                         .ThenInclude(p => p.Photo)
+                .OrderByDescending(m => m.SentAt)
                 .ToPagedListAsync(messagePrams.PageNumber, messagePrams.PageSize);
 
         // Next code is commented out because when I did the migration from 

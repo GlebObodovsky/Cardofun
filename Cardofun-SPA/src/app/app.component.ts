@@ -14,7 +14,8 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.authService.refreshUserInformation();
-    this.signalrMessage.startConnection();
-    this.signalrMessage.addNotifyingOnMessageRecieved();
+    if (this.authService.currentUser) {
+      this.signalrMessage.startConnection();
+    }
   }
 }

@@ -67,4 +67,7 @@ export class MessageService {
     return this.http.post(this.baseUrl + this.authService.currentUser.id + '/messages', message);
   }
 
+  markMessageAsRead(id: string) {
+    return this.http.post(this.baseUrl + this.authService.currentUser.id + '/messages/' + id + '/read', {});
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Message } from '../_models/message';
 import { Pagination, PaginatedResult } from '../_models/pagination';
@@ -6,20 +6,25 @@ import { MessageContainer } from '../_models/enums/messageContainer';
 import { MessageService } from '../_services/message/message.service';
 import { AlertifyService } from '../_services/alertify/alertify.service';
 import { AuthService } from '../_services/auth/auth.service';
+import { SignalrMessageService } from '../_services/signalr/signalr-message/signalr-message.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-messages',
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.css']
 })
-export class MessagesComponent implements OnInit {
+export class MessagesComponent implements OnInit, OnDestroy {
   messages: Message[];
   pagination: Pagination;
   messageContainer = MessageContainer.thread;
   currentUserId: number;
+  newMessageSub: Subscription;
+  readMessagesSub: Subscription;
 
   constructor(private route: ActivatedRoute, private messagesService: MessageService,
-    private alertifyService: AlertifyService, private authService: AuthService) { }
+    private alertifyService: AlertifyService, private authService: AuthService,
+    private signalrMessageService: SignalrMessageService) { }
 
   ngOnInit() {
     this.currentUserId = this.authService.currentUser.id;
@@ -28,6 +33,42 @@ export class MessagesComponent implements OnInit {
       this.messages = data['messages'].result;
       this.pagination = data['messages'].pagination;
     });
+
+    this.subscribeOnNewMessageEvent();
+    this.subscribeOnReadMessageEvent();
+  }
+
+  subscribeOnNewMessageEvent() {
+    this.newMessageSub = this.signalrMessageService.newMessage.subscribe(message => {
+      const theirUserId = this.currentUserId === message.senderId ? message.recipientId : message.senderId;
+      const currentMessage = this.messages.find(m => m.senderId === theirUserId || m.recipientId === theirUserId);
+      if (currentMessage) {
+        const index = this.messages.indexOf(currentMessage, 0);
+        if (index > -1) {
+          this.messages.splice(index, 1);
+        }
+      }
+      this.messages.unshift(message);
+    }, error => {
+      this.alertifyService.error(error);
+    });
+  }
+
+  subscribeOnReadMessageEvent() {
+    this.readMessagesSub = this.signalrMessageService.readMessages.subscribe(messages => {
+      const messagesToAlter = this.messages.filter(x => messages.messageIds.includes(x.id));
+      messagesToAlter.forEach(m => {
+          m.isRead = true;
+          m.readAt = new Date();
+        });
+    }, error => {
+      this.alertifyService.error(error);
+    });
+  }
+
+  ngOnDestroy() {
+    this.newMessageSub.unsubscribe();
+    this.readMessagesSub.unsubscribe();
   }
 
   loadDialogues() {

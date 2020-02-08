@@ -95,6 +95,7 @@ namespace Cardofun.DataContext.Seeding
             var admin = new User 
             { 
                 UserName = RoleConstants.Admin,
+                Name = RoleConstants.Admin,
                 Email = RoleConstants.Admin,
                 CityId = 1
             };

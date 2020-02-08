@@ -1,13 +1,14 @@
-import { Component, OnInit, Input, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { Message } from 'src/app/_models/message';
 import { Pagination, PaginatedResult } from 'src/app/_models/pagination';
 import { MessageService } from 'src/app/_services/message/message.service';
 import { AlertifyService } from 'src/app/_services/alertify/alertify.service';
 import { MessageThread } from 'src/app/_models/messageThread';
-import { UserForMessage } from 'src/app/_models/user-for-message';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { User } from 'src/app/_models/user';
 import { AuthService } from 'src/app/_services/auth/auth.service';
+import { SignalrMessageService } from 'src/app/_services/signalr/signalr-message/signalr-message.service';
+import { ReadMessagesList } from 'src/app/_models/read-messages-list';
 
 @Component({
   selector: 'app-member-messages',
@@ -15,7 +16,7 @@ import { AuthService } from 'src/app/_services/auth/auth.service';
   styleUrls: ['./member-messages.component.css']
 })
 
-export class MemberMessagesComponent implements OnInit {
+export class MemberMessagesComponent implements OnInit, OnDestroy {
   @Input() theirUser: User;
   myUser: User;
   messages: Message[];
@@ -25,19 +26,66 @@ export class MemberMessagesComponent implements OnInit {
     itemsPerPage: 10
   } as Pagination;
   loading = false;
+  newMessageSub: Subscription;
+  readMessagesSub: Subscription;
 
   @ViewChild('scrollMe', { static: false }) scrollDiv;
 
   constructor(private messageService: MessageService, private alertifyService: AlertifyService,
-    private authService: AuthService) { }
+    private authService: AuthService, private signalrMessageService: SignalrMessageService) { }
 
   ngOnInit() {
     this.myUser = this.authService.currentUser;
 
     this.loadMessages(this.pagination.currentPage, this.pagination.itemsPerPage).subscribe(
-      res => this.handleResponse(res),
+      res => {
+        this.handleResponse(res);
+        this.subscribeOnNewMessageEvent();
+        this.subscribeOnReadMessageEvent();
+      },
       error => this.alertifyService.error(error)
     );
+  }
+
+  subscribeOnNewMessageEvent() {
+    this.newMessageSub = this.signalrMessageService.newMessage.subscribe((message: Message) => {
+      const userId = this.theirUser.id;
+      if (message.recipientId !== userId && message.senderId !== userId) {
+        return;
+      }
+
+      if (message.senderId === userId) {
+        message.readAt = new Date();
+        message.isRead = true;
+        this.messageService.markMessageAsRead(message.id).subscribe(s => s, error => console.log(error));
+      }
+
+      this.messages.unshift(message);
+    }, error => {
+      this.alertifyService.error(error);
+    });
+  }
+
+  subscribeOnReadMessageEvent() {
+    this.readMessagesSub = this.signalrMessageService.readMessages.subscribe((messages: ReadMessagesList) => {
+      const userId = this.theirUser.id;
+      if (messages.userOneId !== userId && messages.userTwoId !== userId) {
+        return;
+      }
+
+      const messagesToAlter = this.messages.filter(x => messages.messageIds.includes(x.id));
+      messagesToAlter.forEach(m => {
+          m.isRead = true;
+          m.readAt = new Date();
+        });
+    }, error => {
+      this.alertifyService.error(error);
+    });
+  }
+
+  ngOnDestroy() {
+    this.newMessageSub.unsubscribe();
+    this.readMessagesSub.unsubscribe();
   }
 
   loadMessages(page?: number, itemsPerPage?: number): Observable<PaginatedResult<MessageThread>> {
@@ -82,7 +130,6 @@ export class MemberMessagesComponent implements OnInit {
   sendMessage(text: string) {
     this.newMessage.recipientId = this.theirUser.id;
     this.messageService.createMessage(this.newMessage).subscribe((message: Message) => {
-      this.messages.unshift(message);
       this.newMessage.text = '';
     }, error => {
       this.alertifyService.error(error);

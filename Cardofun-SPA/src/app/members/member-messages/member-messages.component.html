@@ -9,7 +9,7 @@
         <!-- to them -->
         <div *ngIf="message.senderId == theirUser.id">
           <span class="chat-img float-left">
-            <img src="{{theirUser.photoUrl}}" alt="{{theirUser.name}}" class="rounded-circle">
+            <img src="{{theirUser.photoUrl || '../../../../assets/user.png'}}" alt="{{theirUser.name}}" class="rounded-circle">
           </span>
           <div class="chat-body">
             <div class="header">
@@ -25,7 +25,7 @@
         <!-- to me -->
         <div *ngIf="message.recipientId == theirUser.id">
           <span class="chat-img float-right">
-            <img src="{{myUser.photoUrl}}" alt="{{myUser.name}}" class="rounded-circle">
+            <img src="{{myUser.photoUrl || '../../../../assets/user.png'}}" alt="{{myUser.name}}" class="rounded-circle">
           </span>
           <div class="chat-body">
             <div class="header">

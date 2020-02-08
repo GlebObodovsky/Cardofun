@@ -73,10 +73,15 @@ namespace Cardofun.API.Controllers
 
             // Mark unread messages as read            
             var currentDate = DateTime.Now;
-            foreach (var m in messagesFromRepo.Where(m => m.RecipientId == userId).Where(m => !m.ReadAt.HasValue))
-                m.ReadAt = currentDate;
+            var unreadMessages = messagesFromRepo.Where(m => m.RecipientId == userId).Where(m => !m.ReadAt.HasValue).ToArray();
+            if(unreadMessages != null && unreadMessages.Length > 0)
+            {
+                for (int i = 0; i < unreadMessages.Length; i++)
+                    unreadMessages[i].ReadAt = currentDate;
+                await _cardofunRepository.SaveChangesAsync();
 
-            await _cardofunRepository.SaveChangesAsync();
+                NotifyUsersOfReadMessages(unreadMessages);
+            }
 
             var mappedCollection = _mapper.Map<MessageListDto>(messagesFromRepo);
             
@@ -103,7 +108,12 @@ namespace Cardofun.API.Controllers
                 
             // Mark this message as read if it's for the user to read
             if (messageFromRepo.RecipientId == userId && !messageFromRepo.ReadAt.HasValue)
+            {
                 messageFromRepo.ReadAt = DateTime.Now;
+                await _cardofunRepository.SaveChangesAsync();
+            
+                NotifyUsersOfReadMessages(messageFromRepo);
+            }
            
             if (messageFromRepo.SenderId == userId || messageFromRepo.RecipientId == userId)
                 return Ok(_mapper.Map<MessageExtendedDto>(messageFromRepo));
@@ -134,12 +144,63 @@ namespace Cardofun.API.Controllers
             if (!await _cardofunRepository.SaveChangesAsync())
                 return BadRequest("Could not send the message");
 
-            await _messageHub.Clients.User(message.RecipientId.ToString()).ReceiveMessage(message.Text);
-            // _messageHub.Clients.All.ReceiveMessage(message.Text).ReceiveMessage(message.Text);
+            message = await _cardofunRepository.GetMessageAsync(message.Id);
+            var messageToReturn = _mapper.Map<MessageExtendedDto>(message);
             
-            var messageToReturn = _mapper.Map<MessageForReturnDto>(message);
+            _ = _messageHub.Clients.Users(message.SenderId.ToString(), message.RecipientId.ToString()).ReceiveMessage(messageToReturn);
+
             return CreatedAtRoute(nameof(GetMessage), new { userId, id = messageToReturn.Id }, messageToReturn);
         }
+
+        [HttpPost("{id}/read")]
+        public async Task<IActionResult> MarkMessageAsRead(Int32 userId, Guid id)
+        {
+            if (userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            var message = await _cardofunRepository.GetMessageAsync(id);
+            
+            if (message == null)
+                return NotFound();
+
+            if (message.RecipientId != userId)
+                return Unauthorized();
+
+            if (message.ReadAt.HasValue)
+                return BadRequest("The message had been marked as read before");
+
+            message.ReadAt = DateTime.Now;
+            var saved = await _cardofunRepository.SaveChangesAsync();
+
+            NotifyUsersOfReadMessages(message);
+
+            if(saved)
+                return NoContent();
+            
+            return BadRequest("Cannot mark this message as read");
+        }
         #endregion MessagesController methods
+
+        #region SignalR
+        private void NotifyUsersOfReadMessages(params Message[] readMessages)
+        {
+            var chats = readMessages
+                .GroupBy(m => m.SenderId >= m.RecipientId ? (m.SenderId, m.RecipientId) : (m.RecipientId, m.SenderId));
+
+            foreach (var chat in chats)
+            {
+                var readMessage = new ReadMessagesListDto 
+                { 
+                    UserOneId = chat.Key.Item1,
+                    UserTwoId = chat.Key.Item2,
+                    MessageIds = chat.Select(m => m.Id)
+                };
+
+                _ = _messageHub.Clients.Users(chat.Key.Item1.ToString(), chat.Key.Item2.ToString())
+                    .MarkMessageAsRead(readMessage);
+            }
+            
+        }
+        #endregion SignalR
     }
 }

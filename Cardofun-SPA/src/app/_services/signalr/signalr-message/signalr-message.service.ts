@@ -3,6 +3,9 @@ import * as signalR from '@aspnet/signalr';
 import { AlertifyService } from '../../alertify/alertify.service';
 import { environment } from 'src/environments/environment';
 import { LocalStorageService } from '../../local-storage/local-storage.service';
+import { Subject } from 'rxjs';
+import { Message } from 'src/app/_models/message';
+import { ReadMessagesList } from 'src/app/_models/read-messages-list';
 
 @Injectable({
   providedIn: 'root'
@@ -14,20 +17,39 @@ export class SignalrMessageService {
   private hubConnection: signalR.HubConnection;
   private baseUrl = environment.baseServerUrl;
 
-  public startConnection = () => {
+  private newMessageSource = new Subject<Message>();
+  newMessage = this.newMessageSource.asObservable();
+
+  private readMessagesSource = new Subject<ReadMessagesList>();
+  readMessages = this.readMessagesSource.asObservable();
+
+  public startConnection() {
     this.hubConnection = new signalR.HubConnectionBuilder()
-                            .withUrl(this.baseUrl + 'message', { accessTokenFactory: () => this.localStorageService.getToken() })
-                            .build();
+      .withUrl(this.baseUrl + 'message', { accessTokenFactory: () => this.localStorageService.getToken() })
+      .build();
 
     this.hubConnection
-      .start()
-      .then(() => console.log('Connection started'))
-      .catch(err => console.log('Error while starting connection: ' + err));
+      .start();
+      // .then(() => console.log('Connection started'))
+      // .catch(err => console.log('Error while starting connection: ' + err));
+
+      this.addNotifyingOnMessageRecieved();
+      this.addNotifyingOnMessageMarkedAsRead();
   }
 
-  public addNotifyingOnMessageRecieved = () => {
-    this.hubConnection.on('ReceiveMessage', (data) => {
-      this.alertifyService.message(data);
+  private addNotifyingOnMessageRecieved() {
+    this.hubConnection.on('ReceiveMessage', (message: Message) => {
+      this.newMessageSource.next(message);
     });
+  }
+
+  private addNotifyingOnMessageMarkedAsRead() {
+    this.hubConnection.on('MarkMessageAsRead', (messages: ReadMessagesList) => {
+      this.readMessagesSource.next(messages);
+    });
+  }
+
+  public stopConnection() {
+    this.hubConnection.stop();
   }
 }

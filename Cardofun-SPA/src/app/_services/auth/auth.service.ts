@@ -6,13 +6,15 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environments/environment';
 import { User } from 'src/app/_models/user';
 import { LocalStorageService } from '../local-storage/local-storage.service';
+import { SignalrMessageService } from '../signalr/signalr-message/signalr-message.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  constructor(private http: HttpClient, private localStorageService: LocalStorageService) { }
+  constructor(private http: HttpClient, private localStorageService: LocalStorageService,
+    private signalrMessageSerice: SignalrMessageService) { }
 
   baseUrl = environment.apiUrl + 'auth/';
   jwtHelper = new JwtHelperService();
@@ -32,6 +34,7 @@ export class AuthService {
           this.currentUser = user.user;
           this.changeMemberPhoto(user.user.photoUrl);
           this.currentUser.roles = this.decodedToken.role as Array<string>;
+          this.signalrMessageSerice.startConnection();
         }
       })
     );
@@ -42,6 +45,7 @@ export class AuthService {
     this.localStorageService.removeUser();
     this.decodedToken = null;
     this.currentUser = null;
+    this.signalrMessageSerice.stopConnection();
   }
 
   register(user: User) {
