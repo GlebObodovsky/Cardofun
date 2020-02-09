@@ -440,6 +440,18 @@ namespace Cardofun.DataContext.Repositories
                         (message.RecipientId == messageParams.UserId
                         &&
                         message.SenderId == messageParams.SecondUserId));
+
+        /// <summary>
+        /// Gets an amount of unread messages for a user by his id
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<Int32> GetCountOfUnreadMessagesAsync(Int32 userId)
+            => await _context.Messages
+                .Where(m => m.RecipientId == userId)
+                .Where(m => m.ReadAt == null)
+                .CountAsync();
+                
         #endregion Messages
 
         #region Roles

@@ -130,6 +130,13 @@ namespace Cardofun.Interfaces.Repositories
         Task<Message> GetMessageAsync(Guid id);
 
         /// <summary>
+        /// Gets an amount of unread messages for a user by his id
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        Task<Int32> GetCountOfUnreadMessagesAsync(Int32 userId);
+
+        /// <summary>
         /// Gets a page of dialogues of a user 
         /// </summary>
         /// <returns></returns>

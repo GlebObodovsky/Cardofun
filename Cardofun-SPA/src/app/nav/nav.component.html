@@ -15,7 +15,7 @@
         </ul>
       </li>
       <li class="nav-item dropdown" routerLinkActive="active" dropdown>
-        <a data-toggle="dropdown" class="nav-link dropdown-toggle" [routerLink]="['/messages']">Messages</a>
+        <a data-toggle="dropdown" class="nav-link dropdown-toggle" [routerLink]="['/messages']">Messages <span *ngIf="countOfUnreadMessages">({{countOfUnreadMessages}})</span></a>
         <ul class="dropdown-menu">
           <li><a class="dropdown-item" [routerLink]="['/messages/', 'thread']">All messages</a></li>
           <li><a class="dropdown-item" [routerLink]="['/messages/', 'unread']">Unread messages</a></li>

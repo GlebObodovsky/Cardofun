@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Cardofun.Interfaces.DTOs;
 
@@ -7,5 +8,6 @@ namespace Cardofun.API.Hubs
     {
         Task ReceiveMessage(MessageExtendedDto message);
         Task MarkMessageAsRead(ReadMessagesListDto readMessages);
+        Task ReceiveUnreadMessagesCount(Int32 count);
     }
 }

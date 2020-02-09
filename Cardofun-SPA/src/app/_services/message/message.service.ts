@@ -7,6 +7,7 @@ import { AuthService } from '../auth/auth.service';
 import { map } from 'rxjs/operators';
 import { MessageContainer } from 'src/app/_models/enums/messageContainer';
 import { MessageThread } from 'src/app/_models/messageThread';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -60,6 +61,10 @@ export class MessageService {
           return paginatedResult;
         })
       );
+  }
+
+  getCountOfUnread(): Observable<Number> {
+    return this.http.get<number>(this.baseUrl + this.authService.currentUser.id + '/messages/countOfUnread');
   }
 
   createMessage(message: any) {

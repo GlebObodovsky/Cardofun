@@ -41,11 +41,11 @@ export class AuthService {
   }
 
   logout() {
+    this.signalrMessageSerice.stopConnection();
     this.localStorageService.removeToken();
     this.localStorageService.removeUser();
     this.decodedToken = null;
     this.currentUser = null;
-    this.signalrMessageSerice.stopConnection();
   }
 
   register(user: User) {

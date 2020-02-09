@@ -80,7 +80,7 @@ namespace Cardofun.API.Controllers
                     unreadMessages[i].ReadAt = currentDate;
                 await _cardofunRepository.SaveChangesAsync();
 
-                NotifyUsersOfReadMessages(unreadMessages);
+                await NotifyUsersOfReadMessagesAsync(unreadMessages);
             }
 
             var mappedCollection = _mapper.Map<MessageListDto>(messagesFromRepo);
@@ -112,7 +112,7 @@ namespace Cardofun.API.Controllers
                 messageFromRepo.ReadAt = DateTime.Now;
                 await _cardofunRepository.SaveChangesAsync();
             
-                NotifyUsersOfReadMessages(messageFromRepo);
+                await NotifyUsersOfReadMessagesAsync(messageFromRepo);
             }
            
             if (messageFromRepo.SenderId == userId || messageFromRepo.RecipientId == userId)
@@ -120,6 +120,16 @@ namespace Cardofun.API.Controllers
             else
                 return Unauthorized();
         }
+
+        [HttpGet("countOfUnread")]
+        public async Task<IActionResult> GetCountOfUnread(Int32 userId)
+        {
+            if (userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            return Ok(await _cardofunRepository.GetCountOfUnreadMessagesAsync(userId));
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> CreateMessage(Int32 userId, 
@@ -149,6 +159,8 @@ namespace Cardofun.API.Controllers
             
             _ = _messageHub.Clients.Users(message.SenderId.ToString(), message.RecipientId.ToString()).ReceiveMessage(messageToReturn);
 
+            await NotifyUsersOfUnreadMessagesCountAsync(message.RecipientId);
+
             return CreatedAtRoute(nameof(GetMessage), new { userId, id = messageToReturn.Id }, messageToReturn);
         }
 
@@ -172,7 +184,7 @@ namespace Cardofun.API.Controllers
             message.ReadAt = DateTime.Now;
             var saved = await _cardofunRepository.SaveChangesAsync();
 
-            NotifyUsersOfReadMessages(message);
+            await NotifyUsersOfReadMessagesAsync(message);
 
             if(saved)
                 return NoContent();
@@ -182,7 +194,7 @@ namespace Cardofun.API.Controllers
         #endregion MessagesController methods
 
         #region SignalR
-        private void NotifyUsersOfReadMessages(params Message[] readMessages)
+        private async Task NotifyUsersOfReadMessagesAsync(params Message[] readMessages)
         {
             var chats = readMessages
                 .GroupBy(m => m.SenderId >= m.RecipientId ? (m.SenderId, m.RecipientId) : (m.RecipientId, m.SenderId));
@@ -199,8 +211,20 @@ namespace Cardofun.API.Controllers
                 _ = _messageHub.Clients.Users(chat.Key.Item1.ToString(), chat.Key.Item2.ToString())
                     .MarkMessageAsRead(readMessage);
             }
-            
+
+            var recepientIds = readMessages.Select(m => m.RecipientId).Distinct().ToArray();
+            await NotifyUsersOfUnreadMessagesCountAsync(recepientIds);
         }
+
+        private async Task NotifyUsersOfUnreadMessagesCountAsync(params Int32[] userIds)
+        {
+            foreach (var userId in userIds)
+            {
+                    _ = _messageHub.Clients.Users(userId.ToString())
+                .ReceiveUnreadMessagesCount(await _cardofunRepository.GetCountOfUnreadMessagesAsync(userId));
+            }
+        }
+
         #endregion SignalR
     }
 }

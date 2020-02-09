@@ -23,6 +23,9 @@ export class SignalrMessageService {
   private readMessagesSource = new Subject<ReadMessagesList>();
   readMessages = this.readMessagesSource.asObservable();
 
+  private unreadMessagesCountSource = new Subject<Number>();
+  unreadMessagesCount = this.unreadMessagesCountSource.asObservable();
+
   public startConnection() {
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(this.baseUrl + 'message', { accessTokenFactory: () => this.localStorageService.getToken() })
@@ -35,6 +38,7 @@ export class SignalrMessageService {
 
       this.addNotifyingOnMessageRecieved();
       this.addNotifyingOnMessageMarkedAsRead();
+      this.addNotifyingOnUnreadMessagesCountReceived();
   }
 
   private addNotifyingOnMessageRecieved() {
@@ -46,6 +50,12 @@ export class SignalrMessageService {
   private addNotifyingOnMessageMarkedAsRead() {
     this.hubConnection.on('MarkMessageAsRead', (messages: ReadMessagesList) => {
       this.readMessagesSource.next(messages);
+    });
+  }
+
+  private addNotifyingOnUnreadMessagesCountReceived() {
+    this.hubConnection.on('ReceiveUnreadMessagesCount', (count: Number) => {
+      this.unreadMessagesCountSource.next(count);
     });
   }
 
