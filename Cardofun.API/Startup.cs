@@ -26,6 +26,7 @@ using Cardofun.API.Helpers.Constants;
 using Cardofun.Core.Helpers.Security;
 using Cardofun.API.Hubs;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Cardofun.API
 {
@@ -57,6 +58,7 @@ namespace Cardofun.API
         public void ConfigureServices(IServiceCollection services)
         {
             var corsOrigins = Configuration.GetSection(AppSettingsConstants.CorsOrigins).Get<string[]>();
+            var signalrEndpoints = Configuration.GetSection(AppSettingsConstants.SignalrEndpoints).Get<Dictionary<string, string>>();
 
             IdentityBuilder builder = services.AddIdentityCore<User>(options => 
             {
@@ -90,7 +92,7 @@ namespace Cardofun.API
                             // If the request is for our hub...
                             var path = context.HttpContext.Request.Path;
                             if (!string.IsNullOrEmpty(accessToken) &&
-                                (path.StartsWithSegments("/message")))
+                                (signalrEndpoints.Any(se => path.StartsWithSegments(se.Value))))
                             {
                                 // Read the token out of the query string
                                 context.Token = accessToken;
@@ -168,10 +170,13 @@ namespace Cardofun.API
             app.UseDefaultFiles();
             app.UseStaticFiles();
 
+            var signalrEndpoints = Configuration.GetSection(AppSettingsConstants.SignalrEndpoints).Get<Dictionary<string, string>>();
+
             app.UseEndpoints(endpoints => 
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<ChatHub>("/message");
+                endpoints.MapHub<ChatHub>(signalrEndpoints["chat"]);
+                endpoints.MapHub<FriendsHub>(signalrEndpoints["friends"]);
             });
         }
 

@@ -7,6 +7,7 @@ import { environment } from 'src/environments/environment';
 import { User } from 'src/app/_models/user';
 import { LocalStorageService } from '../local-storage/local-storage.service';
 import { SignalrMessageService } from '../signalr/signalr-message/signalr-message.service';
+import { SignalrFriendService } from '../signalr/signalr-friend/signalr-friend.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,8 @@ import { SignalrMessageService } from '../signalr/signalr-message/signalr-messag
 export class AuthService {
 
   constructor(private http: HttpClient, private localStorageService: LocalStorageService,
-    private signalrMessageSerice: SignalrMessageService) { }
+    private signalrMessageSerice: SignalrMessageService,
+    private signalrFriendService: SignalrFriendService) { }
 
   baseUrl = environment.apiUrl + 'auth/';
   jwtHelper = new JwtHelperService();
@@ -35,6 +37,7 @@ export class AuthService {
           this.changeMemberPhoto(user.user.photoUrl);
           this.currentUser.roles = this.decodedToken.role as Array<string>;
           this.signalrMessageSerice.startConnection();
+          this.signalrFriendService.startConnection();
         }
       })
     );
@@ -42,6 +45,7 @@ export class AuthService {
 
   logout() {
     this.signalrMessageSerice.stopConnection();
+    this.signalrFriendService.stopConnection();
     this.localStorageService.removeToken();
     this.localStorageService.removeUser();
     this.decodedToken = null;

@@ -34,4 +34,8 @@ export class FriendService {
   deleteFriendship(id: number) {
     return this.http.delete(this.baseUrl + this.authService.currentUser.id + '/friends/' + id);
   }
+
+  getCountOfFollowers(): Observable<Number> {
+    return this.http.get<number>(this.baseUrl + this.authService.currentUser.id + '/friends/countOfFollowers');
+  }
 }

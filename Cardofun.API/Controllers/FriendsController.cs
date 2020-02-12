@@ -5,12 +5,14 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using Cardofun.API.Helpers.Extensions;
+using Cardofun.API.Hubs;
 using Cardofun.Core.ApiParameters;
 using Cardofun.Core.Enums;
 using Cardofun.Domain.Models;
 using Cardofun.Interfaces.DTOs;
 using Cardofun.Interfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Cardofun.API.Controllers
 {
@@ -20,13 +22,16 @@ namespace Cardofun.API.Controllers
         #region Fields
         private readonly ICardofunRepository _cardofunRepository;
         private readonly IMapper _mapper;
+        private readonly IHubContext<FriendsHub, IFriendsHubClient> _frinedHub;
         #endregion Fields
 
         #region Constructor
-        public FriendsController(ICardofunRepository cardofunRepository, IMapper mapper)
+        public FriendsController(ICardofunRepository cardofunRepository, IMapper mapper,
+            IHubContext<FriendsHub, IFriendsHubClient> frinedHub)
         {
             _cardofunRepository = cardofunRepository;
             _mapper = mapper;
+            _frinedHub = frinedHub;
         }
         #endregion Constructor
 
@@ -50,6 +55,15 @@ namespace Cardofun.API.Controllers
                 
             Response.AddPagination(userPages.PageNumber, userPages.PageSize, userPages.TotalCount, userPages.TotalPages);
             return Ok(mappedCollection);
+        }
+
+        [HttpGet("countOfFollowers")]
+        public async Task<IActionResult> GetCountOfFollowers(Int32 userId)
+        {
+            if (userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            return Ok(await _cardofunRepository.GetCountOfFollowersAsync(userId));
         }
 
         /// <summary>
@@ -83,10 +97,12 @@ namespace Cardofun.API.Controllers
                 ToUserId = recepientId,
             };
             _cardofunRepository.Add(friendRequest);
-            if(await _cardofunRepository.SaveChangesAsync())
-                return Ok();
-
-            return BadRequest("Befriending user failed on save");
+            if (!await _cardofunRepository.SaveChangesAsync())
+                return BadRequest("Befriending user failed on save");
+            
+            await NotifyUserAboutFollowersCountAsync(recepientId);
+            
+            return Ok();
         }
 
         /// <summary>
@@ -122,10 +138,12 @@ namespace Cardofun.API.Controllers
             friendRequest.Status = (FriendshipStatus)fStatus;
             friendRequest.RepliedAt = DateTime.Now;
 
-            if(await _cardofunRepository.SaveChangesAsync())
-                return Ok();
+            if(!await _cardofunRepository.SaveChangesAsync())
+                return BadRequest("Changing friendship status failed on save");
+                
+            await NotifyUserAboutFollowersCountAsync(userId);
 
-            return BadRequest("Changing friendship status failed on save");
+            return Ok();
         }
 
         /// <summary>
@@ -145,14 +163,30 @@ namespace Cardofun.API.Controllers
             if(request == null)
                 return BadRequest("The friend request hasn't been found");
 
+            var wasItFollower = request.Status == FriendshipStatus.Requested;
+
             _cardofunRepository.Delete(request);
 
-            if(await _cardofunRepository.SaveChangesAsync())
-                return Ok();
+            if(!await _cardofunRepository.SaveChangesAsync())
+                return BadRequest("Friendship request deletion failed on save");
+            
+            if (wasItFollower)
+                await NotifyUserAboutFollowersCountAsync(recepientId);
 
-            return BadRequest("Friendship request deletion failed on save");
+            return Ok();
         }
         #endregion Controller methods
-    
+
+        #region SignalR
+        /// <summary>
+        /// Notifies the given user that the amount of users following him has changed
+        /// </summary>
+        /// <param name="recepientId"></param>
+        private async Task NotifyUserAboutFollowersCountAsync(int recepientId)
+        {
+            var countOfFollowers = await _cardofunRepository.GetCountOfFollowersAsync(recepientId);
+            await _frinedHub.Clients.User(recepientId.ToString()).ReceiveFollowersCount(countOfFollowers);
+        }
+        #endregion SignalR
     }
 }

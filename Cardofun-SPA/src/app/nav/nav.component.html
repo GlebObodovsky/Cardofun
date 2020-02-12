@@ -7,7 +7,7 @@
         <a class="nav-link" [routerLink]="['/members']">Members</a>
       </li>
       <li class="nav-item dropdown" routerLinkActive="active" dropdown>
-        <a data-toggle="dropdown" class="nav-link dropdown-toggle" [routerLink]="['/friends']">Friends</a>
+        <a data-toggle="dropdown" class="nav-link dropdown-toggle" [routerLink]="['/friends']">Friends <span *ngIf="countOfFollowers">({{countOfFollowers}})</span></a>
         <ul class="dropdown-menu">
           <li><a class="dropdown-item" [routerLink]="['/friends/', 'friends']">My friends</a></li>
           <li><a class="dropdown-item" [routerLink]="['/friends/', 'followers']">My followers</a></li>

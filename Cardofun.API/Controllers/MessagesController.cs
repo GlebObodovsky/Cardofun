@@ -121,6 +121,11 @@ namespace Cardofun.API.Controllers
                 return Unauthorized();
         }
 
+        /// <summary>
+        /// Returns an amount of messages that aren't read by user yet
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpGet("countOfUnread")]
         public async Task<IActionResult> GetCountOfUnread(Int32 userId)
         {
@@ -129,7 +134,6 @@ namespace Cardofun.API.Controllers
 
             return Ok(await _cardofunRepository.GetCountOfUnreadMessagesAsync(userId));
         }
-
 
         [HttpPost]
         public async Task<IActionResult> CreateMessage(Int32 userId, 

@@ -115,10 +115,7 @@ export class MemberListComponent implements OnInit {
   }
 
   addedToFriendlist(friend: User) {
-    console.log(this.userParams.subscriptionState);
-
     if (this.userParams.subscriptionState === SupscriptionState.followers) {
-      console.log('done!');
       this.excludedFromList(friend);
     }
   }

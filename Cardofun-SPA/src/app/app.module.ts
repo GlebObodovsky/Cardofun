@@ -28,6 +28,7 @@ import { LanguageService } from './_services/language/language.service';
 import { AlertifyService } from './_services/alertify/alertify.service';
 import { LocalStorageService } from './_services/local-storage/local-storage.service';
 import { SignalrMessageService } from './_services/signalr/signalr-message/signalr-message.service';
+import { SignalrFriendService } from './_services/signalr/signalr-friend/signalr-friend.service';
 import { MessagesComponent } from './messages/messages.component';
 import { MemberListComponent } from './members/member-list/member-list.component';
 import { appRoutes } from './routes';
@@ -120,6 +121,7 @@ export class CustomHammerConfig extends HammerGestureConfig  {
       AlertifyService,
       LocalStorageService,
       SignalrMessageService,
+      SignalrFriendService,
       ErrorInterceptorProvider,
       AuthGuard,
       PreventUnsavedChangesGuard,

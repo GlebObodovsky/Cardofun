@@ -264,9 +264,9 @@ namespace Cardofun.DataContext.Repositories
                 // Appart of the previous settings we should set up that those users also shoud have
                 // related friend requests with needed status
                 .Where(user => (
-                    user.OutcomingFriendRequests.Any(ifr => ifr.ToUserId == userFriendParams.UserId && userFriendParams.FriendshipStatus.Contains(ifr.Status))
+                    user.OutcomingFriendRequests.Any(ofr => ofr.ToUserId == userFriendParams.UserId && userFriendParams.FriendshipStatus.Contains(ofr.Status))
                     ||
-                    user.IncomingFriendRequests.Any(ofr => ofr.FromUserId == userFriendParams.UserId && userFriendParams.FriendshipStatus.Contains(ofr.Status))))
+                    user.IncomingFriendRequests.Any(ifr => ifr.FromUserId == userFriendParams.UserId && userFriendParams.FriendshipStatus.Contains(ifr.Status))))
                 .Where(user =>
                     // Get all friends regardless of who initiated firendship
                     userFriendParams.IsFriendshipOwned == null 
@@ -277,6 +277,17 @@ namespace Cardofun.DataContext.Repositories
                     // Get friendships initiated by requested user
                     (userFriendParams.IsFriendshipOwned.Value && user.IncomingFriendRequests.Any(ofr => ofr.FromUserId == userFriendParams.UserId)))
                 .ToPagedListAsync(userFriendParams.PageNumber, userFriendParams.PageSize);
+
+                
+        /// <summary>
+        /// Gets an amount of users that are following the user with the given Id
+        /// </summary>
+        /// <returns></returns>
+        public async Task<Int32> GetCountOfFollowersAsync(Int32 userId)
+            => await _context.FriendRequests
+                .Where(m => m.ToUserId == userId)
+                .Where(m => m.Status == FriendshipStatus.Requested || m.Status == FriendshipStatus.Declined)
+                .CountAsync();
         #endregion Users
 
         #region Languages

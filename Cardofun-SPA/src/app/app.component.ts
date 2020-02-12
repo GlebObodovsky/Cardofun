@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from './_services/auth/auth.service';
 import { SignalrMessageService } from './_services/signalr/signalr-message/signalr-message.service';
+import { SignalrFriendService } from './_services/signalr/signalr-friend/signalr-friend.service';
 
 @Component({
   selector: 'app-root',
@@ -10,12 +11,14 @@ import { SignalrMessageService } from './_services/signalr/signalr-message/signa
 export class AppComponent implements OnInit {
   title = 'Cardofun';
 
-  constructor(private authService: AuthService, private signalrMessage: SignalrMessageService) {}
+  constructor(private authService: AuthService, private signalrMessageService: SignalrMessageService,
+    private signalrFriendService: SignalrFriendService) {}
 
   ngOnInit() {
     this.authService.refreshUserInformation();
     if (this.authService.currentUser) {
-      this.signalrMessage.startConnection();
+      this.signalrMessageService.startConnection();
+      this.signalrFriendService.startConnection();
     }
   }
 }

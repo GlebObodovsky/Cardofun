@@ -83,6 +83,12 @@ namespace Cardofun.Interfaces.Repositories
         Task<PagedList<User>> GetPageOfFriendsAsync(UserFriendParams userFriendParams);
 
         /// <summary>
+        /// Gets an amount of users that are following the user with the given Id
+        /// </summary>
+        /// <returns></returns>
+        Task<Int32> GetCountOfFollowersAsync(Int32 userId);
+
+        /// <summary>
         /// Gets languages by given search pattern
         /// </summary>
         /// <returns></returns>

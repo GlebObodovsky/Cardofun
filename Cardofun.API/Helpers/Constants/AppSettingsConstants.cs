@@ -20,5 +20,10 @@ namespace Cardofun.API.Helpers.Constants
         /// </summary>
         /// <returns></returns>
         public const string CorsOrigins = nameof(CorsOrigins);
+        /// <summary>
+        /// Set of SignalR endpoints
+        /// </summary>
+        /// <returns></returns>
+        public const string SignalrEndpoints = nameof(SignalrEndpoints);
     }
 }

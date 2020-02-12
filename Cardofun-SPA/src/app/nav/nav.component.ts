@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { MessageService } from '../_services/message/message.service';
 import { SignalrMessageService } from '../_services/signalr/signalr-message/signalr-message.service';
 import { Subscription } from 'rxjs';
+import { FriendService } from '../_services/friend/friend.service';
+import { SignalrFriendService } from '../_services/signalr/signalr-friend/signalr-friend.service';
 
 @Component({
   selector: 'app-nav',
@@ -15,21 +17,26 @@ export class NavComponent implements OnInit {
   model: any = {};
   photoUrl: string;
   countOfUnreadMessages: Number;
+  countOfFollowers: Number;
 
   constructor(public authService: AuthService, private alertifyService: AlertifyService,
     private router: Router, private messageService: MessageService,
-    private signalrMessageService: SignalrMessageService) { }
+    private frienService: FriendService,
+    private signalrMessageService: SignalrMessageService,
+    private signalrFriendService: SignalrFriendService) { }
 
   ngOnInit() {
     this.authService.currentPhotoUrl.subscribe(photoUrl => this.photoUrl = photoUrl);
     if (this.isLoggedIn()) {
       this.subscribeOnGetCountOfUnread();
+      this.subscribeOnGetCountOfFollowers();
     }
   }
 
   login() {
     this.authService.login(this.model).subscribe(() => {
       this.subscribeOnGetCountOfUnread();
+      this.subscribeOnGetCountOfFollowers();
     }, error => {
       this.alertifyService.error(error);
     }, () => {
@@ -55,6 +62,17 @@ export class NavComponent implements OnInit {
     });
     this.signalrMessageService.unreadMessagesCount.subscribe((count: Number) => {
       this.countOfUnreadMessages = count;
+    });
+  }
+
+  subscribeOnGetCountOfFollowers() {
+    this.frienService.getCountOfFollowers().subscribe((countOfFollowers: Number) => {
+      this.countOfFollowers = countOfFollowers;
+    }, () => {
+      this.alertifyService.error('Cannot get the amount of followers');
+    });
+    this.signalrFriendService.followersCount.subscribe((count: Number) => {
+      this.countOfFollowers = count;
     });
   }
 }
