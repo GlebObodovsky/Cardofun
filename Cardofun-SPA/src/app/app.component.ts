@@ -11,14 +11,11 @@ import { SignalrFriendService } from './_services/signalr/signalr-friend/signalr
 export class AppComponent implements OnInit {
   title = 'Cardofun';
 
-  constructor(private authService: AuthService, private signalrMessageService: SignalrMessageService,
-    private signalrFriendService: SignalrFriendService) {}
+  constructor(private authService: AuthService) {}
 
   ngOnInit() {
     this.authService.refreshUserInformation();
     if (this.authService.currentUser) {
-      this.signalrMessageService.startConnection();
-      this.signalrFriendService.startConnection();
     }
   }
 }

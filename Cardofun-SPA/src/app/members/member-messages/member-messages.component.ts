@@ -48,44 +48,47 @@ export class MemberMessagesComponent implements OnInit, OnDestroy {
   }
 
   subscribeOnNewMessageEvent() {
-    this.newMessageSub = this.signalrMessageService.newMessage.subscribe((message: Message) => {
-      const userId = this.theirUser.id;
-      if (message.recipientId !== userId && message.senderId !== userId) {
-        return;
-      }
+    this.newMessageSub = this.signalrMessageService.subscribeOnNewMessageReceived({
+      next: (message: Message) => {
+        const userId = this.theirUser.id;
+        if (message.recipientId !== userId && message.senderId !== userId) {
+          return;
+        }
 
-      if (message.senderId === userId) {
-        message.readAt = new Date();
-        message.isRead = true;
-        this.messageService.markMessageAsRead(message.id).subscribe(s => s, error => console.log(error));
-      }
+        if (message.senderId === userId) {
+          message.readAt = new Date();
+          message.isRead = true;
+          this.messageService.markMessageAsRead(message.id).subscribe(s => s, error => console.log(error));
+        }
 
-      this.messages.unshift(message);
-    }, error => {
-      this.alertifyService.error(error);
+        this.messages.unshift(message);
+      },
+      error: null,
+      complete: null
     });
   }
 
   subscribeOnReadMessageEvent() {
-    this.readMessagesSub = this.signalrMessageService.readMessages.subscribe((messages: ReadMessagesList) => {
-      const userId = this.theirUser.id;
-      if (messages.userOneId !== userId && messages.userTwoId !== userId) {
-        return;
-      }
+    this.readMessagesSub = this.signalrMessageService.subscribeOnMessageMarkedAsRead({
+      next: (messages: ReadMessagesList) => {
+        const userId = this.theirUser.id;
+        if (messages.userOneId !== userId && messages.userTwoId !== userId) {
+          return;
+        }
 
-      const messagesToAlter = this.messages.filter(x => messages.messageIds.includes(x.id));
-      messagesToAlter.forEach(m => {
-          m.isRead = true;
-          m.readAt = new Date();
-        });
-    }, error => {
-      this.alertifyService.error(error);
-    });
+        const messagesToAlter = this.messages.filter(x => messages.messageIds.includes(x.id));
+        messagesToAlter.forEach(m => {
+            m.isRead = true;
+            m.readAt = new Date();
+          });
+      },
+      error: null,
+      complete: null});
   }
 
   ngOnDestroy() {
-    this.newMessageSub.unsubscribe();
-    this.readMessagesSub.unsubscribe();
+    this.signalrMessageService.unsubscribeFromNewMessageReceived(this.newMessageSub);
+    this.signalrMessageService.unsubscribeFromMessageMarkedAsRead(this.readMessagesSub);
   }
 
   loadMessages(page?: number, itemsPerPage?: number): Observable<PaginatedResult<MessageThread>> {

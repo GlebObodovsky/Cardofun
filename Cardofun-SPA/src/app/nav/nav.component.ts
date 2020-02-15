@@ -24,6 +24,8 @@ export class NavComponent implements OnInit {
     private frienService: FriendService,
     private signalrMessageService: SignalrMessageService,
     private signalrFriendService: SignalrFriendService) { }
+    private countOfFriendsSub: Subscription;
+    private countOfUnreadMessagesSub: Subscription;
 
   ngOnInit() {
     this.authService.currentPhotoUrl.subscribe(photoUrl => this.photoUrl = photoUrl);
@@ -45,6 +47,8 @@ export class NavComponent implements OnInit {
   }
 
   logout() {
+    this.signalrFriendService.unsubscribeFromCountOfFollowersReceived(this.countOfFriendsSub);
+    this.signalrMessageService.unsubscribeFromUnreadMessagesCountReceived(this.countOfUnreadMessagesSub);
     this.authService.logout();
     this.alertifyService.success('Logged out sucessfully');
     this.router.navigate(['']);
@@ -60,8 +64,10 @@ export class NavComponent implements OnInit {
     }, () => {
       this.alertifyService.error('Cannot get the amount of unread messages');
     });
-    this.signalrMessageService.unreadMessagesCount.subscribe((count: Number) => {
-      this.countOfUnreadMessages = count;
+    this.countOfUnreadMessagesSub = this.signalrMessageService.subscribeOnUnreadMessagesCountReceived({
+      next: (count: Number) => { this.countOfUnreadMessages = count; },
+      error: null,
+      complete: null
     });
   }
 
@@ -71,8 +77,10 @@ export class NavComponent implements OnInit {
     }, () => {
       this.alertifyService.error('Cannot get the amount of followers');
     });
-    this.signalrFriendService.followersCount.subscribe((count: Number) => {
-      this.countOfFollowers = count;
+    this.countOfFriendsSub = this.signalrFriendService.subscribeOnCountOfFollowersReceived({
+      next: (count: Number) => { this.countOfFollowers = count; },
+      error: null,
+      complete: null
     });
   }
 }

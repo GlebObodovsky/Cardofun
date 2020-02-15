@@ -36,16 +36,12 @@ export class AuthService {
           this.currentUser = user.user;
           this.changeMemberPhoto(user.user.photoUrl);
           this.currentUser.roles = this.decodedToken.role as Array<string>;
-          this.signalrMessageSerice.startConnection();
-          this.signalrFriendService.startConnection();
         }
       })
     );
   }
 
   logout() {
-    this.signalrMessageSerice.stopConnection();
-    this.signalrFriendService.stopConnection();
     this.localStorageService.removeToken();
     this.localStorageService.removeUser();
     this.decodedToken = null;

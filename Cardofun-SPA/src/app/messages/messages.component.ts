@@ -39,36 +39,38 @@ export class MessagesComponent implements OnInit, OnDestroy {
   }
 
   subscribeOnNewMessageEvent() {
-    this.newMessageSub = this.signalrMessageService.newMessage.subscribe(message => {
-      const theirUserId = this.currentUserId === message.senderId ? message.recipientId : message.senderId;
-      const currentMessage = this.messages.find(m => m.senderId === theirUserId || m.recipientId === theirUserId);
-      if (currentMessage) {
-        const index = this.messages.indexOf(currentMessage, 0);
-        if (index > -1) {
-          this.messages.splice(index, 1);
+    this.newMessageSub = this.signalrMessageService.subscribeOnNewMessageReceived({
+      next: message => {
+        const theirUserId = this.currentUserId === message.senderId ? message.recipientId : message.senderId;
+        const currentMessage = this.messages.find(m => m.senderId === theirUserId || m.recipientId === theirUserId);
+        if (currentMessage) {
+          const index = this.messages.indexOf(currentMessage, 0);
+          if (index > -1) {
+            this.messages.splice(index, 1);
+          }
         }
-      }
-      this.messages.unshift(message);
-    }, error => {
-      this.alertifyService.error(error);
-    });
+        this.messages.unshift(message);
+      },
+      error: null,
+      complete: null});
   }
 
   subscribeOnReadMessageEvent() {
-    this.readMessagesSub = this.signalrMessageService.readMessages.subscribe(messages => {
-      const messagesToAlter = this.messages.filter(x => messages.messageIds.includes(x.id));
-      messagesToAlter.forEach(m => {
-          m.isRead = true;
-          m.readAt = new Date();
-        });
-    }, error => {
-      this.alertifyService.error(error);
-    });
+    this.readMessagesSub = this.signalrMessageService.subscribeOnMessageMarkedAsRead({
+      next: messages => {
+        const messagesToAlter = this.messages.filter(x => messages.messageIds.includes(x.id));
+        messagesToAlter.forEach(m => {
+            m.isRead = true;
+            m.readAt = new Date();
+          });
+      },
+      error: null,
+      complete: null});
   }
 
   ngOnDestroy() {
-    this.newMessageSub.unsubscribe();
-    this.readMessagesSub.unsubscribe();
+    this.signalrMessageService.unsubscribeFromNewMessageReceived(this.newMessageSub);
+    this.signalrMessageService.unsubscribeFromMessageMarkedAsRead(this.readMessagesSub);
   }
 
   loadDialogues() {
