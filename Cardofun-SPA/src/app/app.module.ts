@@ -10,6 +10,7 @@ import { NgxGalleryModule } from 'ngx-gallery';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FileUploadModule } from 'ng2-file-upload';
 import { TimeAgoPipe } from 'time-ago-pipe';
+import { Injector } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { NavComponent } from './nav/nav.component';
@@ -31,6 +32,7 @@ import { SignalrMessageService } from './_services/signalr/signalr-message/signa
 import { SignalrFriendService } from './_services/signalr/signalr-friend/signalr-friend.service';
 import { MessagesComponent } from './messages/messages.component';
 import { MemberListComponent } from './members/member-list/member-list.component';
+import { setAppInjector } from './_helpers/app-injector';
 import { appRoutes } from './routes';
 import { AuthGuard } from './_guards/auth.guard';
 import { PreventUnsavedChangesGuard } from './_guards/prevent-unsaved-changes.guard';
@@ -139,4 +141,8 @@ export class CustomHammerConfig extends HammerGestureConfig  {
       AppComponent
    ],
 })
-export class AppModule { }
+export class AppModule {
+   constructor(injector: Injector) {
+       setAppInjector(injector);
+   }
+}
