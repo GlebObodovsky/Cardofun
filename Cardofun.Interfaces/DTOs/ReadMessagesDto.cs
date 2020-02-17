@@ -6,12 +6,12 @@ namespace Cardofun.Interfaces.DTOs
     public class ReadMessagesListDto
     {
         /// <summary>
-        /// Id of a user that is participationg in chat
+        /// Id of a user that is participating in chat
         /// </summary>
         /// <value></value>
         public Int32 UserOneId { get; set; }
         /// <summary>
-        /// Id of a user that is participationg in chat
+        /// Id of a user that is participating in chat
         /// </summary>
         /// <value></value>
         public Int32 UserTwoId { get; set; }

@@ -8,7 +8,7 @@ import { map } from 'rxjs/operators';
 import { UserFilterParams } from 'src/app/_models/userFilterParams';
 import { AuthService } from '../auth/auth.service';
 import { FriendshipStatus } from 'src/app/_models/enums/friendshipStatus';
-import { SupscriptionState } from 'src/app/_models/enums/supscriptionState';
+import { SubscriptionState } from 'src/app/_models/enums/subscriptionState';
 
 @Injectable({
   providedIn: 'root'
@@ -58,15 +58,15 @@ export class UserService {
       if (userParams.subscriptionState) {
         address = this.baseUrl + '/' + this.authService.currentUser.id + '/friends';
 
-        if (userParams.subscriptionState !== SupscriptionState.friends) {
+        if (userParams.subscriptionState !== SubscriptionState.friends) {
           params = params.append('friendshipStatus', FriendshipStatus.requested);
           params = params.append('friendshipStatus', FriendshipStatus.declined);
         }
         // subscriptions are owned by me
-        if (userParams.subscriptionState === SupscriptionState.subscriptions) {
+        if (userParams.subscriptionState === SubscriptionState.subscriptions) {
           params = params.append('isFriendshipOwned', String(true));
         // subscriptions are owned by them
-        } else if (userParams.subscriptionState === SupscriptionState.followers) {
+        } else if (userParams.subscriptionState === SubscriptionState.followers) {
           params = params.append('isFriendshipOwned', String(false));
         }
       }

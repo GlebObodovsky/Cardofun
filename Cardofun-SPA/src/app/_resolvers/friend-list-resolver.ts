@@ -5,7 +5,7 @@ import { AlertifyService } from '../_services/alertify/alertify.service';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { FriendService } from '../_services/friend/friend.service';
-import { SupscriptionState } from '../_models/enums/supscriptionState';
+import { SubscriptionState } from '../_models/enums/subscriptionState';
 import { UserFilterParams } from '../_models/userFilterParams';
 import { environment } from 'src/environments/environment';
 
@@ -18,10 +18,10 @@ export class FriendListResolver implements Resolve<User[]> {
         private router: Router) {}
 
     resolve(route: ActivatedRouteSnapshot): Observable<User[]> {
-        let state: SupscriptionState = route.params['state'];
+        let state: SubscriptionState = route.params['state'];
         let params: UserFilterParams = null;
 
-        state = state != null ? state : SupscriptionState.friends;
+        state = state != null ? state : SubscriptionState.friends;
         params = { subscriptionState: state };
 
         return this.friendService.getFriends(this.pageNumber, this.pageSize, params).pipe(

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -57,6 +58,29 @@ namespace Cardofun.API.Controllers
             return Ok(mappedCollection);
         }
 
+        /// <summary>
+        /// Gets a friendship request
+        /// </summary>
+        /// <param name="userId">Id of a user that is trying to get the friendship request</param>
+        /// <param name="secondUserId">Id of the friendship request</param>
+        /// <returns></returns>
+        [HttpGet("{secondUserId}", Name = nameof(GetFriendshipRequest))]
+        public async Task<IActionResult> GetFriendshipRequest(Int32 userId, Int32 secondUserId)
+        {
+            if (userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            var friendshipFromRepo = await _cardofunRepository.GetFriendRequestAsync(userId, secondUserId);
+
+            if (friendshipFromRepo == null)
+                friendshipFromRepo = await _cardofunRepository.GetFriendRequestAsync(secondUserId, userId);
+
+            if (friendshipFromRepo == null)
+                return NotFound();
+                
+            return Ok(_mapper.Map<FriendshipRequestStatusDto>(friendshipFromRepo));
+        }
+
         [HttpGet("countOfFollowers")]
         public async Task<IActionResult> GetCountOfFollowers(Int32 userId)
         {
@@ -91,18 +115,13 @@ namespace Cardofun.API.Controllers
             if(friendRequest != null)
                 return BadRequest("There is a friend request from recepient waiting for reply");
 
-            friendRequest = new FriendRequest
+            if(await CreateFriendshipRequestAsync(userId, recepientId))
             {
-                FromUserId = userId,
-                ToUserId = recepientId,
-            };
-            _cardofunRepository.Add(friendRequest);
-            if (!await _cardofunRepository.SaveChangesAsync())
-                return BadRequest("Befriending user failed on save");
-            
-            await NotifyUserAboutFollowersCountAsync(recepientId);
-            
-            return Ok();
+                friendRequest = await _cardofunRepository.GetFriendRequestAsync(userId, recepientId);
+                return CreatedAtRoute(nameof(GetFriendshipRequest),
+                    new { userId, secondUserId = recepientId }, _mapper.Map<FriendshipRequestStatusDto>(friendRequest));
+            }
+            return BadRequest("Befriending user failed on save");
         }
 
         /// <summary>
@@ -135,13 +154,15 @@ namespace Cardofun.API.Controllers
 
                 return BadRequest($"Wrong status. Must be either of these: {statuses}");
             }
+            
             friendRequest.Status = (FriendshipStatus)fStatus;
             friendRequest.RepliedAt = DateTime.Now;
 
             if(!await _cardofunRepository.SaveChangesAsync())
                 return BadRequest("Changing friendship status failed on save");
                 
-            await NotifyUserAboutFollowersCountAsync(userId);
+            // await NotifyUserAboutFollowersCountAsync(userId);
+            await NotifyUsersAboutFrinedshipStatusAsync(friendRequest);
 
             return Ok();
         }
@@ -163,29 +184,72 @@ namespace Cardofun.API.Controllers
             if(request == null)
                 return BadRequest("The friend request hasn't been found");
 
-            var wasItFollower = request.Status == FriendshipStatus.Requested;
+            var oldStatus = request.Status;
 
             _cardofunRepository.Delete(request);
 
             if(!await _cardofunRepository.SaveChangesAsync())
                 return BadRequest("Friendship request deletion failed on save");
             
-            if (wasItFollower)
-                await NotifyUserAboutFollowersCountAsync(recepientId);
-
+            if (oldStatus == FriendshipStatus.Accepted)
+                // If the owner of the friendship request has changed
+                await CreateFriendshipRequestAsync(recepientId, userId);    
+            else
+                // If the friendship was deleted completly
+                await NotifyUsersAboutFrinedshipStatusAsync(request, true);
+            
             return Ok();
         }
         #endregion Controller methods
+
+        #region Functions
+        /// <summary>
+        /// Creates a new friendship request
+        /// </summary>
+        /// <param name="fromUserId">The user who requests the friendship</param>
+        /// <param name="toUserId">The user who'll get the request</param>
+        /// <returns>True - If the request was created successfully</returns>
+        private async Task<Boolean> CreateFriendshipRequestAsync(Int32 fromUserId, Int32 toUserId)
+        {
+            var friendRequest = new FriendRequest
+            {
+                FromUserId = fromUserId,
+                ToUserId = toUserId,
+            };
+            _cardofunRepository.Add(friendRequest);
+            if (!await _cardofunRepository.SaveChangesAsync())
+                return false;
+            
+            // await NotifyUserAboutFollowersCountAsync(toUserId);
+            await NotifyUsersAboutFrinedshipStatusAsync(friendRequest);
+
+            return true;
+        }
+        #endregion Functions
 
         #region SignalR
         /// <summary>
         /// Notifies the given user that the amount of users following him has changed
         /// </summary>
-        /// <param name="recepientId"></param>
-        private async Task NotifyUserAboutFollowersCountAsync(int recepientId)
+        // /// <param name="recepientId"></param>
+        private async Task NotifyUserAboutFollowersCountAsync(Int32 recepientId)
         {
             var countOfFollowers = await _cardofunRepository.GetCountOfFollowersAsync(recepientId);
             await _frinedHub.Clients.User(recepientId.ToString()).ReceiveFollowersCount(countOfFollowers);
+        }
+
+        private async Task NotifyUsersAboutFrinedshipStatusAsync(FriendRequest request, Boolean isDeleted = false)
+        {
+            if (request == null)
+                return;
+            
+            await NotifyUserAboutFollowersCountAsync(request.ToUserId);
+
+            var requestToReturn = _mapper.Map<FriendshipRequestStatusDto>(request);
+            requestToReturn.IsDeleted = isDeleted;
+
+            await _frinedHub.Clients.Users(request.FromUserId.ToString(), request.ToUserId.ToString())
+                .ReceiveFriendshipStatus(requestToReturn);
         }
         #endregion SignalR
     }

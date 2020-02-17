@@ -27,7 +27,7 @@ export class MemberCardComponent implements OnInit {
         isOwner: false,
         status: FriendshipStatus.requested
       };
-      this.alerifyService.success('Friend request has been successfully sent');
+      this.alerifyService.success('Friend request to ' + this.user + ' has been successfully sent');
     }, error => {
       this.alerifyService.error(error);
     });
@@ -37,25 +37,26 @@ export class MemberCardComponent implements OnInit {
     this.friendService.changeFriendshipStatus(id, FriendshipStatus.accepted).subscribe(next => {
       this.user.friendship.status = FriendshipStatus.accepted;
       this.addedToFriendlist.emit(this.user);
-      this.alerifyService.success('Friendship has been successfully accepted');
+      this.alerifyService.success('Friendship request from ' + this.user.name + ' has been successfully accepted');
     }, error => {
       this.alerifyService.error(error);
     });
   }
 
   deleteUserFromFriends(id: number, isOwner?: boolean) {
-    this.alerifyService.confirm('Are you sure you want to delete ' + this.user.name + ' from friends', () => {
+    const currentList = this.user.friendship.status !== FriendshipStatus.accepted
+      ? 'list of your subscribers'
+      : 'your friend list';
+    this.alerifyService.confirm('Are you sure you want to delete ' + this.user.name + ' from ' + currentList + '?', () => {
       if (isOwner) {
-        this.friendService.changeFriendshipStatus(id, FriendshipStatus.declined).subscribe(next => {
-          this.user.friendship.status = FriendshipStatus.declined;
-          this.alerifyService.success('Friendship has been successfully declined');
+        this.friendService.changeFriendshipStatus(id, FriendshipStatus.declined).subscribe(() => {
+          this.alerifyService.success('Friendship request from ' + this.user.name + ' has been declined');
         }, error => {
           this.alerifyService.error(error);
         });
       } else {
-        this.friendService.deleteFriendship(id).subscribe(next => {
-          this.user.friendship = null;
-          this.alerifyService.success('Friendship has been successfully deleted');
+        this.friendService.deleteFriendship(id).subscribe(() => {
+          this.alerifyService.success(this.user.name + ' has been removed from ' + currentList);
         }, error => {
           this.alerifyService.error(error);
         });

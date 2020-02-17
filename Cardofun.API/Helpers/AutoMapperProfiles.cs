@@ -85,6 +85,10 @@ namespace Cardofun.API.Helpers
                 .ForMember(dest => dest.Roles, m => m.MapFrom(src => src.UserRoles.Select(ur => ur.Role.Name)));
             #endregion User
 
+            #region Friend Request
+            CreateMap<FriendRequest, FriendshipRequestStatusDto>().ReverseMap();
+            #endregion Friend Request
+
             #region Roles
             CreateMap<Role, RoleForList>();
             #endregion Roles

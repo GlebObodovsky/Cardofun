@@ -23,10 +23,11 @@ using Cardofun.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Cardofun.API.Helpers.Constants;
-using Cardofun.Core.Helpers.Security;
 using Cardofun.API.Hubs;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace Cardofun.API
 {
@@ -105,7 +106,11 @@ namespace Cardofun.API
             services.AddDbContext<CardofunContext>(x => x.UseSqlServer(Configuration.GetConnectionString(ConnectionStringConstants.CardofunSqlServerConnection)));
             // Uncomment next line if you want to use SqlLite
             // services.AddDbContext<CardofunContext>(x => x.UseSqlite(Configuration.GetConnectionString(ConnectionStringConstants.CardofunSqlLiteConnection)));
-            services.AddSignalR();
+            services.AddSignalR().AddJsonProtocol(options =>
+                {
+                    options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+                    options.PayloadSerializerOptions.IgnoreNullValues = true;
+                });
             services.AddCors(options => 
                 { 
                     options.AddPolicy("CorsPolicy", policyBuilder => policyBuilder

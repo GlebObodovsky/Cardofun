@@ -26,7 +26,7 @@ export class SignalrMessageService extends SignalrBaseService {
   public unsubscribeFromNewMessageReceived(subscriprion: Subscription) {
     return this.unsubscribeFromEvent<Message>(subscriprion, 'ReceiveMessage', this.newMessageSource);
   }
-  //#endregion
+  //#endregion New message received
 
   //#region Message marked as read
   public subscribeOnMessageMarkedAsRead(observer: Observer<ReadMessagesList>): Subscription {

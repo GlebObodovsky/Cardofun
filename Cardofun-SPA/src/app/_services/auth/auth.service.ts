@@ -6,17 +6,13 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environments/environment';
 import { User } from 'src/app/_models/user';
 import { LocalStorageService } from '../local-storage/local-storage.service';
-import { SignalrMessageService } from '../signalr/signalr-message/signalr-message.service';
-import { SignalrFriendService } from '../signalr/signalr-friend/signalr-friend.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  constructor(private http: HttpClient, private localStorageService: LocalStorageService,
-    private signalrMessageSerice: SignalrMessageService,
-    private signalrFriendService: SignalrFriendService) { }
+  constructor(private http: HttpClient, private localStorageService: LocalStorageService) { }
 
   baseUrl = environment.apiUrl + 'auth/';
   jwtHelper = new JwtHelperService();

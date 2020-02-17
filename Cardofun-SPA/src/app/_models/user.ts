@@ -1,7 +1,7 @@
 import { City } from './City';
 import { Language } from './language';
 import { Photo } from './photo';
-import { FriendshipRequest } from './friendshipRequest';
+import { FriendshipRequest } from './friendship-request';
 
 export interface User {
     id: number;
