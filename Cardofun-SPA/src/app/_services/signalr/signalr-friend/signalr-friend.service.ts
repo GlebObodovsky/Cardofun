@@ -14,9 +14,17 @@ export class SignalrFriendService extends SignalrBaseService {
   }
 
   private followersCountSource = new Subject<Number>();
-  private friendshipRequestSource = new Subject<User>();
+  private incommingFriendshipRequestSource = new Subject<User>();
+  private outgoingFriendshipRequestSource = new Subject<User>();
+  private acceptedFriendshipSource = new Subject<User>();
   private friendshipStatusSource = new Subject<FriendshipRequestStatus>();
-  protected subjects: Subject<any>[] = [this.followersCountSource, this.friendshipRequestSource, this.friendshipStatusSource];
+  protected subjects: Subject<any>[] = [
+    this.followersCountSource,
+    this.incommingFriendshipRequestSource,
+    this.outgoingFriendshipRequestSource,
+    this.acceptedFriendshipSource,
+    this.friendshipStatusSource
+  ];
 
   //#region Followers Count Received
   public subscribeOnCountOfFollowersReceived(observer: Observer<Number>): Subscription {
@@ -28,15 +36,35 @@ export class SignalrFriendService extends SignalrBaseService {
   }
   //#endregion Followers Count Received
 
-  //#region Friendship Request Received
-  public subscribeOnFriendshipRequestReceived(observer: Observer<User>): Subscription {
-    return this.subscribeOnEvent<User>(observer, 'ReceiveFriendshipRequest', this.friendshipRequestSource);
+  //#region Incomming Friendship Request Received
+  public subscribeOnIncommingFriendshipRequestReceived(observer: Observer<User>): Subscription {
+    return this.subscribeOnEvent<User>(observer, 'ReceiveIncommingFriendshipRequest', this.incommingFriendshipRequestSource);
   }
 
-  public unsubscribeFromFriendshipRequestReceived(subscriprion: Subscription) {
-    return this.unsubscribeFromEvent<User>(subscriprion, 'ReceiveFriendshipRequest', this.friendshipRequestSource);
+  public unsubscribeFromIncommingFriendshipRequestReceived(subscriprion: Subscription) {
+    return this.unsubscribeFromEvent<User>(subscriprion, 'ReceiveIncommingFriendshipRequest', this.incommingFriendshipRequestSource);
   }
-  //#endregion Friendship Request Received
+  //#endregion Incomming Friendship Request Received
+
+  //#region Outgoing Friendship Request Received
+  public subscribeOnOutgoingFriendshipRequestReceived(observer: Observer<User>): Subscription {
+    return this.subscribeOnEvent<User>(observer, 'ReceiveOutgoingFriendshipRequest', this.outgoingFriendshipRequestSource);
+  }
+
+  public unsubscribeFromOutgoingFriendshipRequestReceived(subscriprion: Subscription) {
+    return this.unsubscribeFromEvent<User>(subscriprion, 'ReceiveOutgoingFriendshipRequest', this.outgoingFriendshipRequestSource);
+  }
+  //#endregion Outgoing Friendship Request Received
+
+  //#region Accepted Friendship Received
+  public subscribeOnAcceptedFriendshipReceived(observer: Observer<User>): Subscription {
+    return this.subscribeOnEvent<User>(observer, 'ReceiveAcceptedFriendship', this.acceptedFriendshipSource);
+  }
+
+  public unsubscribeFromAcceptedFriendshipReceived(subscriprion: Subscription) {
+    return this.unsubscribeFromEvent<User>(subscriprion, 'ReceiveAcceptedFriendship', this.acceptedFriendshipSource);
+  }
+  //#endregion Accepted Friendship Received
 
   //#region Friendship Status Received
   public subscribeOnFriendshipStatusReceived(observer: Observer<FriendshipRequestStatus>): Subscription {

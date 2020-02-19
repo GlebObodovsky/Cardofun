@@ -161,7 +161,6 @@ namespace Cardofun.API.Controllers
             if(!await _cardofunRepository.SaveChangesAsync())
                 return BadRequest("Changing friendship status failed on save");
                 
-            // await NotifyUserAboutFollowersCountAsync(userId);
             await NotifyUsersAboutFrinedshipStatusAsync(friendRequest);
 
             return Ok();
@@ -220,7 +219,6 @@ namespace Cardofun.API.Controllers
             if (!await _cardofunRepository.SaveChangesAsync())
                 return false;
             
-            // await NotifyUserAboutFollowersCountAsync(toUserId);
             await NotifyUsersAboutFrinedshipStatusAsync(friendRequest);
 
             return true;
@@ -250,6 +248,49 @@ namespace Cardofun.API.Controllers
 
             await _frinedHub.Clients.Users(request.FromUserId.ToString(), request.ToUserId.ToString())
                 .ReceiveFriendshipStatus(requestToReturn);
+
+            if (!isDeleted)
+                await NotifyUsersAboutNewOrAcceptedFriendship(request);
+        }
+        
+        /// <summary>
+        /// Notifies both, requesting and receiving the invitation users that the new friendship request has been created
+        /// </summary>
+        /// <param name="friendRequest"></param>
+        private async Task NotifyUsersAboutNewOrAcceptedFriendship(FriendRequest friendRequest)
+        {
+            if (friendRequest == null)
+                return;
+
+            // Notify requesting user
+            var toUser = friendRequest.ToUser != null
+                ? _mapper.Map<UserForListDto>(friendRequest.ToUser)
+                : _mapper.Map<UserForListDto>(await _cardofunRepository.GetUserAsync(friendRequest.ToUserId));
+            toUser.Friendship = new FriendshipRequestDto 
+            {
+                IsOwner = false,
+                Status = friendRequest.Status
+            };
+
+            if (friendRequest.Status != FriendshipStatus.Accepted)
+                await _frinedHub.Clients.User(friendRequest.FromUserId.ToString()).ReceiveOutgoingFriendshipRequest(toUser);
+            else
+                await _frinedHub.Clients.User(friendRequest.FromUserId.ToString()).ReceiveAcceptedFriendship(toUser);
+                
+            // Notify receiving user
+            var fromUser = friendRequest.FromUser != null
+                ? _mapper.Map<UserForListDto>(friendRequest.FromUser)
+                : _mapper.Map<UserForListDto>(await _cardofunRepository.GetUserAsync(friendRequest.FromUserId));
+            fromUser.Friendship = new FriendshipRequestDto 
+            {
+                IsOwner = true,
+                Status = friendRequest.Status
+            };
+
+            if (friendRequest.Status != FriendshipStatus.Accepted)
+                await _frinedHub.Clients.User(friendRequest.ToUserId.ToString()).ReceiveIncommingFriendshipRequest(fromUser);
+            else
+                await _frinedHub.Clients.User(friendRequest.ToUserId.ToString()).ReceiveAcceptedFriendship(fromUser);
         }
         #endregion SignalR
     }
