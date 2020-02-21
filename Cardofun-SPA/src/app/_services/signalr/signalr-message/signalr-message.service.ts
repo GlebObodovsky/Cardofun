@@ -8,11 +8,9 @@ import { SignalrBaseService } from '../signalr-base-service';
   providedIn: 'root'
 })
 export class SignalrMessageService extends SignalrBaseService {
-
   private newMessageSource = new Subject<Message>();
   private readMessagesSource = new Subject<ReadMessagesList>();
-  private unreadMessagesCountSource = new Subject<Number>();
-  protected subjects: Subject<any>[] = [this.newMessageSource, this.readMessagesSource, this.unreadMessagesCountSource];
+  protected subjects: Subject<any>[] = [this.newMessageSource, this.readMessagesSource];
 
   constructor() {
     super('signalr/chat');
@@ -37,14 +35,4 @@ export class SignalrMessageService extends SignalrBaseService {
     return this.unsubscribeFromEvent<ReadMessagesList>(subscriprion, 'MarkMessageAsRead', this.readMessagesSource);
   }
   //#endregion Message marked as read
-
-  //#region Unread messages count received
-  public subscribeOnUnreadMessagesCountReceived(observer: Observer<Number>): Subscription {
-    return this.subscribeOnEvent<Number>(observer, 'ReceiveUnreadMessagesCount', this.unreadMessagesCountSource);
-  }
-
-  public unsubscribeFromUnreadMessagesCountReceived(subscriprion: Subscription) {
-    return this.unsubscribeFromEvent<Number>(subscriprion, 'ReceiveUnreadMessagesCount', this.unreadMessagesCountSource);
-  }
-  //#endregion Unread messages count received
 }

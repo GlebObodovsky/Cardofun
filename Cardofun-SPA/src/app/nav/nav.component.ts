@@ -7,6 +7,7 @@ import { SignalrMessageService } from '../_services/signalr/signalr-message/sign
 import { Subscription } from 'rxjs';
 import { FriendService } from '../_services/friend/friend.service';
 import { SignalrFriendService } from '../_services/signalr/signalr-friend/signalr-friend.service';
+import { SignalrNotificationsService } from '../_services/signalr/signalr-notifications/signalr-notifications.service';
 
 @Component({
   selector: 'app-nav',
@@ -23,7 +24,8 @@ export class NavComponent implements OnInit {
     private router: Router, private messageService: MessageService,
     private frienService: FriendService,
     private signalrMessageService: SignalrMessageService,
-    private signalrFriendService: SignalrFriendService) { }
+    private signalrFriendService: SignalrFriendService,
+    private signalrNotificationService: SignalrNotificationsService) { }
     private countOfFriendsSub: Subscription;
     private countOfUnreadMessagesSub: Subscription;
 
@@ -47,8 +49,8 @@ export class NavComponent implements OnInit {
   }
 
   logout() {
-    this.signalrFriendService.unsubscribeFromCountOfFollowersReceived(this.countOfFriendsSub);
-    this.signalrMessageService.unsubscribeFromUnreadMessagesCountReceived(this.countOfUnreadMessagesSub);
+    this.signalrNotificationService.unsubscribeFromCountOfFollowersReceived(this.countOfFriendsSub);
+    this.signalrNotificationService.unsubscribeFromUnreadMessagesCountReceived(this.countOfUnreadMessagesSub);
     this.authService.logout();
     this.alertifyService.success('Logged out sucessfully');
     this.router.navigate(['']);
@@ -64,7 +66,7 @@ export class NavComponent implements OnInit {
     }, () => {
       this.alertifyService.error('Cannot get the amount of unread messages');
     });
-    this.countOfUnreadMessagesSub = this.signalrMessageService.subscribeOnUnreadMessagesCountReceived({
+    this.countOfUnreadMessagesSub = this.signalrNotificationService.subscribeOnUnreadMessagesCountReceived({
       next: (count: Number) => { this.countOfUnreadMessages = count; },
       error: null,
       complete: null
@@ -77,7 +79,7 @@ export class NavComponent implements OnInit {
     }, () => {
       this.alertifyService.error('Cannot get the amount of followers');
     });
-    this.countOfFriendsSub = this.signalrFriendService.subscribeOnCountOfFollowersReceived({
+    this.countOfFriendsSub = this.signalrNotificationService.subscribeOnCountOfFollowersReceived({
       next: (count: Number) => { this.countOfFollowers = count; },
       error: null,
       complete: null

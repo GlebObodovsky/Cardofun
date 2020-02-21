@@ -26,7 +26,7 @@ export const appRoutes: Routes = [
                 canDeactivate: [PreventUnsavedChangesGuard] },
             { path: 'messages', component: MessagesComponent, resolve: { messages: MessageDialoguesResolver } },
             { path: 'messages/:container', component: MessagesComponent, resolve: { messages: MessageDialoguesResolver } },
-            { path: 'friends', component: MemberListComponent, resolve: { users: FriendListResolver }  },
+            { path: 'friends', component: MemberListComponent, resolve: { users: FriendListResolver } },
             { path: 'friends/:state', component: MemberListComponent, resolve: { users: FriendListResolver }  },
             { path: 'admin', component: AdminPanelComponent, data: { roles: ['Admin', 'Moderator'] }}
         ]

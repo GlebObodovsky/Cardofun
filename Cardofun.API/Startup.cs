@@ -182,6 +182,7 @@ namespace Cardofun.API
                 endpoints.MapControllers();
                 endpoints.MapHub<ChatHub>(signalrEndpoints["chat"]);
                 endpoints.MapHub<FriendsHub>(signalrEndpoints["friends"]);
+                endpoints.MapHub<NotificationsHub>(signalrEndpoints["notifications"]);
             });
         }
 

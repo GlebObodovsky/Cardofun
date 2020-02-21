@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Cardofun.DataContext.Data;
 using Cardofun.DataContext.Seeding;
 using Cardofun.Domain.Models;

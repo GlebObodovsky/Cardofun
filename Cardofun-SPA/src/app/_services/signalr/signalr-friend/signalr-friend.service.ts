@@ -13,28 +13,16 @@ export class SignalrFriendService extends SignalrBaseService {
     super('signalr/friends');
   }
 
-  private followersCountSource = new Subject<Number>();
   private incommingFriendshipRequestSource = new Subject<User>();
   private outgoingFriendshipRequestSource = new Subject<User>();
   private acceptedFriendshipSource = new Subject<User>();
   private friendshipStatusSource = new Subject<FriendshipRequestStatus>();
   protected subjects: Subject<any>[] = [
-    this.followersCountSource,
     this.incommingFriendshipRequestSource,
     this.outgoingFriendshipRequestSource,
     this.acceptedFriendshipSource,
     this.friendshipStatusSource
   ];
-
-  //#region Followers Count Received
-  public subscribeOnCountOfFollowersReceived(observer: Observer<Number>): Subscription {
-    return this.subscribeOnEvent<Number>(observer, 'ReceiveFollowersCount', this.followersCountSource);
-  }
-
-  public unsubscribeFromCountOfFollowersReceived(subscriprion: Subscription) {
-    return this.unsubscribeFromEvent<Number>(subscriprion, 'ReceiveFollowersCount', this.followersCountSource);
-  }
-  //#endregion Followers Count Received
 
   //#region Incomming Friendship Request Received
   public subscribeOnIncommingFriendshipRequestReceived(observer: Observer<User>): Subscription {

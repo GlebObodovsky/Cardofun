@@ -25,16 +25,19 @@ namespace Cardofun.API.Controllers
         private readonly IMapper _mapper;
         private readonly IImageProvider _imageProvider;
         private readonly IHubContext<ChatHub, IChatHubClient> _messageHub;
+        private readonly IHubContext<NotificationsHub, INotificationsHubClient> _notificationsHub;
         #endregion Fields
-        
+
         #region Constructor
         public MessagesController(ICardofunRepository cardofunRepository, IMapper mapper, 
-            IImageProvider imageProvider, IHubContext<ChatHub, IChatHubClient> messageHub)
+            IImageProvider imageProvider, IHubContext<ChatHub, IChatHubClient> messageHub,
+            IHubContext<NotificationsHub, INotificationsHubClient> notificationsHub)
         {
             _mapper = mapper;
             _cardofunRepository = cardofunRepository;
             _imageProvider = imageProvider;
             _messageHub = messageHub;
+            _notificationsHub = notificationsHub;
         }
         #endregion Constructor
 
@@ -224,7 +227,7 @@ namespace Cardofun.API.Controllers
         {
             foreach (var userId in userIds)
             {
-                    _ = _messageHub.Clients.Users(userId.ToString())
+                    _ = _notificationsHub.Clients.Users(userId.ToString())
                 .ReceiveUnreadMessagesCount(await _cardofunRepository.GetCountOfUnreadMessagesAsync(userId));
             }
         }

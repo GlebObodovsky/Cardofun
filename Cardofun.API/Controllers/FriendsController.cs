@@ -24,15 +24,17 @@ namespace Cardofun.API.Controllers
         private readonly ICardofunRepository _cardofunRepository;
         private readonly IMapper _mapper;
         private readonly IHubContext<FriendsHub, IFriendsHubClient> _frinedHub;
+        private readonly IHubContext<NotificationsHub, INotificationsHubClient> _notificationsHub;
         #endregion Fields
 
         #region Constructor
         public FriendsController(ICardofunRepository cardofunRepository, IMapper mapper,
-            IHubContext<FriendsHub, IFriendsHubClient> frinedHub)
+            IHubContext<FriendsHub, IFriendsHubClient> frinedHub, IHubContext<NotificationsHub, INotificationsHubClient> notificationsHub)
         {
             _cardofunRepository = cardofunRepository;
             _mapper = mapper;
             _frinedHub = frinedHub;
+            _notificationsHub = notificationsHub;
         }
         #endregion Constructor
 
@@ -233,7 +235,7 @@ namespace Cardofun.API.Controllers
         private async Task NotifyUserAboutFollowersCountAsync(Int32 recepientId)
         {
             var countOfFollowers = await _cardofunRepository.GetCountOfFollowersAsync(recepientId);
-            await _frinedHub.Clients.User(recepientId.ToString()).ReceiveFollowersCount(countOfFollowers);
+            await _notificationsHub.Clients.User(recepientId.ToString()).ReceiveFollowersCount(countOfFollowers);
         }
 
         private async Task NotifyUsersAboutFrinedshipStatusAsync(FriendRequest request, Boolean isDeleted = false)
