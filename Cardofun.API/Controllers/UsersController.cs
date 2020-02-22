@@ -11,6 +11,7 @@ using Cardofun.Domain.Models;
 using Cardofun.Core.ApiParameters;
 using Cardofun.API.Helpers.Extensions;
 using System.Linq;
+using Cardofun.Core.NameConstants;
 
 namespace Cardofun.API.Controllers
 {
@@ -80,19 +81,17 @@ namespace Cardofun.API.Controllers
         /// Updates a user by the given id
         /// </summary>
         /// <returns></returns>
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(Int32 id, UserForUpdateDto newUserInfo)
+        [HttpPut("{userId}")]
+        [Authorize(Policy = PolicyConstants.UserMatchRequired)]
+        public async Task<IActionResult> UpdateUser(Int32 userId, UserForUpdateDto newUserInfo)
         {
-            if(id != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                return Unauthorized();
-
             // If there is any learning language that is the same as speaking
             if(newUserInfo.LanguagesTheUserLearns.Any(ll => newUserInfo.LanguagesTheUserSpeaks.Any(sl => sl.Code.Equals(ll.Code))))
                 return BadRequest("One cannot speak and learn same language");
 
             _cardofunRepository.StartTransaction();
 
-            var user = await _cardofunRepository.GetUserAsync(id);
+            var user = await _cardofunRepository.GetUserAsync(userId);
 
             // checking if there's a language that the user was learning before but is speaking now
             var anyUpgraded = user.LanguagesTheUserLearns.Any(oldLearningLang => newUserInfo.LanguagesTheUserSpeaks.Any(newSpeakingLang => oldLearningLang.LanguageCode.Equals(newSpeakingLang.Code)));

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -9,15 +8,18 @@ using Cardofun.API.Helpers.Extensions;
 using Cardofun.API.Hubs;
 using Cardofun.Core.ApiParameters;
 using Cardofun.Core.Enums;
+using Cardofun.Core.NameConstants;
 using Cardofun.Domain.Models;
 using Cardofun.Interfaces.DTOs;
 using Cardofun.Interfaces.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Cardofun.API.Controllers
 {
     [Route("api/users/{userId}/[controller]")]
+    [Authorize(Policy = PolicyConstants.UserMatchRequired)]
     public class FriendsController: UsersControllerBase
     {
         #region Fields
@@ -47,9 +49,6 @@ namespace Cardofun.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUserFriends(Int32 userId, [FromQuery]UserFriendParams userFriendParams)
         {
-            if(userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                return Unauthorized();
-
             userFriendParams.UserId = userId;
 
             var userPages = await _cardofunRepository.GetPageOfFriendsAsync(userFriendParams);
@@ -69,9 +68,6 @@ namespace Cardofun.API.Controllers
         [HttpGet("{secondUserId}", Name = nameof(GetFriendshipRequest))]
         public async Task<IActionResult> GetFriendshipRequest(Int32 userId, Int32 secondUserId)
         {
-            if (userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                return Unauthorized();
-
             var friendshipFromRepo = await _cardofunRepository.GetFriendRequestAsync(userId, secondUserId);
 
             if (friendshipFromRepo == null)
@@ -85,12 +81,7 @@ namespace Cardofun.API.Controllers
 
         [HttpGet("countOfFollowers")]
         public async Task<IActionResult> GetCountOfFollowers(Int32 userId)
-        {
-            if (userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                return Unauthorized();
-
-            return Ok(await _cardofunRepository.GetCountOfFollowersAsync(userId));
-        }
+            => Ok(await _cardofunRepository.GetCountOfFollowersAsync(userId));
 
         /// <summary>
         /// Request a friendship
@@ -101,11 +92,8 @@ namespace Cardofun.API.Controllers
         [HttpPost("{recepientId}")]
         public async Task<IActionResult> RequestFriendship(Int32 userId, Int32 recepientId)
         {
-            if(userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                return Unauthorized();
-
             if(userId == recepientId)
-                return BadRequest("It is not possible to invite yourself to be friends");
+                return BadRequest("It is not possible to request yourself for friendship");
 
             var friendRequest = await _cardofunRepository.GetFriendRequestAsync(userId, recepientId);
 
@@ -136,9 +124,6 @@ namespace Cardofun.API.Controllers
         [HttpPut("{recepientId}")]
         public async Task<IActionResult> ReplyOnFriendshipRequest(Int32 userId, Int32 recepientId, [FromBody]FriendshipStatusParams friendshipStatus)
         {
-            if(userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                return Unauthorized();
-
             if(userId == recepientId)
                 return BadRequest("It's not possible to reply on own friendship request");
 
@@ -177,9 +162,6 @@ namespace Cardofun.API.Controllers
         [HttpDelete("{recepientId}")]
         public async Task<IActionResult> RemoveFriendshipRequest(Int32 userId, Int32 recepientId)
         {
-            if(userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                return Unauthorized();
-
             var request = await _cardofunRepository.GetFriendRequestAsync(userId, recepientId);
 
             if(request == null)

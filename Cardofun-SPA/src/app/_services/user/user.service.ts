@@ -90,8 +90,8 @@ export class UserService {
     return this.http.get<User>(this.baseUrl + '/' + id);
   }
 
-  putUser(id: number, user: User) {
-    return this.http.put<User>(this.baseUrl + '/' + id, user);
+  putUser(userId: number, user: User) {
+    return this.http.put<User>(this.baseUrl + '/' + userId, user);
   }
 
   setMainPhoto(userId: number, id: string) {

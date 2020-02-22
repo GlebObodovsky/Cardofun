@@ -1,16 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using Cardofun.API.Helpers.Extensions;
 using Cardofun.API.Hubs;
 using Cardofun.Core.ApiParameters;
+using Cardofun.Core.NameConstants;
 using Cardofun.Domain.Models;
 using Cardofun.Interfaces.DTOs;
 using Cardofun.Interfaces.Repositories;
 using Cardofun.Interfaces.ServiceProviders;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
@@ -18,6 +19,7 @@ namespace Cardofun.API.Controllers
 {
     [Route("api/users/{userId}/[controller]")]
     [ApiController]
+    [Authorize(Policy = PolicyConstants.UserMatchRequired)]
     public class MessagesController : ControllerBase
     {
         #region Fields
@@ -51,9 +53,6 @@ namespace Cardofun.API.Controllers
         [HttpGet("dialogues")]
         public async Task<IActionResult> GetDialoguesForUser(Int32 userId, [FromQuery]MessagePrams messagePrams)
         {
-            if (userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                return Unauthorized();
-
             messagePrams.UserId = userId;
 
             var messagesFromRepo = await _cardofunRepository.GetDialoguesForUser(messagePrams);
@@ -66,9 +65,6 @@ namespace Cardofun.API.Controllers
         [HttpGet("thread/{secondUserId}")]
         public async Task<IActionResult> GetMessageThreadForUsers(Int32 userId, Int32 secondUserId, [FromQuery]MessageThreadPrams messagePrams)
         {
-            if (userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                return Unauthorized();
-
             messagePrams.UserId = userId;
             messagePrams.SecondUserId = secondUserId;
 
@@ -101,9 +97,6 @@ namespace Cardofun.API.Controllers
         [HttpGet("{id}", Name = nameof(GetMessage))]
         public async Task<IActionResult> GetMessage(Int32 userId, Guid id)
         {
-            if (userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                return Unauthorized();
-
             var messageFromRepo = await _cardofunRepository.GetMessageAsync(id);
 
             if (messageFromRepo == null)
@@ -131,20 +124,12 @@ namespace Cardofun.API.Controllers
         /// <returns></returns>
         [HttpGet("countOfUnread")]
         public async Task<IActionResult> GetCountOfUnread(Int32 userId)
-        {
-            if (userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                return Unauthorized();
-
-            return Ok(await _cardofunRepository.GetCountOfUnreadMessagesAsync(userId));
-        }
+            => Ok(await _cardofunRepository.GetCountOfUnreadMessagesAsync(userId));
 
         [HttpPost]
         public async Task<IActionResult> CreateMessage(Int32 userId, 
             [FromBody]MessageForCreationDto messageForCreation)
         {
-            if (userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                return Unauthorized();
-
             messageForCreation.SenderId = userId;
 
             var recepient = await _cardofunRepository.GetUserAsync(messageForCreation.RecipientId);
@@ -174,9 +159,6 @@ namespace Cardofun.API.Controllers
         [HttpPost("{id}/read")]
         public async Task<IActionResult> MarkMessageAsRead(Int32 userId, Guid id)
         {
-            if (userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                return Unauthorized();
-
             var message = await _cardofunRepository.GetMessageAsync(id);
             
             if (message == null)

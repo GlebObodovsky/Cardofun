@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using Cardofun.API.Policies.Requirements;
 
 namespace Cardofun.API
 {
@@ -102,6 +103,7 @@ namespace Cardofun.API
                         }
                     };
                 });
+            services.AddSingleton<IAuthorizationHandler, AccessedUserMatchesCurrentHandler>();
             services.AddAuthorization(ConfigurePolicies);
             services.AddDbContext<CardofunContext>(x => x.UseSqlServer(Configuration.GetConnectionString(ConnectionStringConstants.CardofunSqlServerConnection)));
             // Uncomment next line if you want to use SqlLite
@@ -192,14 +194,21 @@ namespace Cardofun.API
         /// <param name="options"></param>
         private void ConfigurePolicies(AuthorizationOptions options)
         {
+            // The policy below is requires a user to be the same user whom information
+            // is about to be accessed
+            options.AddPolicy(PolicyConstants.UserMatchRequired, 
+                policy => policy.AddRequirements(new AccessedUserMatchesCurrentRequirement()));
+
             // For each of the policies below Admin will be added as a role that is allowed 
             // to proceed in any circumstances
-            
             options.AddPolicy(PolicyConstants.AdminRoleRequired, 
                 policy => policy.RequireRole(RoleConstants.Admin));
 
             options.AddPolicy(PolicyConstants.ModeratorRoleRequired, 
                 policy => policy.RequireRole(RoleConstants.Admin, RoleConstants.Moderator));
+            // ...
         }
     }
+
+    
 }

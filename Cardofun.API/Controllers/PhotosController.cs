@@ -3,10 +3,12 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
+using Cardofun.Core.NameConstants;
 using Cardofun.Domain.Models;
 using Cardofun.Interfaces.DTOs;
 using Cardofun.Interfaces.Repositories;
 using Cardofun.Interfaces.ServiceProviders;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cardofun.API.Controllers
@@ -43,12 +45,10 @@ namespace Cardofun.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = PolicyConstants.UserMatchRequired)]
         public async Task<IActionResult> AddPhotoForUser(Int32 userId, 
             [FromForm]UserPhotoForCreationDto photoForCreation)
         {
-            if(userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                return Unauthorized();
-
             var user = await _cardofunRepository.GetUserAsync(userId);
 
             var photoIdentifiers = await _imageProvider.SavePictureAsync(photoForCreation.File);
@@ -69,11 +69,9 @@ namespace Cardofun.API.Controllers
         }
 
         [HttpPost("{id}/setMain")]
+        [Authorize(Policy = PolicyConstants.UserMatchRequired)]
         public async Task<IActionResult> SetMainPhoto(Int32 userId, Guid id)
         {
-            if(userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                return Unauthorized();
-
             var mainPhoto = await _cardofunRepository.GetMainPhotoForUserAsync(userId);
             var newMainPhoto = await _cardofunRepository.GetUserPhotoAsync(id);
 
@@ -108,11 +106,9 @@ namespace Cardofun.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Policy = PolicyConstants.UserMatchRequired)]
         public async Task<IActionResult> DeletePhoto(Int32 userId, Guid id)
-        {
-            if(userId != Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
-                return Unauthorized();
-            
+        {        
             var photoToRemove = await _cardofunRepository.GetUserPhotoAsync(id);
                         
             if(photoToRemove == null)

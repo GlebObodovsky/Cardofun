@@ -70,16 +70,16 @@ namespace Cardofun.API.Controllers
             return Ok(await _userManager.GetRolesAsync(user));
         }
 
-        [HttpGet("messagesForModeration")]
-        public IActionResult GetMessagesForModeration()
-        {
-            return Ok("Admin and moderators can see this");
-        }
+        // [HttpGet("messagesForModeration")]
+        // public IActionResult GetMessagesForModeration()
+        // {
+        //     return Ok("Admin and moderators can see this");
+        // }
 
-        [HttpGet("photosForModeration")]
-        public IActionResult GetPhotosForModeration()
-        {
-            return Ok("Admin and moderators can see this");
-        }
+        // [HttpGet("photosForModeration")]
+        // public IActionResult GetPhotosForModeration()
+        // {
+        //     return Ok("Admin and moderators can see this");
+        // }
     }
 }
