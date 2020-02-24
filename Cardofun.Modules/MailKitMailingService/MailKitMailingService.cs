@@ -8,15 +8,22 @@ using MailKit.Net.Smtp;
 using MimeKit.Text;
 using System.Linq;
 using System.Threading.Tasks;
+using MailingService.Helpers;
+using System.IO;
+using Cardofun.Core.NameConstants;
 
-namespace Cardofun.Modules.MailKitMailingService
+namespace Cardofun.Modules.MailingService
 {
     public class MailKitMailingService: IMailingService
     {
         private readonly MailingServiceConfigurations _emailConfiguration;
-        public MailKitMailingService(IOptions<MailingServiceConfigurations> mailServiceConfigurations)
+        private readonly IPhysicalFileService _physicalFileService;
+
+        public MailKitMailingService(IOptions<MailingServiceConfigurations> mailServiceConfigurations, 
+            IPhysicalFileService physicalFileService)
         {
             _emailConfiguration = mailServiceConfigurations.Value;
+            _physicalFileService = physicalFileService;
         }
 
         // public IEnumerable<EmailMessageDto> ReceiveEmail(Int32 maxCount = 10)
@@ -26,18 +33,40 @@ namespace Cardofun.Modules.MailKitMailingService
 
         public async Task SendAsync(EmailMessageDto emailMessage)
         {
-            var message = new MimeMessage();
-            message.To.AddRange(emailMessage.ToAddresses.Select(x => new MailboxAddress(x.Name, x.Address)));
-            message.From.AddRange(emailMessage.FromAddresses.Select(x => new MailboxAddress(x.Name, x.Address)));
+            var message = new MailMessageBuilder()
+                .From(_emailConfiguration.Sender.Name, _emailConfiguration.Sender.Address)
+                .To(emailMessage.ToAddresses)
+                .Subject(emailMessage.Subject)
+                .Body(emailMessage.Content)
+                .Build();
 
-            message.Subject = emailMessage.Subject;
+            await SendMessageAsync(message);
+        }
 
-            var textFormat = TextFormat.Html;
-            if (Enum.TryParse(typeof(TextFormat), _emailConfiguration.TextFormat, true, out object format))
-                textFormat = (TextFormat)format;
+        public async Task SendConfirmationEmailAsync(EmailAddressDto user, String token)
+        {
+            var templatePath = Path.Join(SystemConstants.DocumentTemplates, _emailConfiguration.EmailConfirmationMessageTemplatePath ?? "EmailConfirmationMessageTemplate.html");
+            var template = _physicalFileService.ReadAllFile(templatePath);
 
-            message.Body = new TextPart(textFormat) { Text = emailMessage.Content };
+            // ToDo: specify the default template in case if template == null
 
+            token = token.Insert(token.Length / 3, @"<br/>");
+            token = token.Insert((token.Length / 3) * 2, @"<br/>");
+
+            template = template.Replace("[UserName]", user.Name).Replace("[ConfirmationToken]", token);
+
+            var message = new MailMessageBuilder()
+                .From(_emailConfiguration.Sender.Name, _emailConfiguration.Sender.Address)
+                .To(user)
+                .Subject("Confirm your email address")
+                .Body(template)
+                .Build();
+
+            await SendMessageAsync(message);
+        }
+
+        private async Task SendMessageAsync(MimeMessage message)
+        {
             using (var emailClient = new SmtpClient())
             {
                 try
@@ -57,8 +86,7 @@ namespace Cardofun.Modules.MailKitMailingService
                     if (emailClient.IsConnected)
                         emailClient.Disconnect(true);
                 }
-            }
-                    
+            }        
         }
     }
 }

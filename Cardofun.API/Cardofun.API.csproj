@@ -20,6 +20,7 @@
     <ProjectReference Include="..\Cardofun.Core\Cardofun.Core.csproj" />
     <ProjectReference Include="..\Cardofun.Modules\CloudinaryImageService\Cardofun.Modules.Cloudinary.csproj" />
     <ProjectReference Include="..\Cardofun.Modules\MailKitMailingService\Cardofun.Modules.MailKitMailingService.csproj" />
+    <ProjectReference Include="..\Cardofun.Modules\PhysicalFileService\Cardofun.Modules.PhysicalFileService.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Storage\" />

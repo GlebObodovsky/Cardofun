@@ -30,7 +30,10 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using Cardofun.API.Policies.Requirements;
 using Cardofun.Interfaces.Configurations;
-using Cardofun.Modules.MailKitMailingService;
+using Cardofun.Modules.MailingService;
+using Cardofun.Modules.FileService;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace Cardofun.API
 {
@@ -65,13 +68,17 @@ namespace Cardofun.API
             var signalrEndpoints = Configuration.GetSection(AppSettingsConstants.SignalrEndpoints).Get<Dictionary<string, string>>();
 
             IdentityBuilder builder = services.AddIdentityCore<User>(options => 
-            {
-                // ToDo: ATTENTION! NEXT LINES SHOULD BE REMOVED BEFORE PUBLISHING
-                options.Password.RequireDigit = false;
-                options.Password.RequiredLength = 4;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
-            });
+                {
+                    options.User.RequireUniqueEmail = true;
+                    options.SignIn.RequireConfirmedEmail = true;
+                    
+                    // ToDo: ATTENTION! NEXT LINES SHOULD BE REMOVED BEFORE PUBLISHING
+                    options.Password.RequireDigit = false;
+                    options.Password.RequiredLength = 4;
+                    options.Password.RequireNonAlphanumeric = false;
+                    options.Password.RequireUppercase = false;
+                })
+                .AddDefaultTokenProviders();
 
             builder = new IdentityBuilder(builder.UserType, typeof(Role), builder.Services);
             builder.AddEntityFrameworkStores<CardofunContext>();
@@ -105,8 +112,13 @@ namespace Cardofun.API
                         }
                     };
                 });
+
+            #region Policies / Authorization Handlers
             services.AddSingleton<IAuthorizationHandler, AccessedUserMatchesCurrentHandler>();
+
             services.AddAuthorization(ConfigurePolicies);
+            #endregion Policies / Authorization Handlers
+
             services.AddDbContext<CardofunContext>(x => x.UseSqlServer(Configuration.GetConnectionString(ConnectionStringConstants.CardofunSqlServerConnection)));
             // Uncomment next line if you want to use SqlLite
             // services.AddDbContext<CardofunContext>(x => x.UseSqlite(Configuration.GetConnectionString(ConnectionStringConstants.CardofunSqlLiteConnection)));
@@ -115,6 +127,7 @@ namespace Cardofun.API
                     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
                     options.PayloadSerializerOptions.IgnoreNullValues = true;
                 });
+
             services.AddCors(options => 
                 { 
                     options.AddPolicy("CorsPolicy", policyBuilder => policyBuilder
@@ -123,6 +136,7 @@ namespace Cardofun.API
                     .AllowAnyHeader()
                     .AllowCredentials()); 
                 });
+
             services.AddControllers(options => 
                 {
                     var policy = new AuthorizationPolicyBuilder()
@@ -144,17 +158,22 @@ namespace Cardofun.API
             services.AddScoped<ICardofunRepository, CardofunRepository>();
             services.AddOptions();
 
+            #region Physical file service config
+            services.AddSingleton<IFileProvider>(new PhysicalFileProvider(Directory.GetCurrentDirectory()));
+            services.AddSingleton<IPhysicalFileService, PhysicalFileService>();
+            #endregion Physical file service config
+
             #region Mail service config
             services.Configure<MailingServiceConfigurations>(Configuration.GetSection(AppSettingsConstants.MailingServiceSettings));
             services.AddTransient<IMailingService, MailKitMailingService>();
             #endregion Mail service config
 
-            #region ImageProvider config
+            #region Image service config
             // Next section configures cloudinary image provider. Change the configs
             // in case if you decided to use another one (own file system, for instance)
             services.Configure<ImageServiceConfigurations>(Configuration.GetSection(AppSettingsConstants.ImageServiceSettings));
             services.AddTransient<IImageService, CloudinaryImageService>();
-            #endregion ImageProvider config
+            #endregion Image service config
             
             services.AddScoped<LogUserActivity>();
         }

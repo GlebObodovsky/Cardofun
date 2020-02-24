@@ -25,7 +25,7 @@ namespace Cardofun.API.Controllers
     public class AuthController : ControllerBase
     {
         #region Fields
-        private readonly ICardofunRepository _cardofunRepoitory;
+        private readonly ICardofunRepository _cardofunRepository;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IMailingService _mailingService;
@@ -35,13 +35,14 @@ namespace Cardofun.API.Controllers
 
         #region  Constructor
         public AuthController(ICardofunRepository cardofunRepoitory, UserManager<User> userManager,
-            SignInManager<User> signInManager, IMailingService mailingService, IConfiguration config, IMapper mapper)
+            SignInManager<User> signInManager, IMailingService mailingService, IConfiguration config,
+            IMapper mapper)
         {
             _mailingService = mailingService;
             _signInManager = signInManager;
             _userManager = userManager;
             _mapper = mapper;
-            _cardofunRepoitory = cardofunRepoitory;
+            _cardofunRepository = cardofunRepoitory;
             _config = config;
         }
         #endregion  Constructor
@@ -61,13 +62,7 @@ namespace Cardofun.API.Controllers
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
-            await _mailingService.SendAsync(new EmailMessageDto 
-            {
-                FromAddresses = new List<EmailAddressDto> { new EmailAddressDto { Name = "Gleb", Address = "ya.dmitrievgleb@yandex.ru" }},
-                ToAddresses = new List<EmailAddressDto> { new EmailAddressDto { Name = "Gleb", Address = "ya.dmitrievgleb@yandex.ru" }},
-                Subject = "Кардофан",
-                Content = "Это первое письмо, отправленное через приложение!"
-            });
+            await SendConfirmationEmailAsync(newUser);
 
             return CreatedAtRoute("GetUser", new { Controller = "Users", Id = newUser.Id }, _mapper.Map<UserShortInfoDto>(newUser));
         }
@@ -101,7 +96,7 @@ namespace Cardofun.API.Controllers
         /// <returns>Authenticated user</returns>        
         private async Task<User> LoginAsync(string userName, string password)
         {
-            var user = await _cardofunRepoitory.GetUserByNameAsync(userName);
+            var user = await _cardofunRepository.GetUserByNameAsync(userName);
 
             if (user == null)
                 return null;
@@ -146,6 +141,16 @@ namespace Cardofun.API.Controllers
             var tokenHandler = new JwtSecurityTokenHandler();
 
             return tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
+        }
+
+        private async Task SendConfirmationEmailAsync(User user)
+        {
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            await _mailingService.SendConfirmationEmailAsync(new EmailAddressDto 
+                { 
+                    Name = user.Name, 
+                    Address = user.Email 
+                }, token);
         }
         #endregion Functions
     }
