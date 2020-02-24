@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using Cardofun.API.Helpers.Extensions;
@@ -92,20 +91,20 @@ namespace Cardofun.API.Controllers
         [HttpPost("{recepientId}")]
         public async Task<IActionResult> RequestFriendship(Int32 userId, Int32 recepientId)
         {
-            if(userId == recepientId)
+            if (userId == recepientId)
                 return BadRequest("It is not possible to request yourself for friendship");
 
             var friendRequest = await _cardofunRepository.GetFriendRequestAsync(userId, recepientId);
 
-            if(friendRequest != null)
+            if (friendRequest != null)
                 return BadRequest("The friend request has been already sent before");
 
             friendRequest = await _cardofunRepository.GetFriendRequestAsync(recepientId, userId);
 
-            if(friendRequest != null)
+            if (friendRequest != null)
                 return BadRequest("There is a friend request from recepient waiting for reply");
 
-            if(await CreateFriendshipRequestAsync(userId, recepientId))
+            if (await CreateFriendshipRequestAsync(userId, recepientId))
             {
                 friendRequest = await _cardofunRepository.GetFriendRequestAsync(userId, recepientId);
                 return CreatedAtRoute(nameof(GetFriendshipRequest),
@@ -124,15 +123,15 @@ namespace Cardofun.API.Controllers
         [HttpPut("{recepientId}")]
         public async Task<IActionResult> ReplyOnFriendshipRequest(Int32 userId, Int32 recepientId, [FromBody]FriendshipStatusParams friendshipStatus)
         {
-            if(userId == recepientId)
+            if (userId == recepientId)
                 return BadRequest("It's not possible to reply on own friendship request");
 
             var friendRequest = await _cardofunRepository.GetFriendRequestAsync(recepientId, userId);
 
-            if(friendRequest == null)
+            if (friendRequest == null)
                 return BadRequest("The friend request has not been found");
 
-            if(!Enum.TryParse(typeof(FriendshipStatus), friendshipStatus.Status, true, out object fStatus))
+            if (!Enum.TryParse(typeof(FriendshipStatus), friendshipStatus.Status, true, out object fStatus))
             {
                 var statuses = String.Join(", ", 
                     Enum.GetValues(typeof(FriendshipStatus))
@@ -145,7 +144,7 @@ namespace Cardofun.API.Controllers
             friendRequest.Status = (FriendshipStatus)fStatus;
             friendRequest.RepliedAt = DateTime.Now;
 
-            if(!await _cardofunRepository.SaveChangesAsync())
+            if (!await _cardofunRepository.SaveChangesAsync())
                 return BadRequest("Changing friendship status failed on save");
                 
             await NotifyUsersAboutFrinedshipStatusAsync(friendRequest);
@@ -164,14 +163,14 @@ namespace Cardofun.API.Controllers
         {
             var request = await _cardofunRepository.GetFriendRequestAsync(userId, recepientId);
 
-            if(request == null)
+            if (request == null)
                 return BadRequest("The friend request hasn't been found");
 
             var oldStatus = request.Status;
 
             _cardofunRepository.Delete(request);
 
-            if(!await _cardofunRepository.SaveChangesAsync())
+            if (!await _cardofunRepository.SaveChangesAsync())
                 return BadRequest("Friendship request deletion failed on save");
             
             if (oldStatus == FriendshipStatus.Accepted)

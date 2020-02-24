@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using System.Linq;
 using Cardofun.API.Helpers.Constants;
+using Cardofun.Interfaces.ServiceProviders;
 
 namespace Cardofun.API.Controllers
 {
@@ -27,14 +28,16 @@ namespace Cardofun.API.Controllers
         private readonly ICardofunRepository _cardofunRepoitory;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly IMailingService _mailingService;
         private readonly IConfiguration _config;
         private readonly IMapper _mapper;
         #endregion Fields
 
         #region  Constructor
         public AuthController(ICardofunRepository cardofunRepoitory, UserManager<User> userManager,
-            SignInManager<User> signInManager, IConfiguration config, IMapper mapper)
+            SignInManager<User> signInManager, IMailingService mailingService, IConfiguration config, IMapper mapper)
         {
+            _mailingService = mailingService;
             _signInManager = signInManager;
             _userManager = userManager;
             _mapper = mapper;
@@ -57,6 +60,14 @@ namespace Cardofun.API.Controllers
 
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
+
+            await _mailingService.SendAsync(new EmailMessageDto 
+            {
+                FromAddresses = new List<EmailAddressDto> { new EmailAddressDto { Name = "Gleb", Address = "ya.dmitrievgleb@yandex.ru" }},
+                ToAddresses = new List<EmailAddressDto> { new EmailAddressDto { Name = "Gleb", Address = "ya.dmitrievgleb@yandex.ru" }},
+                Subject = "Кардофан",
+                Content = "Это первое письмо, отправленное через приложение!"
+            });
 
             return CreatedAtRoute("GetUser", new { Controller = "Users", Id = newUser.Id }, _mapper.Map<UserShortInfoDto>(newUser));
         }
@@ -112,7 +123,7 @@ namespace Cardofun.API.Controllers
             };
 
             var userRoles = await _userManager.GetRolesAsync(user);
-    
+
             claims.AddRange(userRoles.Select(ur => new Claim(ClaimTypes.Role, ur)));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8

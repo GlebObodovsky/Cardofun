@@ -11,10 +11,15 @@ namespace Cardofun.API.Helpers.Constants
         /// </summary>
         public const string TokenExpiresInHours = "AppSettings:TokenExpiresInHours";
         /// <summary>
-        /// Settings that define an image provider for the server
+        /// Settings that are defined for the image service using on the server
         /// </summary>
         /// <returns></returns>
-        public const string ImageProviderSettings = nameof(ImageProviderSettings);
+        public const string ImageServiceSettings = nameof(ImageServiceSettings);
+        /// <summary>
+        /// Settings that are defined for the mailing service using on the server
+        /// </summary>
+        /// <returns></returns>
+        public const string MailingServiceSettings = nameof(MailingServiceSettings);
         /// <summary>
         /// Set of origins that are allowed to get the data from the server (CORS)
         /// </summary>

@@ -15,7 +15,7 @@ using Cardofun.API.Helpers.Extensions;
 using AutoMapper;
 using Newtonsoft.Json.Serialization;
 using Cardofun.Interfaces.ServiceProviders;
-using Cardofun.Modules.Cloudinary;
+using Cardofun.Modules.CloudinaryImageService;
 using Cardofun.API.Helpers;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -29,6 +29,8 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using Cardofun.API.Policies.Requirements;
+using Cardofun.Interfaces.Configurations;
+using Cardofun.Modules.MailKitMailingService;
 
 namespace Cardofun.API
 {
@@ -141,12 +143,19 @@ namespace Cardofun.API
             services.AddAutoMapper(typeof(Startup).Assembly);
             services.AddScoped<ICardofunRepository, CardofunRepository>();
             services.AddOptions();
+
+            #region Mail service config
+            services.Configure<MailingServiceConfigurations>(Configuration.GetSection(AppSettingsConstants.MailingServiceSettings));
+            services.AddTransient<IMailingService, MailKitMailingService>();
+            #endregion Mail service config
+
             #region ImageProvider config
             // Next section configures cloudinary image provider. Change the configs
             // in case if you decided to use another one (own file system, for instance)
-            services.Configure<CloudinaryProviderSettings>(Configuration.GetSection(AppSettingsConstants.ImageProviderSettings));
-            services.AddTransient<IImageProvider, CloudinaryImageProvider>();
+            services.Configure<ImageServiceConfigurations>(Configuration.GetSection(AppSettingsConstants.ImageServiceSettings));
+            services.AddTransient<IImageService, CloudinaryImageService>();
             #endregion ImageProvider config
+            
             services.AddScoped<LogUserActivity>();
         }
 

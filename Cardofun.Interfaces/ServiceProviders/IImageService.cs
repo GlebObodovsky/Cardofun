@@ -8,7 +8,7 @@ namespace Cardofun.Interfaces.ServiceProviders
     /// <summary>
     /// Abstract image storage
     /// </summary>
-    public interface IImageProvider
+    public interface IImageService
     {
         /// <summary>
         /// Saves a given picture to a storage, cropping it and resizing along the process

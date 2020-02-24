@@ -25,14 +25,14 @@ namespace Cardofun.API.Controllers
         #region Fields
         private readonly ICardofunRepository _cardofunRepository;
         private readonly IMapper _mapper;
-        private readonly IImageProvider _imageProvider;
+        private readonly IImageService _imageProvider;
         private readonly IHubContext<ChatHub, IChatHubClient> _messageHub;
         private readonly IHubContext<NotificationsHub, INotificationsHubClient> _notificationsHub;
         #endregion Fields
 
         #region Constructor
         public MessagesController(ICardofunRepository cardofunRepository, IMapper mapper, 
-            IImageProvider imageProvider, IHubContext<ChatHub, IChatHubClient> messageHub,
+            IImageService imageProvider, IHubContext<ChatHub, IChatHubClient> messageHub,
             IHubContext<NotificationsHub, INotificationsHubClient> notificationsHub)
         {
             _mapper = mapper;

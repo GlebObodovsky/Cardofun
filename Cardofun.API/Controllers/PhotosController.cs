@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using Cardofun.Core.NameConstants;
@@ -20,15 +19,15 @@ namespace Cardofun.API.Controllers
         #region Fields
         private readonly ICardofunRepository _cardofunRepository;
         private readonly IMapper _mapper;
-        private readonly IImageProvider _imageProvider;
+        private readonly IImageService _imageProvider;
         #endregion Fields
         
         #region Constructor
-        public PhotosController(ICardofunRepository cardofunRepository, IMapper mapper, IImageProvider imageProvider)
+        public PhotosController(ICardofunRepository cardofunRepository, IMapper mapper, IImageService imageService)
         {
             _mapper = mapper;
             _cardofunRepository = cardofunRepository;
-            _imageProvider = imageProvider;
+            _imageProvider = imageService;
         }
         #endregion Constructor
 
