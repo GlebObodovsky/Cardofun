@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cardofun.Interfaces.DTOs;
 
@@ -20,7 +19,7 @@ namespace Cardofun.Interfaces.ServiceProviders
         /// <param name="user">The user who has to be verified</param>
         /// <param name="token">The token that the user has to deliver to the server in order to get his email confirmed</param>
         /// <returns></returns>
-        Task SendConfirmationEmailAsync(EmailAddressDto user, String token);
+        Task SendConfirmationEmailAsync(UserWithEmailDto user, String token);
 	    // IEnumerable<EmailMessageDto> ReceiveEmail(int maxCount = 10);
     }
 }

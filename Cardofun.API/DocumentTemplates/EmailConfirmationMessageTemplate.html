@@ -199,7 +199,7 @@
                             <w:anchorlock/>
                             <center style="color:#ffffff;font-family:sans-serif;font-size:15px;">Verify Email</center>
                           </v:roundrect><![endif]-->
-                            <a href="http://localhost:4200/ConfirmEmail?token=[ConfirmationToken]" class="button button--blue">Verify Email</a>
+                            <a href="http://localhost:4200/confirmEmail?id=[UserId]&token=[ConfirmationToken]" class="button button--blue">Verify Email</a>
                           </div>
                         </td>
                       </tr>
@@ -209,9 +209,8 @@
                     <table class="body-sub">
                       <tr>
                         <td>
-                          <p class="sub">If you’re having trouble clicking the button, copy and paste the URL below into your web browser.
-                          </p>
-                          <p class="sub">http://localhost:4200/ConfirmEmail?token=[ConfirmationToken]</p>
+                          <p class="sub">If you’re having trouble clicking the button, copy and paste the URL below into your web browser.</p>
+                          <p class="sub" style="width: 600px;">http://localhost:4200/confirmEmail?id=[UserId]&token=[ConfirmationToken]</p>
                         </td>
                       </tr>
                     </table>

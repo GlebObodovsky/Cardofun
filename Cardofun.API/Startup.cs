@@ -70,7 +70,7 @@ namespace Cardofun.API
             IdentityBuilder builder = services.AddIdentityCore<User>(options => 
                 {
                     options.User.RequireUniqueEmail = true;
-                    options.SignIn.RequireConfirmedEmail = true;
+                    // options.SignIn.RequireConfirmedEmail = true;
                     
                     // ToDo: ATTENTION! NEXT LINES SHOULD BE REMOVED BEFORE PUBLISHING
                     options.Password.RequireDigit = false;

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../_services/auth/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -9,12 +10,16 @@ export class HomeComponent implements OnInit {
 
   isInRegistryMode = false;
 
-  constructor() { }
+  constructor(private authService: AuthService) { }
 
   ngOnInit() {
   }
 
   setRegistrationVisibility(showRegForm: boolean = true) {
     this.isInRegistryMode = showRegForm;
+  }
+
+  isLoggedIn() {
+    return this.authService.isLoggedIn();
   }
 }

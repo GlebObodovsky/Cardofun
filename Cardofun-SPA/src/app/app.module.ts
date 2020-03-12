@@ -16,6 +16,7 @@ import { AppComponent } from './app.component';
 import { NavComponent } from './nav/nav.component';
 import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './register/register.component';
+import { ConfirmEmailComponent } from './register/confirm-email/confirm-email/confirm-email.component';
 import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
 import { ErrorInterceptorProvider } from './_services/error.interceptor';
 import { AuthService } from './_services/auth/auth.service';
@@ -44,6 +45,7 @@ import { MemberListResolver } from './_resolvers/member-list-resolver';
 import { MemberEditResolver } from './_resolvers/member-edit-resolver';
 import { FriendListResolver } from './_resolvers/friend-list-resolver';
 import { MessageDialoguesResolver } from './_resolvers/message-dialogues-resolver';
+import { EmailConfirmationResolver } from './_resolvers/email-confirmation-resolver';
 import { MemberEditComponent } from './members/member-edit/member-edit.component';
 import { MemberMessagesComponent } from './members/member-messages/member-messages.component';
 import { PhotoEditorComponent } from './members/photo-editor/photo-editor.component';
@@ -73,6 +75,7 @@ export class CustomHammerConfig extends HammerGestureConfig  {
       NavComponent,
       HomeComponent,
       RegisterComponent,
+      ConfirmEmailComponent,
       AdminPanelComponent,
       UserManagerComponent,
       PhotoManagerComponent,
@@ -134,6 +137,7 @@ export class CustomHammerConfig extends HammerGestureConfig  {
       MemberEditResolver,
       FriendListResolver,
       MessageDialoguesResolver,
+      EmailConfirmationResolver,
       { provide: HAMMER_GESTURE_CONFIG, useClass: CustomHammerConfig }
    ],
    entryComponents: [

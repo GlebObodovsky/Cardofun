@@ -12,9 +12,12 @@ import { PreventUnsavedChangesGuard } from './_guards/prevent-unsaved-changes.gu
 import { FriendListResolver } from './_resolvers/friend-list-resolver';
 import { MessageDialoguesResolver } from './_resolvers/message-dialogues-resolver';
 import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
+import { ConfirmEmailComponent } from './register/confirm-email/confirm-email/confirm-email.component';
+import { EmailConfirmationResolver } from './_resolvers/email-confirmation-resolver';
 
 export const appRoutes: Routes = [
     { path: '', component: HomeComponent },
+    { path: 'confirmEmail', component: ConfirmEmailComponent, resolve: { confirmationState: EmailConfirmationResolver } },
     {
         path: '',
         runGuardsAndResolvers: 'always',
@@ -22,7 +25,7 @@ export const appRoutes: Routes = [
         children: [
             { path: 'members', component: MemberListComponent, resolve: { users: MemberListResolver } },
             { path: 'members/:id', component: MemberDetailComponent, resolve: { user: MemberDetailResolver }},
-            { path: 'member/edit', component: MemberEditComponent, resolve: {user: MemberEditResolver},
+            { path: 'member/edit', component: MemberEditComponent, resolve: { user: MemberEditResolver },
                 canDeactivate: [PreventUnsavedChangesGuard] },
             { path: 'messages', component: MessagesComponent, resolve: { messages: MessageDialoguesResolver } },
             { path: 'messages/:container', component: MessagesComponent, resolve: { messages: MessageDialoguesResolver } },

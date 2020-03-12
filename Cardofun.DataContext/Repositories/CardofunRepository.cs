@@ -160,8 +160,16 @@ namespace Cardofun.DataContext.Repositories
         /// </summary>
         /// <param name="login">login by which to make a search</param>
         /// <returns></returns>
-        public async Task<Boolean> CheckIfUserExists(String login)
+        public async Task<Boolean> CheckIfUserNameExists(String login)
             => await _context.Users.AnyAsync(u => u.UserName.ToUpper() == login.ToUpper());
+
+        /// <summary>
+        /// Checks if user with the given email already exists 
+        /// </summary>
+        /// <param name="login">email by which to make a search</param>
+        /// <returns></returns>
+        public async Task<Boolean> CheckIfEmailExists(String email)
+            => await _context.Users.AnyAsync(u => u.Email.ToUpper() == email.ToUpper());
 
         /// <summary>
         /// Gets a user out of the repository

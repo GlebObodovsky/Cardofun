@@ -19,8 +19,12 @@ export class UserService {
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
-  checkIfUserExists(userName: string) {
-    return this.http.head(this.baseUrl + '/' + userName);
+  checkIfUserNameExists(userName: string) {
+    return this.http.head(this.baseUrl + '/userNames/' + userName);
+  }
+
+  checkIfEmailExists(email: string) {
+    return this.http.head(this.baseUrl + '/emails/' + email);
   }
 
   getUsers(page?, itemsPerPage?, userParams?: UserFilterParams): Observable<PaginatedResult<User[]>> {
@@ -88,6 +92,13 @@ export class UserService {
 
   getUser(id: number): Observable<User> {
     return this.http.get<User>(this.baseUrl + '/' + id);
+  }
+
+  verifyUser(userId: number, token: string) {
+    console.log('в методе');
+    console.log(this.baseUrl + '/' + userId);
+    console.log(token);
+    return this.http.post(this.baseUrl + '/' + userId + '/verify', { token: token });
   }
 
   putUser(userId: number, user: User) {

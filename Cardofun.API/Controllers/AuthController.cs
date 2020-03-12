@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Cardofun.API.Helpers.Constants;
 using Cardofun.Interfaces.ServiceProviders;
+using System.Web;
 
 namespace Cardofun.API.Controllers
 {
@@ -145,11 +146,12 @@ namespace Cardofun.API.Controllers
 
         private async Task SendConfirmationEmailAsync(User user)
         {
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            await _mailingService.SendConfirmationEmailAsync(new EmailAddressDto 
+            var token = HttpUtility.UrlEncode(await _userManager.GenerateEmailConfirmationTokenAsync(user));
+            await _mailingService.SendConfirmationEmailAsync(new UserWithEmailDto 
                 { 
+                    Id = user.Id,
                     Name = user.Name, 
-                    Address = user.Email 
+                    Email = user.Email
                 }, token);
         }
         #endregion Functions

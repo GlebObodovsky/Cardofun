@@ -43,21 +43,21 @@ namespace Cardofun.Modules.MailingService
             await SendMessageAsync(message);
         }
 
-        public async Task SendConfirmationEmailAsync(EmailAddressDto user, String token)
+        public async Task SendConfirmationEmailAsync(UserWithEmailDto user, String token)
         {
             var templatePath = Path.Join(SystemConstants.DocumentTemplates, _emailConfiguration.EmailConfirmationMessageTemplatePath ?? "EmailConfirmationMessageTemplate.html");
             var template = _physicalFileService.ReadAllFile(templatePath);
 
             // ToDo: specify the default template in case if template == null
 
-            token = token.Insert(token.Length / 3, @"<br/>");
-            token = token.Insert((token.Length / 3) * 2, @"<br/>");
-
-            template = template.Replace("[UserName]", user.Name).Replace("[ConfirmationToken]", token);
+            template = template
+                .Replace("[UserId]", user.Id.ToString())
+                .Replace("[UserName]", user.Name)
+                .Replace("[ConfirmationToken]", token);
 
             var message = new MailMessageBuilder()
                 .From(_emailConfiguration.Sender.Name, _emailConfiguration.Sender.Address)
-                .To(user)
+                .To(user.Name, user.Email)
                 .Subject("Confirm your email address")
                 .Body(template)
                 .Build();
