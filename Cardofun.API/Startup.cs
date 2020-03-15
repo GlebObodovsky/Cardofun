@@ -15,20 +15,24 @@ using Cardofun.API.Helpers.Extensions;
 using AutoMapper;
 using Newtonsoft.Json.Serialization;
 using Cardofun.Interfaces.ServiceProviders;
-using Cardofun.Modules.Cloudinary;
+using Cardofun.Modules.CloudinaryImageService;
 using Cardofun.API.Helpers;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Cardofun.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Cardofun.API.Helpers.Constants;
 using Cardofun.API.Hubs;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using Cardofun.API.Policies.Requirements;
+using Cardofun.Interfaces.Configurations;
+using Cardofun.Modules.MailingService;
+using Cardofun.Modules.FileService;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace Cardofun.API
 {
@@ -63,13 +67,17 @@ namespace Cardofun.API
             var signalrEndpoints = Configuration.GetSection(AppSettingsConstants.SignalrEndpoints).Get<Dictionary<string, string>>();
 
             IdentityBuilder builder = services.AddIdentityCore<User>(options => 
-            {
-                // ToDo: ATTENTION! NEXT LINES SHOULD BE REMOVED BEFORE PUBLISHING
-                options.Password.RequireDigit = false;
-                options.Password.RequiredLength = 4;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
-            });
+                {
+                    options.User.RequireUniqueEmail = true;
+                    options.SignIn.RequireConfirmedEmail = true;
+                    
+                    // ToDo: ATTENTION! NEXT LINES SHOULD BE REMOVED BEFORE PUBLISHING
+                    options.Password.RequireDigit = false;
+                    options.Password.RequiredLength = 4;
+                    options.Password.RequireNonAlphanumeric = false;
+                    options.Password.RequireUppercase = false;
+                })
+                .AddDefaultTokenProviders();
 
             builder = new IdentityBuilder(builder.UserType, typeof(Role), builder.Services);
             builder.AddEntityFrameworkStores<CardofunContext>();
@@ -103,8 +111,12 @@ namespace Cardofun.API
                         }
                     };
                 });
-            services.AddSingleton<IAuthorizationHandler, AccessedUserMatchesCurrentHandler>();
+
+            #region Policies / Authorization Handlers
+            services.AddTransient<IAuthorizationHandler, AccessedUserMatchesCurrentHandler>();
             services.AddAuthorization(ConfigurePolicies);
+            #endregion Policies / Authorization Handlers
+
             services.AddDbContext<CardofunContext>(x => x.UseSqlServer(Configuration.GetConnectionString(ConnectionStringConstants.CardofunSqlServerConnection)));
             // Uncomment next line if you want to use SqlLite
             // services.AddDbContext<CardofunContext>(x => x.UseSqlite(Configuration.GetConnectionString(ConnectionStringConstants.CardofunSqlLiteConnection)));
@@ -113,6 +125,7 @@ namespace Cardofun.API
                     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
                     options.PayloadSerializerOptions.IgnoreNullValues = true;
                 });
+
             services.AddCors(options => 
                 { 
                     options.AddPolicy("CorsPolicy", policyBuilder => policyBuilder
@@ -121,6 +134,7 @@ namespace Cardofun.API
                     .AllowAnyHeader()
                     .AllowCredentials()); 
                 });
+
             services.AddControllers(options => 
                 {
                     var policy = new AuthorizationPolicyBuilder()
@@ -141,12 +155,24 @@ namespace Cardofun.API
             services.AddAutoMapper(typeof(Startup).Assembly);
             services.AddScoped<ICardofunRepository, CardofunRepository>();
             services.AddOptions();
-            #region ImageProvider config
+
+            #region Physical file service config
+            services.AddSingleton<IFileProvider>(new PhysicalFileProvider(Directory.GetCurrentDirectory()));
+            services.AddSingleton<IPhysicalFileService, PhysicalFileService>();
+            #endregion Physical file service config
+
+            #region Mail service config
+            services.Configure<MailingServiceConfigurations>(Configuration.GetSection(AppSettingsConstants.MailingServiceSettings));
+            services.AddTransient<IMailingService, MailKitMailingService>();
+            #endregion Mail service config
+
+            #region Image service config
             // Next section configures cloudinary image provider. Change the configs
             // in case if you decided to use another one (own file system, for instance)
-            services.Configure<CloudinaryProviderSettings>(Configuration.GetSection(AppSettingsConstants.ImageProviderSettings));
-            services.AddTransient<IImageProvider, CloudinaryImageProvider>();
-            #endregion ImageProvider config
+            services.Configure<ImageServiceConfigurations>(Configuration.GetSection(AppSettingsConstants.ImageServiceSettings));
+            services.AddTransient<IImageService, CloudinaryImageService>();
+            #endregion Image service config
+            
             services.AddScoped<LogUserActivity>();
         }
 
@@ -194,7 +220,7 @@ namespace Cardofun.API
         /// <param name="options"></param>
         private void ConfigurePolicies(AuthorizationOptions options)
         {
-            // The policy below is requires a user to be the same user whom information
+            // Requires a user to be the same user whom information
             // is about to be accessed
             options.AddPolicy(PolicyConstants.UserMatchRequired, 
                 policy => policy.AddRequirements(new AccessedUserMatchesCurrentRequirement()));

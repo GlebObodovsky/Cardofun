@@ -64,7 +64,8 @@ namespace Cardofun.API.Helpers
 
             CreateMap<User, UserShortInfoDto>()
                 .ForMember(dest => dest.Age, m => m.MapFrom(src => src.BirthDate.ToAges()))
-                .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => GetUserMaintPhotoUrl(src)));
+                .ForMember(dest => dest.PhotoUrl, m => m.MapFrom(src => GetUserMaintPhotoUrl(src)))
+                .ForMember(dest => dest.IsVerified, m => m.MapFrom(src => src.EmailConfirmed));
 
             CreateMap<User, UserForListDto>()
                 .ForMember(dest => dest.Age, m => m.MapFrom(src => src.BirthDate.ToAges()))

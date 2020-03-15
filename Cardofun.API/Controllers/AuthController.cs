@@ -14,7 +14,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using System.Linq;
-using Cardofun.API.Helpers.Constants;
+using Cardofun.Core.NameConstants;
+using Cardofun.Interfaces.ServiceProviders;
+using System.Web;
 
 namespace Cardofun.API.Controllers
 {
@@ -24,21 +26,24 @@ namespace Cardofun.API.Controllers
     public class AuthController : ControllerBase
     {
         #region Fields
-        private readonly ICardofunRepository _cardofunRepoitory;
+        private readonly ICardofunRepository _cardofunRepository;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly IMailingService _mailingService;
         private readonly IConfiguration _config;
         private readonly IMapper _mapper;
         #endregion Fields
 
         #region  Constructor
         public AuthController(ICardofunRepository cardofunRepoitory, UserManager<User> userManager,
-            SignInManager<User> signInManager, IConfiguration config, IMapper mapper)
+            SignInManager<User> signInManager, IMailingService mailingService, IConfiguration config,
+            IMapper mapper)
         {
+            _mailingService = mailingService;
             _signInManager = signInManager;
             _userManager = userManager;
             _mapper = mapper;
-            _cardofunRepoitory = cardofunRepoitory;
+            _cardofunRepository = cardofunRepoitory;
             _config = config;
         }
         #endregion  Constructor
@@ -58,6 +63,8 @@ namespace Cardofun.API.Controllers
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
+            await SendConfirmationEmailAsync(newUser);
+
             return CreatedAtRoute("GetUser", new { Controller = "Users", Id = newUser.Id }, _mapper.Map<UserShortInfoDto>(newUser));
         }
 
@@ -71,7 +78,14 @@ namespace Cardofun.API.Controllers
             var user = await LoginAsync(userForLogin.UserName, userForLogin.Password);
 
             if (user == null)
-                return Unauthorized();
+            {
+                user = await _cardofunRepository.GetUserByNameAsync(userForLogin.UserName);
+
+                if (!await _userManager.IsEmailConfirmedAsync(user))
+                    return StatusCode(403, "User Email is not confirmed!");
+                else
+                    return Unauthorized();
+            }
 
             return Ok(new
             {
@@ -90,7 +104,7 @@ namespace Cardofun.API.Controllers
         /// <returns>Authenticated user</returns>        
         private async Task<User> LoginAsync(string userName, string password)
         {
-            var user = await _cardofunRepoitory.GetUserByNameAsync(userName);
+            var user = await _cardofunRepository.GetUserByNameAsync(userName);
 
             if (user == null)
                 return null;
@@ -112,7 +126,7 @@ namespace Cardofun.API.Controllers
             };
 
             var userRoles = await _userManager.GetRolesAsync(user);
-    
+
             claims.AddRange(userRoles.Select(ur => new Claim(ClaimTypes.Role, ur)));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8
@@ -135,6 +149,17 @@ namespace Cardofun.API.Controllers
             var tokenHandler = new JwtSecurityTokenHandler();
 
             return tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
+        }
+
+        private async Task SendConfirmationEmailAsync(User user)
+        {
+            var token = HttpUtility.UrlEncode(await _userManager.GenerateEmailConfirmationTokenAsync(user));
+            await _mailingService.SendConfirmationEmailAsync(new UserWithEmailDto 
+                { 
+                    Id = user.Id,
+                    Name = user.Name, 
+                    Email = user.Email
+                }, token);
         }
         #endregion Functions
     }

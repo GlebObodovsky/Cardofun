@@ -18,7 +18,9 @@
     <ProjectReference Include="..\Cardofun.DataContext\Cardofun.DataContext.csproj" />
     <ProjectReference Include="..\Cardofun.Interfaces\Cardofun.Interfaces.csproj" />
     <ProjectReference Include="..\Cardofun.Core\Cardofun.Core.csproj" />
-    <ProjectReference Include="..\Cardofun.Modules\Cardofun.Modules.Cloudinary\Cardofun.Modules.Cloudinary.csproj" />
+    <ProjectReference Include="..\Cardofun.Modules\CloudinaryImageService\Cardofun.Modules.Cloudinary.csproj" />
+    <ProjectReference Include="..\Cardofun.Modules\MailKitMailingService\Cardofun.Modules.MailKitMailingService.csproj" />
+    <ProjectReference Include="..\Cardofun.Modules\PhysicalFileService\Cardofun.Modules.PhysicalFileService.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Storage\" />

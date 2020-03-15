@@ -12,6 +12,7 @@ using Cardofun.Core.ApiParameters;
 using Cardofun.API.Helpers.Extensions;
 using System.Linq;
 using Cardofun.Core.NameConstants;
+using Microsoft.AspNetCore.Identity;
 
 namespace Cardofun.API.Controllers
 {
@@ -20,13 +21,15 @@ namespace Cardofun.API.Controllers
     {
         #region Fields
         private readonly ICardofunRepository _cardofunRepository;
+        private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
         #endregion Fields
 
         #region Constructor
-        public UsersController(ICardofunRepository cardofunRepository, IMapper mapper)
+        public UsersController(ICardofunRepository cardofunRepository, UserManager<User> userManager, IMapper mapper)
         {
             _cardofunRepository = cardofunRepository;
+            _userManager = userManager;
             _mapper = mapper;
         }
         #endregion Constructor
@@ -36,13 +39,27 @@ namespace Cardofun.API.Controllers
         /// Checks if user with the given login already exists
         /// </summary>
         /// <returns></returns>
-        [HttpHead("{login}")]
+        [HttpHead("userNames/{login}")]
         [AllowAnonymous]
-        public async Task<IActionResult> CheckIfUserExists(String login)
+        public async Task<IActionResult> CheckIfUserNameExists(String login)
         {
-            if(await _cardofunRepository.CheckIfUserExists(login))
+            if (await _cardofunRepository.CheckIfUserNameExists(login))
                 return Ok();
-            
+
+            return NotFound();
+        }
+
+        /// <summary>
+        /// Checks if user with the given email already exists
+        /// </summary>
+        /// <returns></returns>
+        [HttpHead("emails/{email}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> CheckIfEmailExists(String email)
+        {
+            if (await _cardofunRepository.CheckIfEmailExists(email))
+                return Ok();
+
             return NotFound();
         }
 
@@ -70,11 +87,34 @@ namespace Cardofun.API.Controllers
         public async Task<IActionResult> GetUser(Int32 id)
         {
             var user = await _cardofunRepository.GetUserAsync(id);
-            
+
             if (user != null)
                 return Ok(_mapper.Map<UserForDetailedDto>(user));
 
             return NotFound();
+        }
+
+        /// <summary>
+        /// Allows a user to confirm his email
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="Token"></param>
+        /// <returns></returns>
+        [HttpPost("{userId}/verify")]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerifyUser(Int32 userId, [FromBody]string token)
+        {
+            var user = await _cardofunRepository.GetUserAsync(userId);
+
+            if (user == null)
+                return BadRequest("The user hasn't been found");
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+
+            if (result.Succeeded)
+                return Ok();
+
+            return BadRequest("Confirmation token is invalid");
         }
 
         /// <summary>
@@ -86,7 +126,7 @@ namespace Cardofun.API.Controllers
         public async Task<IActionResult> UpdateUser(Int32 userId, UserForUpdateDto newUserInfo)
         {
             // If there is any learning language that is the same as speaking
-            if(newUserInfo.LanguagesTheUserLearns.Any(ll => newUserInfo.LanguagesTheUserSpeaks.Any(sl => sl.Code.Equals(ll.Code))))
+            if (newUserInfo.LanguagesTheUserLearns.Any(ll => newUserInfo.LanguagesTheUserSpeaks.Any(sl => sl.Code.Equals(ll.Code))))
                 return BadRequest("One cannot speak and learn same language");
 
             _cardofunRepository.StartTransaction();
@@ -99,7 +139,7 @@ namespace Cardofun.API.Controllers
             var anyDowngraded = user.LanguagesTheUserSpeaks.Any(oldSpeakingLang => newUserInfo.LanguagesTheUserLearns.Any(newLearningLang => oldSpeakingLang.LanguageCode.Equals(newLearningLang.Code)));
             // if any of above is true - clearing up old values in order not to get 
             // unique constraint error while saving after new values are applied
-            if(anyUpgraded || anyDowngraded)
+            if (anyUpgraded || anyDowngraded)
             {
                 user.LanguagesTheUserLearns = null;
                 user.LanguagesTheUserSpeaks = null;
@@ -107,8 +147,8 @@ namespace Cardofun.API.Controllers
             }
 
             _mapper.Map<UserForUpdateDto, User>(newUserInfo, user);
-            
-            if(await _cardofunRepository.SaveChangesAsync())
+
+            if (await _cardofunRepository.SaveChangesAsync())
             {
                 _cardofunRepository.CommitTransaction();
                 return NoContent();

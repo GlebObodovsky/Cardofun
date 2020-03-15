@@ -6,16 +6,17 @@ using Cardofun.Interfaces.DTOs;
 using CloudinaryDotNet.Actions;
 using System;
 using System.Threading.Tasks;
+using Cardofun.Interfaces.Configurations;
 
-namespace Cardofun.Modules.Cloudinary
+namespace Cardofun.Modules.CloudinaryImageService
 {
     /// <summary>
     /// An image manager based on Cloudinary
     /// </summary>
-    public class CloudinaryImageProvider: IImageProvider
+    public class CloudinaryImageService: IImageService
     {
         private readonly CloudinaryDotNet.Cloudinary _cloudinary;
-        public CloudinaryImageProvider(IOptions<CloudinaryProviderSettings> providerSettings)
+        public CloudinaryImageService(IOptions<ImageServiceConfigurations> providerSettings)
         {
             // Creating an account to access the service
             Account acc = new Account(

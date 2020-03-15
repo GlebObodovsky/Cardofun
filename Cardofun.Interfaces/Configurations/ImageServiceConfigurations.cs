@@ -1,11 +1,11 @@
 using System;
 
-namespace Cardofun.Modules.Cloudinary
+namespace Cardofun.Interfaces.Configurations
 {
     /// <summary>
-    /// Settings that needed to establish Cloudinary session 
+    /// Settings that needed to establish the session 
     /// </summary>
-    public class CloudinaryProviderSettings
+    public class ImageServiceConfigurations
     {
       public String CloudName { get; set; }
       public String ApiKey { get; set; }

@@ -47,7 +47,14 @@ namespace Cardofun.Interfaces.Repositories
         /// </summary>
         /// <param name="login">login by which to make a search</param>
         /// <returns></returns>
-        Task<Boolean> CheckIfUserExists(String login);
+        Task<Boolean> CheckIfUserNameExists(String login);
+
+        /// <summary>
+        /// Checks if user with the given email already exists 
+        /// </summary>
+        /// <param name="email">email by which to make a search</param>
+        /// <returns></returns>
+        Task<Boolean> CheckIfEmailExists(String email);
 
         /// <summary>
         /// Gets a user out of the repository

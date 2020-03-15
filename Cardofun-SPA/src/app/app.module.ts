@@ -44,6 +44,7 @@ import { MemberListResolver } from './_resolvers/member-list-resolver';
 import { MemberEditResolver } from './_resolvers/member-edit-resolver';
 import { FriendListResolver } from './_resolvers/friend-list-resolver';
 import { MessageDialoguesResolver } from './_resolvers/message-dialogues-resolver';
+import { EmailConfirmationResolver } from './_resolvers/email-confirmation-resolver';
 import { MemberEditComponent } from './members/member-edit/member-edit.component';
 import { MemberMessagesComponent } from './members/member-messages/member-messages.component';
 import { PhotoEditorComponent } from './members/photo-editor/photo-editor.component';
@@ -134,6 +135,7 @@ export class CustomHammerConfig extends HammerGestureConfig  {
       MemberEditResolver,
       FriendListResolver,
       MessageDialoguesResolver,
+      EmailConfirmationResolver,
       { provide: HAMMER_GESTURE_CONFIG, useClass: CustomHammerConfig }
    ],
    entryComponents: [

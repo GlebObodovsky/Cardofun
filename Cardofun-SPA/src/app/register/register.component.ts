@@ -44,7 +44,7 @@ export class RegisterComponent implements OnInit {
       sex: ['male'],
       userName: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(12)], this.userNameIsTaken.bind(this)],
       name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email], this.emailIsTaken.bind(this)],
       birthDate: [null, Validators.required],
       cityId: [null, Validators.required],
       password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(20)]],
@@ -56,14 +56,10 @@ export class RegisterComponent implements OnInit {
     if (this.registerForm.valid) {
       this.user = Object.assign({}, this.registerForm.value);
       this.authService.register(this.user).subscribe(() => {
-        this.alertifyService.success('Registration successful');
-        this.authService.login(this.user);
+        this.alertifyService.success('Registration successful. Make sure to confirm your email.');
+        this.cancel();
       }, error => {
         this.alertifyService.error(error);
-      }, () => {
-        this.authService.login(this.user).subscribe(() => {
-          this.router.navigate(['/messages']);
-        });
       });
     }
   }
@@ -77,14 +73,25 @@ export class RegisterComponent implements OnInit {
   }
 
   userNameIsTaken(c: FormControl) {
-    const q = new Promise((resolve, reject) => {
+    const isTaken = new Promise((resolve, reject) => {
       setTimeout(() => {
-        this.userService.checkIfUserExists(c.value).subscribe(() => {
+        this.userService.checkIfUserNameExists(c.value).subscribe(() => {
           resolve({ 'usernameistaken': true });
         }, () => { resolve(null); });
       }, 1000);
     });
-    return q;
+    return isTaken;
+  }
+
+  emailIsTaken(c: FormControl) {
+    const isTaken = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        this.userService.checkIfEmailExists(c.value).subscribe(() => {
+          resolve({ 'emailistaken': true });
+        }, () => { resolve(null); });
+      }, 1000);
+    });
+    return isTaken;
   }
 
   private loadCities() {
