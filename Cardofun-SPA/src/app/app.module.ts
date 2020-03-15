@@ -16,7 +16,6 @@ import { AppComponent } from './app.component';
 import { NavComponent } from './nav/nav.component';
 import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './register/register.component';
-import { ConfirmEmailComponent } from './register/confirm-email/confirm-email/confirm-email.component';
 import { AdminPanelComponent } from './admin/admin-panel/admin-panel.component';
 import { ErrorInterceptorProvider } from './_services/error.interceptor';
 import { AuthService } from './_services/auth/auth.service';
@@ -75,7 +74,6 @@ export class CustomHammerConfig extends HammerGestureConfig  {
       NavComponent,
       HomeComponent,
       RegisterComponent,
-      ConfirmEmailComponent,
       AdminPanelComponent,
       UserManagerComponent,
       PhotoManagerComponent,

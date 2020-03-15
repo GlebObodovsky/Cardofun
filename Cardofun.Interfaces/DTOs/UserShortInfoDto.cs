@@ -14,6 +14,11 @@ namespace Cardofun.Interfaces.DTOs
         public Int32 CityId { get; set; }
         public DateTime Created { get; set; }
         /// <summary>
+        /// True - the user is verified through e-mail / mobile number / etc
+        /// </summary>
+        /// <value></value>
+        public Boolean IsVerified { get; set; }
+        /// <summary>
         /// Url of the main user's photo
         /// </summary>
         /// <value></value>

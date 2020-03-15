@@ -1,4 +1,4 @@
-namespace Cardofun.API.Helpers.Constants
+namespace Cardofun.Core.NameConstants
 {
     public static class AppSettingsConstants
     {
@@ -30,5 +30,10 @@ namespace Cardofun.API.Helpers.Constants
         /// </summary>
         /// <returns></returns>
         public const string SignalrEndpoints = nameof(SignalrEndpoints);
+        /// <summary>
+        /// Address for main SPA application that is interacting with the API
+        /// </summary>
+        /// <returns></returns>
+        public const string MainSpaApplicationAddress = nameof(MainSpaApplicationAddress);
     }
 }

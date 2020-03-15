@@ -22,7 +22,6 @@ using Microsoft.AspNetCore.Identity;
 using Cardofun.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Cardofun.API.Helpers.Constants;
 using Cardofun.API.Hubs;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,7 +69,7 @@ namespace Cardofun.API
             IdentityBuilder builder = services.AddIdentityCore<User>(options => 
                 {
                     options.User.RequireUniqueEmail = true;
-                    // options.SignIn.RequireConfirmedEmail = true;
+                    options.SignIn.RequireConfirmedEmail = true;
                     
                     // ToDo: ATTENTION! NEXT LINES SHOULD BE REMOVED BEFORE PUBLISHING
                     options.Password.RequireDigit = false;
@@ -114,8 +113,7 @@ namespace Cardofun.API
                 });
 
             #region Policies / Authorization Handlers
-            services.AddSingleton<IAuthorizationHandler, AccessedUserMatchesCurrentHandler>();
-
+            services.AddTransient<IAuthorizationHandler, AccessedUserMatchesCurrentHandler>();
             services.AddAuthorization(ConfigurePolicies);
             #endregion Policies / Authorization Handlers
 
@@ -222,7 +220,7 @@ namespace Cardofun.API
         /// <param name="options"></param>
         private void ConfigurePolicies(AuthorizationOptions options)
         {
-            // The policy below is requires a user to be the same user whom information
+            // Requires a user to be the same user whom information
             // is about to be accessed
             options.AddPolicy(PolicyConstants.UserMatchRequired, 
                 policy => policy.AddRequirements(new AccessedUserMatchesCurrentRequirement()));

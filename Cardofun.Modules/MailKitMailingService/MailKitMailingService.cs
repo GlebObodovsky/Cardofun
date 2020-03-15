@@ -5,31 +5,28 @@ using Cardofun.Interfaces.DTOs;
 using System;
 using MimeKit;
 using MailKit.Net.Smtp;
-using MimeKit.Text;
-using System.Linq;
 using System.Threading.Tasks;
 using MailingService.Helpers;
 using System.IO;
 using Cardofun.Core.NameConstants;
+using Microsoft.Extensions.Configuration;
 
 namespace Cardofun.Modules.MailingService
 {
-    public class MailKitMailingService: IMailingService
+    public class MailKitMailingService : IMailingService
     {
         private readonly MailingServiceConfigurations _emailConfiguration;
         private readonly IPhysicalFileService _physicalFileService;
+        private readonly IConfiguration _configuration;
 
-        public MailKitMailingService(IOptions<MailingServiceConfigurations> mailServiceConfigurations, 
+        public MailKitMailingService(IOptions<MailingServiceConfigurations> mailServiceConfigurations,
+            IConfiguration configuration,
             IPhysicalFileService physicalFileService)
         {
+            _configuration = configuration;
             _emailConfiguration = mailServiceConfigurations.Value;
             _physicalFileService = physicalFileService;
         }
-
-        // public IEnumerable<EmailMessageDto> ReceiveEmail(Int32 maxCount = 10)
-        // {
-        //     throw new NotImplementedException();
-        // }
 
         public async Task SendAsync(EmailMessageDto emailMessage)
         {
@@ -50,9 +47,12 @@ namespace Cardofun.Modules.MailingService
 
             // ToDo: specify the default template in case if template == null
 
+            var mainSpaAddress = _configuration.GetSection(AppSettingsConstants.MainSpaApplicationAddress).Get<string>();
+
             template = template
                 .Replace("[UserId]", user.Id.ToString())
                 .Replace("[UserName]", user.Name)
+                .Replace("[MainSpaAddress]", mainSpaAddress)
                 .Replace("[ConfirmationToken]", token);
 
             var message = new MailMessageBuilder()
@@ -73,12 +73,12 @@ namespace Cardofun.Modules.MailingService
                 {
                     // The last parameter here is to use SSL (Which you should when in production!)
                     await emailClient.ConnectAsync(_emailConfiguration.SmtpServer, _emailConfiguration.SmtpPort, true);
-                
+
                     // Remove any OAuth functionality as we won't be using it. 
                     emailClient.AuthenticationMechanisms.Remove("XOAUTH2");
 
                     await emailClient.AuthenticateAsync(_emailConfiguration.SmtpUsername, _emailConfiguration.SmtpPassword);
-                    
+
                     await emailClient.SendAsync(message);
                 }
                 finally
@@ -86,7 +86,7 @@ namespace Cardofun.Modules.MailingService
                     if (emailClient.IsConnected)
                         emailClient.Disconnect(true);
                 }
-            }        
+            }
         }
     }
 }

@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using System.Linq;
-using Cardofun.API.Helpers.Constants;
+using Cardofun.Core.NameConstants;
 using Cardofun.Interfaces.ServiceProviders;
 using System.Web;
 
@@ -78,7 +78,14 @@ namespace Cardofun.API.Controllers
             var user = await LoginAsync(userForLogin.UserName, userForLogin.Password);
 
             if (user == null)
-                return Unauthorized();
+            {
+                user = await _cardofunRepository.GetUserByNameAsync(userForLogin.UserName);
+
+                if (!await _userManager.IsEmailConfirmedAsync(user))
+                    return StatusCode(403, "User Email is not confirmed!");
+                else
+                    return Unauthorized();
+            }
 
             return Ok(new
             {

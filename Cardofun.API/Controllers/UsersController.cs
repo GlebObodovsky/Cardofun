@@ -94,11 +94,6 @@ namespace Cardofun.API.Controllers
             return NotFound();
         }
 
-        public class Ololol 
-        {
-            public String Token { get; set; }
-        }
-
         /// <summary>
         /// Allows a user to confirm his email
         /// </summary>
@@ -107,14 +102,14 @@ namespace Cardofun.API.Controllers
         /// <returns></returns>
         [HttpPost("{userId}/verify")]
         [AllowAnonymous]
-        public async Task<IActionResult> VerifyUser(Int32 userId, [FromBody]Ololol token)
+        public async Task<IActionResult> VerifyUser(Int32 userId, [FromBody]string token)
         {
             var user = await _cardofunRepository.GetUserAsync(userId);
 
             if (user == null)
                 return BadRequest("The user hasn't been found");
 
-            var result = await _userManager.ConfirmEmailAsync(user, token.Token);
+            var result = await _userManager.ConfirmEmailAsync(user, token);
 
             if (result.Succeeded)
                 return Ok();

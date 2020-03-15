@@ -21,16 +21,15 @@ namespace Cardofun.Interfaces.Configurations
       public String PopPassword { get; set; }
       
       /// <summary>
+      /// Path to the file that is used for composing Emails for user Email addresses confirmation
+      /// </summary>
+      /// <value></value>
+      public String EmailConfirmationMessageTemplatePath { get; set; }
+      /// <summary>
       /// Plain / Flowed (rfc3676) / Html / Enriched / CompressedRichText / RichText
       /// Html is default
       /// </summary>
       /// <value></value>
       public String TextFormat { get; set; }
-
-      /// <summary>
-      /// Path to the file that is used for composing Emails for user Email addresses confirmation
-      /// </summary>
-      /// <value></value>
-      public String EmailConfirmationMessageTemplatePath { get; set; }
     }
 }

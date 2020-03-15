@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from 'src/app/_models/user';
 import { PaginatedResult } from 'src/app/_models/pagination';
@@ -95,10 +95,10 @@ export class UserService {
   }
 
   verifyUser(userId: number, token: string) {
-    console.log('в методе');
-    console.log(this.baseUrl + '/' + userId);
-    console.log(token);
-    return this.http.post(this.baseUrl + '/' + userId + '/verify', { token: token });
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    return this.http.post(this.baseUrl + '/' + userId + '/verify', `\"${token}\"`, { headers });
   }
 
   putUser(userId: number, user: User) {
