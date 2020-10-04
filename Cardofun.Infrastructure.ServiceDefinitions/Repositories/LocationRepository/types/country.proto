@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option csharp_namespace = "Cardofun.Infrastructure.ServiceDefinitions.Repositories.LocationRepository.Types";
+
+import "google/protobuf/wrappers.proto";
+
+package Cardofun.Infrastructure.ServiceDefinitions;
+
+message Country {
+    string IsoCode = 1;
+    google.protobuf.StringValue Name = 2;
+    google.protobuf.StringValue ContinentName = 3;
+}

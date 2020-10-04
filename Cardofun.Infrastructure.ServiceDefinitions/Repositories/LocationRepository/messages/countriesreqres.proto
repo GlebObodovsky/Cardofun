@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option csharp_namespace = "Cardofun.Infrastructure.ServiceDefinitions.Repositories.LocationRepository.Messages";
+
+import "google/protobuf/wrappers.proto";
+import "types/country.proto";
+
+package Cardofun.Infrastructure.ServiceDefinitions;
+
+message GetCountriesRequest {
+	string SearchBy = 1;
+}
+
+message GetCountriesResponse {
+	repeated Country Countries = 1;
+    bool Success = 2;
+    google.protobuf.StringValue ErrorMessage = 3;
+}

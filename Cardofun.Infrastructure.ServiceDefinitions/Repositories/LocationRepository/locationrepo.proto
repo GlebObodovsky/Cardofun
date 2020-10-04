@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option csharp_namespace = "Cardofun.Infrastructure.ServiceDefinitions.Repositories.LocationRepository";
+
+import "types/country.proto";
+import "messages/countriesreqres.proto";
+
+package Cardofun.Infrastructure.ServiceDefinitions;
+
+service LocationRepo {
+    rpc GetCountries (GetCountriesRequest) returns (GetCountriesResponse) {};
+}
